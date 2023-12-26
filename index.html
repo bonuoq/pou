@@ -70,9 +70,12 @@
   (eval-gist :id (:id f) :file (:file f) :append-code (if (not (empty? (rest r))) `(apply eval-gists ~r) 
                                                                                   `(apply eval-gist (mapcat seq ~(first r))))))
 
+(def ns-info (list (symbol (str "ns " *ns*)) (map #(list (first %) (-> % second meta :arglists)) (eval `(ns-publics '~(symbol (str *ns*)))))))
+
 (let [{:keys [params editors]} @pou] (if-let [p (params :p)] (cm :main :setValue (js/atob p)) @pou))
 (-> "loading" gdom/getElement .-hidden (set! true))
-(cm :main :setValue "@pou")
+    
+(cm :main :setValue ns-info)
   </div>
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
   <script>
