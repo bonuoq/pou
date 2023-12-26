@@ -31,7 +31,7 @@
 
 <body>
   <div id="loading" class="loader">LOADING...</div>
-  <div id="main" class="language-klipse">
+  <div id="main" class="language-klipse" data-external-libs="https://bonuoq.github.io">
 (ns pou.user
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]))
@@ -54,8 +54,16 @@
 
 (defn cm [k method & args]
   (j.apply ((-> @pou :editors (get k) :cm)) method (clj->js args)))
+
+(defn fetch-url-text [url callback]
+  (-> (str url) js/fetch
+    (.then (fn [r] (.. r text (then callback))))))
+
+(defn eval-url [url & {:keys [editor append-code clear-code] :or {editor :main append-code ""}}]
+  (fetch-url-text url #(cm editor :setValue (str % "\n" append-code
+                                                 (when clear-code (str "\n(pou.user/cm " editor " :setValue \"" clear-code "\")"))))))
     
-(defn load-gist [id file callback]
+(defn fetch-gist [id file callback]
   (-> (str "https://api.github.com/gists/" id) js/fetch
     (.then (fn [r]
        (.then (.json r)
@@ -63,8 +71,8 @@
                 (callback (-> (js->clj json :keywordize-keys true) :files ((keyword file)) :content))))))))
     
 (defn eval-gist [& {:keys [id file editor append-code clear-code] :or {editor :main append-code ""}}]
-  (load-gist id file #(cm editor :setValue (str % "\n" append-code
-                                                (when clear-code (str "\n(pou.user/cm " editor " :setValue \"" clear-code "\")"))))))
+  (fetch-gist id file #(cm editor :setValue (str % "\n" append-code
+                                                 (when clear-code (str "\n(pou.user/cm " editor " :setValue \"" clear-code "\")"))))))
 
 (defn eval-gists [f & r] 
   (eval-gist :id (:id f) :file (:file f) :append-code (if (not (empty? (rest r))) `(apply eval-gists ~r) 
@@ -75,7 +83,7 @@
 (let [{:keys [params editors]} @pou] (if-let [p (params :p)] (cm :main :setValue (js/atob p)) @pou))
 (-> "loading" gdom/getElement .-hidden (set! true))
     
-(cm :main :setValue ns-info)
+(cm :main :setValue "ns-info")
   </div>
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
   <script>
