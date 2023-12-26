@@ -1,4 +1,4 @@
-(ns pou.guido)
+(ns pou.modules.guido)
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
