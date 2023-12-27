@@ -1,5 +1,5 @@
 (ns pou.modules.faust
-  (:require [klipse.common.registry :refer [register-mode]]))
+  (:require [klipse.common.registry :as klr]))
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
@@ -45,4 +45,4 @@
                   :min-eval-idle-msec 1000
                   :comment-str "//"})
 
-(register-mode "faust-widget" "selector_faust" widget-opts)
+(klr/register-mode "faust-widget" "selector_faust" widget-opts)
