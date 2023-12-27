@@ -36,9 +36,9 @@
   (:require [goog.dom :as gdom]
             [pou.core :as p]))
 (-> "loading" gdom/getElement .-hidden (set! true))
-(if-let [p (-> @pou :params :p)]
-    (cm :main :setValue (js/atob p))
-    (cm :main :setValue "p/ns-info"))
+(if-let [p (-> @p/pou :params :p)]
+    (p/cm :main :setValue (js/atob p))
+    (p/cm :main :setValue "p/ns-info"))
   </div>
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
   <script>
