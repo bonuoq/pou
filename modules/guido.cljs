@@ -1,6 +1,7 @@
 (ns pou.modules.guido
-  (:require [klipse.common.registry :refer [register-mode]]
-            [applied-science.js-interop :as j]))
+  (:require [klipse.common.registry :refer [register-mode]]))
+
+(require '[applied-science.js-interop :as j])
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
