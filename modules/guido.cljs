@@ -1,5 +1,5 @@
 (ns pou.modules.guido
-  (:require [klipse.common.registry :refer [register-mode]]))
+  (:require [klipse.common.registry :as klr]))
 
 (require '[applied-science.js-interop :as j])
 
@@ -80,4 +80,4 @@
            :min-eval-idle-msec 1000
            :comment-str "%"})
 
-(register-mode "guido-svg" "selector_guido" opts)
+(klr/register-mode "guido-svg" "selector_guido" opts)
