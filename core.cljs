@@ -5,7 +5,8 @@
 (def j js/applied-science.js-interop)
     
 (def pou (atom {:params (or (js/klipse.utils.url-parameters) {})
-                :editors {:main {:mode "eval-clojure"
+                :editors {:main {:idx 0
+                                 :mode "eval-clojure"
                                  :cm #(aget js/klipse-editors 0)
                                  :res #(aget js/klipse-results 0)}}}))
 
