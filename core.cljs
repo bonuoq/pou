@@ -1,7 +1,8 @@
 (ns pou.core
   (:require [goog.dom :as gdom]
-            [klipse.plugin :as klp]
-            [applied-science.js-interop :as j]))
+            [klipse.plugin :as klp]))
+
+(require '[applied-science.js-interop :as j])
     
 (def pou (atom {:params (or (js/klipse.utils.url-parameters) {})
                 :editors {:main {:idx 0
