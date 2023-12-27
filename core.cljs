@@ -1,8 +1,7 @@
 (ns pou.core
   (:require [goog.dom :as gdom]
-            [klipse.plugin :as klp]))
-
-(def j js/applied-science.js-interop)
+            [klipse.plugin :as klp]
+            [applied-science.js-interop :as j]))
     
 (def pou (atom {:params (or (js/klipse.utils.url-parameters) {})
                 :editors {:main {:idx 0
@@ -22,7 +21,7 @@
                                                      :res #(aget js/klipse-results c)}))))
 
 (defn cm [k method & args]
-  (j.apply ((-> @pou :editors (get k) :cm)) method (clj->js args)))
+  (j/apply ((-> @pou :editors (get k) :cm)) method (clj->js args)))
 
 (defn fetch-url-text [url callback]
   (-> (str url) js/fetch
