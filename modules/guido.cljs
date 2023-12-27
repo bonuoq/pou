@@ -1,8 +1,9 @@
-(ns pou.modules.guido)
+(ns pou.modules.guido
+  (:require [klipse.common.registry :refer [register-mode]]
+            [applied-science.js-interop :as j]))
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
-(def j js/applied-science.js-interop)
 
 (def lib-url "https://unpkg.com/@grame/guidolib")
 
@@ -40,7 +41,7 @@
 
 (defn call [adapter method & args]
   (if-let [ga (adapter @adapters)]
-    (j.apply ga method (clj->js args))
+    (j/apply ga method (clj->js args))
     (str "ERR: Guido " adapter " adapter not loaded or does not exist.")))
 
 (defn ar->svg [ar]
@@ -78,4 +79,4 @@
            :min-eval-idle-msec 1000
            :comment-str "%"})
 
-(js/klipse.common.registry.register-mode "guido-svg" "selector_guido" opts)
+(register-mode "guido-svg" "selector_guido" opts)
