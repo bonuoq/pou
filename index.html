@@ -3,9 +3,25 @@
 
 <head>
   <style>
+
+    body::before {
+      content: "";
+      animation: blinker 3s linear infinite;
+      background-image: url(pou.svg);
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+      opacity: 0.7;
+    }
+    
     .loader {
       height: 100vh;
-      animation: blinker 1s linear infinite;
+      animation: blinker 2s linear infinite;
       text-align: center;
       margin-top: 38vh;
       font-size: x-large;
@@ -15,17 +31,17 @@
       background-position: center;
       background-size: cover;
     }
+    
     @keyframes blinker {
       50% {
-        opacity: 0;
+        opacity: 0.3;
       }
     }
-    body {
-      background-image: url(pou.svg);
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: cover;
+
+    .CodeMirror {
+      opacity: 0.95;
     }
+    
   </style>
 </head>
 
