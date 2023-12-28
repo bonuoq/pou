@@ -63,9 +63,7 @@
 (if-let [p (-> @p/pou :params :p)]
     (p/cm :main :setValue (js/atob p))
     (p/cm :main :setValue 
-"(ns pou.user
-    (:require [pou.core :as p]))
-p/ns-info"))
+"(ns pou.user\n(:require [pou.core :as p]))\np/ns-info"))
   </div>
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
   <script>
