@@ -1,7 +1,6 @@
 (ns pou.modules.guido
-  (:require [klipse.common.registry :as klr]))
-
-(def j js/applied-science.js-interop)
+  (:require [klipse.common.registry :as klr]
+            [applied-science.js-interop :as j]))
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
@@ -42,7 +41,7 @@
 
 (defn call [adapter method & args]
   (if-let [ga (adapter @adapters)]
-    (j.apply ga method (clj->js args))
+    (j/apply ga method (clj->js args))
     (str "ERR: Guido " adapter " adapter not loaded or does not exist.")))
 
 (defn ar->svg [ar]
