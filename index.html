@@ -56,7 +56,8 @@
     https://raw.githubusercontent.com/quil/quil/master/src/cljs">
 (ns pou.user
   (:require [goog.dom :as gdom]
-            [pou.core :as p]))
+            [pou.core :as p]
+            [klipse-clj.repl :refer [doc]]))
 (-> "loading" gdom/getElement .-hidden (set! true))
 (if-let [p (-> @p/pou :params :p)]
     (p/cm :main :setValue (js/atob p))
