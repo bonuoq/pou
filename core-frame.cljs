@@ -2,7 +2,9 @@
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
             [re-frame.db :refer [app-db]]
-            [applied-science.js-interop :as j]))
+            [reagent.core :as r]
+            [applied-science.js-interop :as j]
+            [clojure.core.async :as async :refer [<! >!]]))
 
 (defn pou [& ks] (eval (conj ks deref `app-db `some->)))
     
@@ -11,9 +13,9 @@
  (fn [_ _]  
    {:params (or (js/klipse.utils.url-parameters) {})
     :editors {}}))
-    
+
 (rf/reg-event-db
- :editor
+ :editor-mounted
  (fn [db [_ editor]]
    (update-in db [:editors] merge editor)))
 
@@ -22,13 +24,31 @@
  (fn [db _]
    (:editors db)))
 
-(defn app []
-  (let [editors @(rf/subscribe [:editors])]
-    [:div]))
+(rf/reg-sub
+ :editor-comp
+ (fn [db [_ idx]]
+   (get-in db [:editors idx :comp])))
 
-#_{:main {:idx 0
-          :mode "eval-clojure"
-          :cm #(aget js/klipse-editors 0)
-          :res #(aget js/klipse-results 0)}}
+(defn create-editor [{:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}}}]
+  (r/create-class
+    {:component-did-mount
+     (fn [comp]
+      (async/go
+       (<! (klp/klipsify (r/dom-node comp) klipsettings mode))
+       (let [c (dec @klp/snippet-counter)]
+         (rf/dispatch [:editor-mounted
+                       {c {:comp comp
+                           :mode mode
+                           :cm #(aget js/klipse-editors c)
+                           :res #(aget js/klipse-results c)}}]))))                                
+     :reagent-render
+     (fn []
+       [:div attrs (str snippet)])}))
+
+(defn pou-re-frame []
+  (let [editors @(rf/subscribe [:editors])]
+    [:div#pou-editors
+     (for [e editors]
+       @(rf/subscribe [:editor-comp (-> e first key)]))]))
 
   
