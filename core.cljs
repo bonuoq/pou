@@ -17,9 +17,9 @@
                               :res #(aget js/klipse-results c)}))))
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
-  (reg-editor editor-map)
-  (let [attrs-upd (update-in attrs [:class] str " pou-editor")
-        div (gdom/createDom "div" (clj->js attrs-upd) (gdom/createTextNode (str snippet)))]
+  (let [editor (update-in editor-map [:attrs :class] str " pou-editor")
+        div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))]
+    (reg-editor (merge editor {:mode mode}))
     (gdom/insertSiblingAfter div js/klipse-container)
     (klp/klipsify div klipsettings mode)))
                                                             
