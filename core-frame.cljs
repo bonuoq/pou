@@ -2,6 +2,7 @@
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
             [reagent.core :as r]
+            [reagent.dom :as rdom]
             [re-frame.db :refer [app-db]]
             [re-frame.core :as rf]
             [applied-science.js-interop :as j]
@@ -35,7 +36,7 @@
     {:component-did-mount
      (fn [comp]
       (async/go
-       (<! (klp/klipsify (r/dom-node comp) klipsettings mode))
+       (<! (klp/klipsify (rdom/dom-node comp) klipsettings mode))
        (let [c (dec @klp/snippet-counter)]
          (rf/dispatch [:editor-mounted
                        {c {:comp comp
