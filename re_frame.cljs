@@ -1,4 +1,4 @@
-(ns pou.core-frame
+(ns pou.re-frame
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
             [reagent.core :as r]
