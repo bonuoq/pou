@@ -1,8 +1,9 @@
 (ns pou.core-frame
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
-            [re-frame.db :refer [app-db]]
             [reagent.core :as r]
+            [re-frame.db :refer [app-db]]
+            [re-frame.core :as rf]
             [applied-science.js-interop :as j]
             [clojure.core.async :as async :refer [<! >!]]))
 
