@@ -49,6 +49,6 @@
   (let [editors @(rf/subscribe [:editors])]
     [:div#pou-editors
      (for [e editors]
-       @(rf/subscribe [:editor-comp (-> e first key)]))]))
+       @(rf/subscribe [:editor-comp (-> e key)]))]))
 
   
