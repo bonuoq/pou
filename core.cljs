@@ -4,22 +4,24 @@
             [applied-science.js-interop :as j]))
     
 (def pou (atom {:params (or (js/klipse.utils.url-parameters) {})
-                :editors {:main {:idx 0
-                                 :mode "eval-clojure"
-                                 :cm #(aget js/klipse-editors 0)
-                                 :res #(aget js/klipse-results 0)}}}))
+                :editors {0 {:id :main
+                             :mode "eval-clojure"
+                             :cm #(aget js/klipse-editors 0)
+                             :res #(aget js/klipse-results 0)}}}))
 
-(defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as varkeyargs}]
-  (let [div (gdom/createDom "div" (clj->js attrs) (gdom/createTextNode (str snippet)))]
-    (gdom/insertSiblingAfter div js/klipse-container)
-    (klp/klipsify div klipsettings mode))
-  (let [c (count (@pou :editors))]
+(defn reg-editor [editor-map]
+  (let [c @klp/snippet-counter]
     (swap! pou assoc-in 
-           [:editors (or (:id attrs) c)]
-           (merge varkeyargs {:idx c
-                              :mode mode
-                              :cm #(aget js/klipse-editors c)
+           [:editors c]
+           (merge editor-map {:cm #(aget js/klipse-editors c)
                               :res #(aget js/klipse-results c)}))))
+
+(defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
+  (reg-editor editor-map)
+  (let [attrs-upd (update-in attrs [:class] str " pou-editor")
+        div (gdom/createDom "div" (clj->js attrs-upd) (gdom/createTextNode (str snippet)))]
+    (gdom/insertSiblingAfter div js/klipse-container)
+    (klp/klipsify div klipsettings mode)))
                                                             
 (defn cm [k method & args]
   (j/apply ((-> @pou :editors (get k) :cm)) method (clj->js args)))
