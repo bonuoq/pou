@@ -5,6 +5,7 @@
             [reagent.dom :as rdom]
             [re-frame.db :refer [app-db]]
             [re-frame.core :as rf]
+            [pou.core :as p]
             [applied-science.js-interop :as j]))
 
 (defn pou [& ks] (eval (conj ks deref `app-db `some->)))
