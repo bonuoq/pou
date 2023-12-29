@@ -66,7 +66,7 @@
     
 (-> "loading" gdom/getElement .-hidden (set! true))
 
-(defn pou [& ks] (eval (conj ks deref `p/pou `some->)))
+(defn pou [& ks] (eval (conj 'ks deref `p/pou `some->)))
     
 (when-let [p (pou :params :p)]
     (p/cm :main :setValue (js/atob p)))
