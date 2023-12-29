@@ -61,11 +61,13 @@
             [klipse-clj.repl :refer [doc]]))
     
 (-> "loading" gdom/getElement .-hidden (set! true))
+
+(defn pou [& ks] (eval (conj ks deref `p/pou `some->)))
     
-(when-let [p (-> @p/pou :params :p)]
+(when-let [p (pou :params :p)]
     (p/cm :main :setValue (js/atob p)))
     
-p/ns-info
+(conj p/ns-info (pou))
   </div>
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
   <script>
