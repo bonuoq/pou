@@ -23,17 +23,18 @@
     (r/create-class
       {:component-did-mount
        (fn [this]
-         (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-editor") klipsettings mode))               
+         (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode))               
        :reagent-render
        (fn []
          (let [visible? (:visible? @s)]
-           [:div.pou-wrapper 
-            {:style {:display (if visible? "block" "none")}}
-            [:div.pou-toolbar {}
+           [:div.pou-wrapper
+            [:div.pou-toolbar
              [:button.toggle-min
               {:on-click #(swap! s update :visible? not)}
               (if visible? "-" "+")]]
-            [:div.pou-editor attrs (str snippet)]]))})))
+            [:div.pou-editor
+             {:style {:display (if visible? "block" "none")}}
+             [:div.pou-klipse attrs (str snippet)]]]))})))
 
 (defn append-editor [& {:keys [mode] :or {mode "eval-clojure"} :as editor-map}]
   (let [editor (assoc editor-map :mode mode)
