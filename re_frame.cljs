@@ -33,7 +33,7 @@
              (if visible? "-" "+")]]
            [:div.pou-wrapper 
             {:style {:display (if visible? "block" "none")}}
-            [:div.pou-editor attrs (str snippet)]])}))))
+            [:div.pou-editor attrs (str snippet)]]))})))
 
 (defn append-editor [& {:keys [mode] :or {mode "eval-clojure"} :as editor-map}]
   (let [editor (assoc editor-map :mode mode)
@@ -61,4 +61,3 @@
 
 (rdom/render [pou-re-frame] (gdom/getElement "app"))
 (rf/dispatch [:initialize])
-  
