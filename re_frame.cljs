@@ -27,12 +27,12 @@
        :reagent-render
        (fn []
          (let [visible? (:visible? @s)]
-           [:div.pou-toolbar {}
-            [:button.toggle-min
-             {:on-click #(swap! s update :visible? not)}
-             (if visible? "-" "+")]]
            [:div.pou-wrapper 
             {:style {:display (if visible? "block" "none")}}
+            [:div.pou-toolbar {}
+             [:button.toggle-min
+              {:on-click #(swap! s update :visible? not)}
+              (if visible? "-" "+")]]
             [:div.pou-editor attrs (str snippet)]]))})))
 
 (defn append-editor [& {:keys [mode] :or {mode "eval-clojure"} :as editor-map}]
