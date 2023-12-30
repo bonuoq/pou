@@ -58,17 +58,12 @@
     https://raw.githubusercontent.com/quil/quil/master/src/cljs">
 (ns pou.user
   (:require [goog.dom :as gdom]
-            [applied-science.js-interop :as j]
             [pou.core :as p]
-            [reagent.core :as r]
-            [reagent.dom :as rdom]
             [klipse-clj.repl :refer [doc]]))
     
 (-> "loading" gdom/getElement .-hidden (set! true))
-
-(defn pou [& ks] (eval (conj `ks deref `p/pou `some->)))
     
-(when-let [p (pou :params :p)]
+(when-let [p (-> @p/pou :params :p)]
     (p/cm :main :setValue (js/atob p)))
     
 (conj p/ns-info (pou))
