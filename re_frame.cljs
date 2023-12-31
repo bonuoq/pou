@@ -72,9 +72,9 @@
  :initialize
  (fn [_ _]  
    {:params (or (js/klipse.utils.url-parameters) {})
-    :editors {}}))
+    :editors {}
+    :mode-options (keys @kreg/mode-options)}))
 
-(rf/dispatch [:reg-mode-options (keys @kreg/mode-options)])
 (add-watch kreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
 (rdom/render [pou-re-frame] (gdom/getElement "app"))
 (rf/dispatch [:initialize])
