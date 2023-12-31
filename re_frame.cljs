@@ -1,6 +1,7 @@
 (ns pou.re-frame
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
+            [klipse.common.registry :as kreg]
             [reagent.core :as r]
             [reagent.dom :as rdom]
             [re-frame.db :refer [app-db]]
@@ -16,7 +17,12 @@
 (rf/reg-sub
  :editor-comp
  (fn [db [_ idx]]
-   (get-in db [:editors idx])))
+   (get-in db [:editors idx])))   
+
+(rf/reg-sub
+ :mode-options
+ (fn [db _]
+   (:mode-options db)))
 
 (defn editor-comp [{:keys [mode attrs snippet klipsettings] :or {klipsettings {}}}]
   (let [s (r/atom {:visible? true})]
@@ -31,23 +37,26 @@
             [:div.pou-toolbar
              [:button.toggle-min
               {:on-click #(swap! s update :visible? not)}
-              (if visible? "-" "+")]]
+              (if visible? "<" ">")]]
             [:div.pou-editor
              {:style {:display (if visible? "block" "none")}}
              [:div.pou-klipse attrs (str snippet)]]]))})))
 
 (defn append-editor [& {:keys [mode] :or {mode "eval-clojure"} :as editor-map}]
-  (let [editor (assoc editor-map :mode mode)
-        idx @klp/snippet-counter]
+  (let [idx @klp/snippet-counter
+        editor (assoc editor-map :mode mode)]
     (p/reg-editor editor)
     (rf/dispatch [:reg-editor-comp {idx [editor-comp editor]}])))
 
 (defn pou-re-frame []
   (let [editors @(rf/subscribe [:editors])]
-    [:div#pou-editors
+    [:div#pou-app
      (for [e editors]
        (let [idx (key e)]
-         ^{:key idx} @(rf/subscribe [:editor-comp idx])))]))
+         ^{:key idx} @(rf/subscribe [:editor-comp idx])))
+     [:select#pou-append-editor
+      (for [k (keys @(rf/subscribe [:mode-options]))]
+        ^{:key k} [:option k])]]))
 
 (rf/reg-event-db
  :reg-editor-comp
@@ -55,10 +64,17 @@
    (update-in db [:editors] conj editor)))
 
 (rf/reg-event-db
+ :reg-mode-options
+ (fn [db [_ mode-options]]
+   (update-in db [:mode-options] into mode-options)))
+
+(rf/reg-event-db
  :initialize
  (fn [_ _]  
    {:params (or (js/klipse.utils.url-parameters) {})
     :editors {}}))
 
+(rf/dispatch [:reg-mode-options @kreg/mode-options])
+(add-watch kreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options %4]))
 (rdom/render [pou-re-frame] (gdom/getElement "app"))
 (rf/dispatch [:initialize])
