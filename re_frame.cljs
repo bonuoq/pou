@@ -49,7 +49,7 @@
     (rf/dispatch [:reg-editor-comp {idx [editor-comp editor]}])))
 
 (defn pou-re-frame []
-  (let [s (r/atom {:selected-mode nil})]
+  (let [s (r/atom {:selected-mode "transpile-clojurescript"})]
     [:div#pou-app
      (for [e @(rf/subscribe [:editors])]
        (let [idx (key e)]
@@ -60,7 +60,7 @@
      [:select#editor-modes
       {:on-change #(swap! s update :selected-mode (.. % -target -value))}
       (for [k @(rf/subscribe [:mode-options])]
-        [:option {:value k} k])]]))
+        ^{:key k} [:option {:value k} k])]]))
 
 (rf/reg-event-db
  :reg-editor-comp
