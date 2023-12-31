@@ -55,8 +55,8 @@
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
      [:select#pou-append-editor
-      (for [k (keys @(rf/subscribe [:mode-options]))]
-        ^{:key k} [:option {:value k} k])]]))
+      (for [k @(rf/subscribe [:mode-options])]
+        [:option {:value k} k])]]))
 
 (rf/reg-event-db
  :reg-editor-comp
