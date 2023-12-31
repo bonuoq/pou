@@ -56,10 +56,10 @@
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
      [:button#append-editor
-      {:on-click (fn[] (append-editor :mode (:selected-mode @s)))}
+      {:on-click #(append-editor :mode (:selected-mode @s))}
       "+"]
      [:select#editor-modes
-      {:on-change #(swap! s update :selected-mode (.. % -target -value))}
+      {:on-change #(swap! s assoc :selected-mode (.. % -target -value))}
       (for [k @(rf/subscribe [:mode-options])]
         ^{:key k} [:option {:value k} k])]]))
 
