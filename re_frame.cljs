@@ -24,7 +24,7 @@
  (fn [db _]
    (:mode-options db)))
 
-(defn editor-comp [{:keys [mode attrs snippet klipsettings] :or {klipsettings {}}}]
+(defn editor-comp [{:keys [mode attrs idx snippet klipsettings] :or {klipsettings {}}}]
   (let [s (r/atom {:visible? true})]
     (r/create-class
       {:component-did-mount
@@ -37,14 +37,15 @@
             [:div.pou-toolbar
              [:button.toggle-min
               {:on-click #(swap! s update :visible? not)}
-              (if visible? "<" ">")]]
+              (if visible? "<" ">")]
+             (str  "[" idx "] mode: " mode)]
             [:div.pou-editor
              {:style {:display (if visible? "block" "none")}}
              [:div.pou-klipse attrs (str snippet)]]]))})))
 
 (defn append-editor [& {:keys [mode] :or {mode "eval-clojure"} :as editor-map}]
   (let [idx @klp/snippet-counter
-        editor (assoc editor-map :mode mode)]
+        editor (assoc editor-map :mode mode :idx idx)]
     (p/reg-editor editor)
     (rf/dispatch [:reg-editor-comp {idx [editor-comp editor]}])))
 
