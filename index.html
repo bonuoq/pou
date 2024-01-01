@@ -68,7 +68,7 @@
 (-> "loading" gdom/getElement .-hidden (set! true))
     
 (when-let [p (-> @p/pou :params :p)]
-    (p/cm :main :setValue (js/atob p)))
+    (p/set-code 0 (js/atob p)))
     </div>
   </div>
   
