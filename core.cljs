@@ -1,20 +1,16 @@
 (ns pou.core
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
+            [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]))
     
 (def pou (atom {:params (or (js/klipse.utils.url-parameters) {})
                 :editors {0 {:id :main
-                             :mode "eval-clojure"
-                             :cm #(aget js/klipse-editors 0)
-                             :res #(aget js/klipse-results 0)}}}))
+                             :mode "eval-clojure"}}}))
 
 (defn reg-editor [editor-map]
   (let [c @klp/snippet-counter]
-    (swap! pou assoc-in 
-           [:editors c]
-           (merge editor-map {:cm #(aget js/klipse-editors c)
-                              :res #(aget js/klipse-results c)}))))
+    (swap! pou assoc-in [:editors c] editor-map)))
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
   (let [editor (update-in editor-map [:attrs :class] str " pou-editor")
@@ -23,8 +19,12 @@
     (gdom/insertSiblingAfter div js/klipse-container)
     (klp/klipsify div klipsettings mode)))
                                                             
-(defn cm [k method & args]
-  (j/apply ((-> @pou :editors (get k) :cm)) method (clj->js args)))
+(defn call-in [k method & args]
+  (j/apply (@kleds/editors k) method (clj->js args)))
+
+(defn set-code! [k value] call-in k :setValue value)
+
+(defn get-resp [k] (j/call (@kleds/result-elements k) :getValue))
 
 (defn fetch-url-text [url callback]
   (-> (str url) js/fetch
@@ -49,4 +49,3 @@
   (eval-gist :id (:id f) :file (:file f) :append-code (if (not (empty? (rest r))) `(apply eval-gists ~r) 
                                                                                   `(apply eval-gist (mapcat seq ~(first r))))))
 
-(def ns-info (list (symbol (str "ns " *ns*)) (map #(list (first %) (-> % second meta :arglists)) (eval `(ns-publics '~(symbol (str *ns*)))))))
