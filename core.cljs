@@ -22,7 +22,7 @@
 (defn call-in [k method & args]
   (j/apply (@kleds/editors k) method (clj->js args)))
 
-(defn set-code! [k value] call-in k :setValue value)
+(defn set-code [k value] call-in k :setValue value)
 
 (defn get-resp [k] (j/call (@kleds/result-elements k) :getValue))
 
