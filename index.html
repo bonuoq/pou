@@ -51,6 +51,7 @@
   <div id="loading" class="loader">LOADING...</div>
   <div id="app"></div>
   <div id="host"></div>
+  <p>[0] mode: "eval-clojure"</p>
   <div id="main" class="language-klipse" data-external-libs="
     https://bonuoq.github.io,
     https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
@@ -59,6 +60,7 @@
 (ns pou.user
   (:require [goog.dom :as gdom]
             [pou.core :as p]
+            [pou.re-frame :as prf]
             [klipse-clj.repl :refer [doc]]))
     
 (-> "loading" gdom/getElement .-hidden (set! true))
