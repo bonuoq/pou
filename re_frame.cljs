@@ -1,10 +1,9 @@
 (ns pou.re-frame
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
-            [klipse.common.registry :as kreg]
+            [klipse.common.registry :as klreg]
             [reagent.core :as r]
             [reagent.dom :as rdom]
-            [re-frame.db :refer [app-db]]
             [re-frame.core :as rf]
             [pou.core :as p]
             [applied-science.js-interop :as j]))
@@ -23,6 +22,11 @@
  :mode-options
  (fn [db _]
    (:mode-options db)))
+
+(rf/reg-sub
+ :sel-mode
+ (fn [db _]
+   (:sel-mode db)))
 
 (defn editor-comp [{:keys [mode attrs idx snippet klipsettings] :or {klipsettings {}}}]
   (let [s (r/atom {:visible? true})]
@@ -49,19 +53,26 @@
     (p/reg-editor editor)
     (rf/dispatch [:reg-editor-comp {idx [editor-comp editor]}])))
 
+(defn select-mode-comp [mode-options]
+  (let [sel-change #(rf/dispatch [:sel-mode-change (.. % -target -value)])]
+    (r/create-class
+     {:component-did-mount #(sel-change (rdom/dom-node %))
+      :reagent-render
+      (fn []
+        [:select#editor-modes
+         {:on-change sel-change}
+         (for [k options]
+           ^{:key k} [:option {:value k} k])])})))
+
 (defn pou-re-frame []
-  (let [s (r/atom {:selected-mode "transpile-clojurescript"})]
     [:div#pou-app
      (for [e @(rf/subscribe [:editors])]
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
      [:button#append-editor
-      {:on-click #(append-editor :mode (:selected-mode @s))}
+      {:on-click #(append-editor :mode @(rf/subscribe :sel-mode))}
       "+"]
-     [:select#editor-modes
-      {:on-change #(swap! s assoc :selected-mode (.. % -target -value))}
-      (for [k @(rf/subscribe [:mode-options])]
-        ^{:key k} [:option {:value k} k])]]))
+     [select-mode-comp @(rf/subscribe [:mode-options])]))
 
 (rf/reg-event-db
  :reg-editor-comp
@@ -74,12 +85,17 @@
    (update-in db [:mode-options] into mode-options)))
 
 (rf/reg-event-db
+ :sel-mode-change
+ (fn [db [_ sel-mode]]
+   (assoc db :sel-mode sel-mode)))
+
+(rf/reg-event-db
  :initialize
  (fn [_ _]  
    {:params (or (js/klipse.utils.url-parameters) {})
     :editors {}
-    :mode-options (into #{} (keys @kreg/mode-options))}))
+    :mode-options (into #{} (keys @klreg/mode-options))}))
 
-(add-watch kreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
-(rdom/render [pou-re-frame] (gdom/getElement "app"))
+(add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
 (rf/dispatch [:initialize])
+(rdom/render [pou-re-frame] (gdom/getElement "app"))
