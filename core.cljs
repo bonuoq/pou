@@ -8,6 +8,7 @@
   (let [editor (update-in editor-map [:attrs :class] str " pou-editor")
         div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))]
     (gdom/insertSiblingAfter div js/klipse-container)
+    (gdom/inserSiblingAfter (gdom/createTextNode (str "[" idx "] mode: " mode)
     (klp/klipsify div klipsettings mode)))
                                                             
 (defn call-in [k method & args]
