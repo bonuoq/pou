@@ -1,4 +1,4 @@
-(ns pou.re-frame
+(ns pou.ui
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
             [klipse.common.registry :as klreg]
@@ -69,6 +69,9 @@
      (for [e @(rf/subscribe [:editors])]
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
+     [:button#append-clj
+      {:on-click #(append-editor :mode "eval-clojure"}
+       "+eval-clojure"}]
      [:button#append-editor
       {:on-click #(append-editor :mode @(rf/subscribe :sel-mode))}
       "+"]
@@ -94,7 +97,7 @@
  (fn [_ _]  
    {:params (or (js/klipse.utils.url-parameters) {})
     :editors {}
-    :mode-options (into #{} (keys @klreg/mode-options))}))
+    :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
 
 (add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
 (rf/dispatch [:initialize])
