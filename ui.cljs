@@ -68,7 +68,7 @@
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
      [:button#append-clj
-      {:on-click #(append-editor :mode "eval-clojure")}
+      {:on-click #(append-editor)}
        "+eval-clojure"]
      [:button#append-editor
       {:on-click #(append-editor :mode @(rf/subscribe :sel-mode))}
