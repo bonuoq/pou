@@ -60,13 +60,13 @@
 (ns pou.user
   (:require [goog.dom :as gdom]
             [pou.core :as p]
-            [pou.ui :as pui]
+            [klipse.utils :as klu]
             [klipse-clj.repl :refer [doc]]))
-    
+
 (-> "loading" gdom/getElement .-hidden (set! true))
-    
-(when-let [p (-> @p/pou :params :p)]
-    (p/set-code 0 (js/atob p)))
+
+(when-let [p (-> klu/url-parameters :p)]
+  (p/append-editor :snippet (js/atob p)))
     </div>
   </div>
   <div id="app"></div>
