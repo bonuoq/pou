@@ -3,19 +3,10 @@
             [klipse.plugin :as klp]
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]))
-    
-(def pou (atom {:params (or (js/klipse.utils.url-parameters) {})
-                :editors {0 {:id :main
-                             :mode "eval-clojure"}}}))
-
-(defn reg-editor [editor-map]
-  (let [c @klp/snippet-counter]
-    (swap! pou assoc-in [:editors c] editor-map)))
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
   (let [editor (update-in editor-map [:attrs :class] str " pou-editor")
         div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))]
-    (reg-editor (merge editor {:mode mode}))
     (gdom/insertSiblingAfter div js/klipse-container)
     (klp/klipsify div klipsettings mode)))
                                                             
