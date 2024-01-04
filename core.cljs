@@ -1,8 +1,11 @@
 (ns pou.core
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
+            [klipse.utils :as klu]
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]))
+
+(def url-params (or (klu/url-parameters) {}))
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
   (let [editor (update-in editor-map [:attrs :class] str " pou-editor")
