@@ -48,10 +48,8 @@
              [:div.pou-klipse attrs (str snippet)]]]))})))
 
 (defn append-editor [& {:keys [mode] :or {mode "eval-clojure"} :as editor-map}]
-  (let [idx @klp/snippet-counter
-        editor (assoc editor-map :mode mode :idx idx)]
-    (p/reg-editor editor)
-    (rf/dispatch [:reg-editor-comp {idx [editor-comp editor]}])))
+  (let [idx @klp/snippet-counter]
+    (rf/dispatch [:reg-editor-comp {idx [editor-comp (assoc editor-map :mode mode :idx idx)]}])))
 
 (defn select-mode-comp [mode-options]
   (let [sel-change #(rf/dispatch [:sel-mode-change (.. % -target -value)])]
