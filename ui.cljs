@@ -93,8 +93,7 @@
 (rf/reg-event-db
  :initialize
  (fn [_ _]  
-   {:params (or (js/klipse.utils.url-parameters) {})
-    :editors {}
+   {:editors {}
     :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
 
 (add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
