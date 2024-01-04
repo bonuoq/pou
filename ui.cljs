@@ -42,7 +42,7 @@
              [:button.toggle-min
               {:on-click #(swap! s update :visible? not)}
               (if visible? "<" ">")]
-             (str  "[" idx "] mode: " mode)]
+             (str "[" idx "] mode: " mode)]
             [:div.pou-editor
              {:style {:display (if visible? "block" "none")}}
              [:div.pou-klipse attrs (str snippet)]]]))})))
@@ -52,14 +52,14 @@
     (rf/dispatch [:reg-editor-comp {idx [editor-comp (assoc editor-map :mode mode :idx idx)]}])))
 
 (defn select-mode-comp [mode-options]
-  (let [sel-change #(rf/dispatch [:sel-mode-change (.. % -target -value)])]
+  (let [sel-change #(rf/dispatch [:sel-mode-change %])]
     (r/create-class
-     {:component-did-mount #(sel-change (rdom/dom-node %))
+     {:component-did-mount #(sel-change (. (rdom/dom-node %) -value))
       :reagent-render
       (fn []
         [:select#editor-modes
-         {:on-change sel-change}
-         (for [k options]
+         {:on-change #(sel-change (.. % -target -value))}
+         (for [k @(rf/subscribe [:mode-options])]
            ^{:key k} [:option {:value k} k])])})))
 
 (defn pou-re-frame []
