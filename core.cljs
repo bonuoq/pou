@@ -9,10 +9,11 @@
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
   (let [editor (update-in editor-map [:attrs :data-external-libs] "https://bonuoq.github.io")
-        div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))
+        div (gdom/createDom "div" (clj->js (editor _attrs)) (gdom/createTextNode (str snippet)))
         idx @klp/snippet-counter
         label (gdom/createTextNode (str "[" idx "] mode: " mode))]
-    (doall (map #(gdom/insertSiblingAfter % js/klipse-container.nextSibling) [div label]))
+    (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
+    (gdom/insertSiblingAfter label js/klipse-container.nextSibling)
     (klp/klipsify div klipsettings mode)))
                                                             
 (defn call-in [k method & args]
