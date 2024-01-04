@@ -8,7 +8,7 @@
 (def url-params (or (klu/url-parameters) {}))
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
-  (let [editor (update-in editor-map [:attrs :class] str " pou-editor")
+  (let [editor (update-in editor-map [:attrs :data-external-libs] "https://bonuoq.github.io")
         div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))
         idx @klp/snippet-counter
         label (gdom/createTextNode (str "[" idx "] mode: " mode))]
