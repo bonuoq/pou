@@ -38,13 +38,11 @@
               (fn [json]
                 (callback (-> (js->clj json :keywordize-keys true) :files ((keyword file)) :content))))))))
     
-(defn eval-gist [& {:keys [id file editor append-code clear-code] :or {editor 0 append-code ""}}]
+(defn eval-gist [{:keys [id file editor append-code clear-code] :or {editor 0 append-code ""}}]
   (fetch-gist id file #(set-code editor (str % "\n" append-code
                                              (when clear-code (str "\n(pou.user/set-code " editor " \"" clear-code "\")"))))))
 
 (defn eval-gists [f & r]
-  (eval-gist :id (:id f) :file (:file f) :editor (:editor f)
-             :append-code (if (not (empty? (rest r))) 
-                            `(apply eval-gists ~r) 
-                            `(apply eval-gist (mapcat seq ~(first r))))))
-
+  (eval-gist (assoc f :append-code (if (not (empty? (rest r)))
+                                     `(apply eval-gists ~r)
+                                     `(apply eval-gist ~(first r))))))
