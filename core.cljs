@@ -6,9 +6,10 @@
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
   (let [editor (update-in editor-map [:attrs :class] str " pou-editor")
-        div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))]
-    (gdom/insertSiblingAfter div js/klipse-container)
-    (gdom/inserSiblingAfter (gdom/createTextNode (str "[" idx "] mode: " mode)))
+        div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))
+        idx @klp/snippet-counter
+        label (gdom/createTextNode (str "[" idx "] mode: " mode))]
+    (map #(gdom/insertSiblingAfter % js/klipse-container.nextSibling) [div label])
     (klp/klipsify div klipsettings mode)))
                                                             
 (defn call-in [k method & args]
