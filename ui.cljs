@@ -47,7 +47,7 @@
              {:style {:display (if visible? "block" "none")}}
              [:div.pou-klipse attrs (str snippet)]]]))})))
 
-(defn append-editor [& {:keys [mode] :or {mode "eval-clojure"} :as editor-map}]
+(defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure"} :as editor-map}]
   (let [idx @klp/snippet-counter]
     (rf/dispatch [:reg-editor-comp {idx [editor-comp (assoc editor-map :mode mode :idx idx)]}])))
 
