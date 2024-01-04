@@ -65,7 +65,7 @@
 
 (-> "loading" gdom/getElement .-hidden (set! true))
 
-(when-let [p (-> klu/url-parameters :p)]
+(when-let [p ((klu/url-parameters) :p)]
   (p/append-editor :snippet (js/atob p)))
     </div>
   </div>
