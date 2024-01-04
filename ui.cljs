@@ -73,7 +73,7 @@
      [:button#append-editor
       {:on-click #(append-editor :mode @(rf/subscribe :sel-mode))}
       "+"]
-     [select-mode-comp @(rf/subscribe [:mode-options])]))
+     [select-mode-comp @(rf/subscribe [:mode-options])]])
 
 (rf/reg-event-db
  :reg-editor-comp
