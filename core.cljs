@@ -12,7 +12,7 @@
         div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))
         idx @klp/snippet-counter
         label (gdom/createTextNode (str "[" idx "] mode: " mode))]
-    (map #(gdom/insertSiblingAfter % js/klipse-container.nextSibling) [div label])
+    (doall (map #(gdom/insertSiblingAfter % js/klipse-container.nextSibling) [div label]))
     (klp/klipsify div klipsettings mode)))
                                                             
 (defn call-in [k method & args]
