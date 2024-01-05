@@ -23,7 +23,7 @@
 ; REG EVENTS
 
 (rf/reg-event-db
- :reg-editor-comp
+ :reg-editor
  (fn [db [_ editor]]
    (update-in db [:editors] conj editor)))
 
@@ -61,7 +61,7 @@
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure"} :as editor-map}]
   (let [idx @klp/snippet-counter]
-    (rf/dispatch [:reg-editor-comp {idx [editor-comp (assoc editor-map :mode mode :idx idx)]}])))
+    (rf/dispatch [:reg-editor {idx (assoc editor-map :mode mode :idx idx)}])))
 
 (defn select-mode-comp [value-atom mode-options-atom]
   (r/create-class
@@ -81,7 +81,7 @@
     (fn []
       [:div#pou-app
        (for [e @(rf/subscribe [:editors])]
-         ^{:key (key e)} (val e))
+         ^{:key (key e)} [editor-comp (val e)])
        [:button
         {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
          "+eval-clojure"]
