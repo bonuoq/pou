@@ -58,25 +58,25 @@
 
 (defn pou-re-frame []
   (let [sel-mode (r/atom nil)
-        from-gist (r/atom nil)
-        editors @(rf/subscribe [:editors])]
-    [:div#pou-app
-     (for [e editors]
-       (let [idx (key e)]
-         ^{:key idx} @(rf/subscribe [:editor-comp idx])))
-     [:button
-      {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
-       "+eval-clojure"]
-     [:button
-      {:on-click (fn [_]
-                   (append-editor :mode @sel-mode :attrs {:data-gist-id @from-gist :data-external-libs "https://bonuoq.github.io"})
-                   (reset! from-gist nil))}
-      "+"]
-     [select-mode-comp sel-mode (rf/subscribe [:mode-options])]
-     [:label "from-gist"
-      [:input {:type "text"
-               :value @from-gist
-               :on-change #(reset! from-gist (.. % -target -value))}]]]))
+        from-gist (r/atom nil)]
+    (fn []
+      [:div#pou-app
+       (for [e @(rf/subscribe [:editors])]
+         (let [idx (key e)]
+           ^{:key idx} @(rf/subscribe [:editor-comp idx])))
+       [:button
+        {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
+         "+eval-clojure"]
+       [:button
+        {:on-click (fn [_]
+                     (append-editor :mode @sel-mode :attrs {:data-gist-id @from-gist :data-external-libs "https://bonuoq.github.io"})
+                     (reset! from-gist nil))}
+        "+"]
+       [select-mode-comp sel-mode (rf/subscribe [:mode-options])]
+       [:label "from-gist"
+        [:input {:type "text"
+                 :value @from-gist
+                 :on-change #(reset! from-gist (.. % -target -value))}]]])))
 
 (rf/reg-event-db
  :reg-editor-comp
