@@ -28,9 +28,15 @@
 
 (defn on-res-change [k callback] (call-in-result k :on "change" #(callback (.getValue %))))
 
-(defn res-reset! [k resp-atom] (on-res-change k #(reset! resp-atom %)))
+(defn res-watch [k cb]
+  (cb (get-result k))
+  (on-res-change k cb))
 
-(defn res-swap! [k resp-atom f & args] (on-res-change k #(reset! resp-atom (apply f % args))))
+(defn res-reset! [k resp-atom]
+  (res-watch k #(reset! resp-atom %)))
+
+(defn res-swap! [k resp-atom f & args] 
+  (res-watch k #(reset! resp-atom (apply f % args))))
 
 (defn fetch-url-text [url callback]
   (-> (str url) js/fetch
