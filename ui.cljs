@@ -67,7 +67,7 @@
   (r/create-class
    {:component-did-mount 
     (fn [this]
-      (reset! value-atom (. (rdom/dom-node this) -value)))
+      (js/alert (. (. (rdom/dom-node this) querySelector "select") -value)))
     :reagent-render
     (fn []
       [:select
