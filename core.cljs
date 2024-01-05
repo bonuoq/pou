@@ -24,13 +24,13 @@
 
 (defn set-code [k value] (call-in-editor k :setValue value))
 
-(defn get-resp [k] (call-in-response :getValue))
+(defn get-resp [k] (call-in-result :getValue))
 
-(defn on-resp-change [k callback] (call-in-response :on "change" #(callback (.getValue %))))
+(defn on-res-change [k callback] (call-in-result :on "change" #(callback (.getValue %))))
 
-(defn resp-reset! [k resp-atom] (on-resp-change k #(reset! resp-atom %)))
+(defn res-reset! [k resp-atom] (on-res-change k #(reset! resp-atom %)))
 
-(defn resp-swap! [k resp-atom f & args] (on-resp-change k #(reset! resp-atom (apply f % args))))
+(defn res-swap! [k resp-atom f & args] (on-res-change k #(reset! resp-atom (apply f % args))))
 
 (defn fetch-url-text [url callback]
   (-> (str url) js/fetch
