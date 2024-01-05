@@ -51,7 +51,7 @@
    {:component-did-mount #(reset! value-atom (. (rdom/dom-node %) -value))
     :reagent-render
     (fn []
-      [:select#editor-modes
+      [:select
        {:on-change #(reset! value-atom (.. % -target -value))}
        (for [k @mode-options-atom]
          ^{:key k} [:option {:value k} k])])}))
