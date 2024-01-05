@@ -67,7 +67,7 @@
   (r/create-class
    {:component-did-mount 
     (fn [this]
-      (println (. (rdom/dom-node this) -nodeName)))
+      (println (. (rdom/dom-node this) -value)))
     :reagent-render
     (fn []
       [:select
