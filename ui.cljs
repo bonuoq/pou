@@ -53,7 +53,7 @@
     (fn []
       [:select#editor-modes
        {:on-change #(reset! value-atom (.. % -target -value))}
-       (for [k mode-options)]
+       (for [k @mode-options-atom]
          ^{:key k} [:option {:value k} k])])}))
 
 (defn pou-re-frame []
@@ -63,10 +63,10 @@
      (for [e @(rf/subscribe [:editors])]
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
-     [:button#append-clj
+     [:button
       {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
        "+eval-clojure"]
-     [:button#append-editor
+     [:button
       {:on-click (fn [_]
                    (append-editor :mode @sel-mode :attrs {:data-gist-id @from-gist :data-external-libs "https://bonuoq.github.io"})
                    (reset! from-gist nil))}
