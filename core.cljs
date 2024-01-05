@@ -26,7 +26,7 @@
 
 (defn get-result [k] (call-in-result k :getValue))
 
-(defn on-res-change [k callback] (call-in-result :on "change" #(callback (.getValue %))))
+(defn on-res-change [k callback] (call-in-result k :on "change" #(callback (.getValue %))))
 
 (defn res-reset! [k resp-atom] (on-res-change k #(reset! resp-atom %)))
 
