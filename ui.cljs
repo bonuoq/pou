@@ -23,11 +23,6 @@
  (fn [db _]
    (:mode-options db)))
 
-(rf/reg-sub
- :sel-mode
- (fn [db _]
-   (:sel-mode db)))
-
 (defn editor-comp [{:keys [mode attrs idx snippet klipsettings] :or {klipsettings {}}}]
   (let [s (r/atom {:visible? true})]
     (r/create-class
@@ -51,29 +46,36 @@
   (let [idx @klp/snippet-counter]
     (rf/dispatch [:reg-editor-comp {idx [editor-comp (assoc editor-map :mode mode :idx idx)]}])))
 
-(defn select-mode-comp [mode-options]
-  (let [sel-change #(rf/dispatch [:sel-mode-change %])]
-    (r/create-class
-     {:component-did-mount #(sel-change (. (rdom/dom-node %) -value))
-      :reagent-render
-      (fn []
-        [:select#editor-modes
-         {:on-change #(sel-change (.. % -target -value))}
-         (for [k @(rf/subscribe [:mode-options])]
-           ^{:key k} [:option {:value k} k])])})))
+(defn select-mode-comp [value-atom mode-options-atom]
+  (r/create-class
+   {:component-did-mount #(reset! value-atom (. (rdom/dom-node %) -value))
+    :reagent-render
+    (fn []
+      [:select#editor-modes
+       {:on-change #(reset! value-atom (.. % -target -value))}
+       (for [k mode-options)]
+         ^{:key k} [:option {:value k} k])])}))
 
 (defn pou-re-frame []
+  (let [sel-mode (r/atom nil)
+        from-gist (r/atom nil)]
     [:div#pou-app
      (for [e @(rf/subscribe [:editors])]
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
      [:button#append-clj
-      {:on-click #(append-editor)}
+      {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
        "+eval-clojure"]
      [:button#append-editor
-      {:on-click #(append-editor :mode @(rf/subscribe :sel-mode))}
+      {:on-click (fn [_]
+                   (append-editor :mode @sel-mode :attrs {:data-gist-id @from-gist :data-external-libs "https://bonuoq.github.io"})
+                   (reset! from-gist nil))}
       "+"]
-     [select-mode-comp @(rf/subscribe [:mode-options])]])
+     [select-mode-comp sel-mode (rf/subscribe [:mode-options])]
+     [:label "from-gist"
+      [:input {:type "text"
+               :value @from-gist
+               :on-change #(reset! from-gist (-> % .-target .-value))}]]]))
 
 (rf/reg-event-db
  :reg-editor-comp
@@ -84,11 +86,6 @@
  :reg-mode-options
  (fn [db [_ mode-options]]
    (update-in db [:mode-options] into mode-options)))
-
-(rf/reg-event-db
- :sel-mode-change
- (fn [db [_ sel-mode]]
-   (assoc db :sel-mode sel-mode)))
 
 (rf/reg-event-db
  :initialize
