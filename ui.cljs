@@ -84,16 +84,13 @@
          ^{:key (key e)} [editor-comp (val e)])
        [:button
         {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
-         "+eval-clojure"]
+         "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
                      (append-editor :mode @sel-mode :attrs {:data-gist-id @from-gist :data-external-libs "https://bonuoq.github.io"})
                      (reset! from-gist nil))}
         "+"]
-       "&nbsp"
-       [:label "mode: "
-        [select-mode-comp sel-mode (rf/subscribe [:mode-options])]] 
-       "&nbsp"
+       [select-mode-comp sel-mode (rf/subscribe [:mode-options])] " "
        [:label "from-gist: "
         [:input {:type "text"
                  :value @from-gist
