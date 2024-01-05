@@ -38,6 +38,9 @@
 (defn res-swap! [k resp-atom f & args] 
   (res-watch k #(reset! resp-atom (apply f % args))))
 
+(defn trigger-eval [k] 
+  (set-code k (call-in-editor k :getValue)))
+
 (defn fetch-url-text [url callback]
   (-> (str url) js/fetch
     (.then (fn [r] (.. r text (then callback))))))
