@@ -24,7 +24,7 @@
 
 (defn set-code [k value] (call-in-editor k :setValue value))
 
-(defn get-resp [k] (call-in-result :getValue))
+(defn get-result [k] (call-in-result k :getValue))
 
 (defn on-res-change [k callback] (call-in-result :on "change" #(callback (.getValue %))))
 
