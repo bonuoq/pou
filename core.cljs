@@ -16,12 +16,21 @@
     (gdom/insertSiblingAfter label js/klipse-container.nextSibling)
     (klp/klipsify div klipsettings mode)))
                                                             
-(defn call-in [k method & args]
+(defn call-in-editor [k method & args]
   (j/apply (@kleds/editors k) method (clj->js args)))
 
-(defn set-code [k value] call-in k :setValue value)
+(defn call-in-result [k method & args]
+  (j/apply (@kleds/result-elements k) method (clj->js args)))
 
-(defn get-resp [k] (j/call (@kleds/result-elements k) :getValue))
+(defn set-code [k value] (call-in-editor k :setValue value))
+
+(defn get-resp [k] (call-in-response :getValue))
+
+(defn on-resp-change [k callback] (call-in-response :on "change" #(callback (.getValue %))))
+
+(defn resp-reset! [k resp-atom] (on-resp-change k #(reset! resp-atom %)))
+
+(defn resp-swap! [k resp-atom f & args] (on-resp-change k #(reset! resp-atom (apply f % args))))
 
 (defn fetch-url-text [url callback]
   (-> (str url) js/fetch
