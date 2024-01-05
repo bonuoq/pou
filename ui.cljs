@@ -67,7 +67,7 @@
   (r/create-class
    {:component-did-mount 
     (fn [this]
-      (js/alert (. (. (rdom/dom-node this) querySelector "select") -value)))
+      (println (. (rdom/dom-node this) -nodeName)))
     :reagent-render
     (fn []
       [:select
