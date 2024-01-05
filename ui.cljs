@@ -58,9 +58,10 @@
 
 (defn pou-re-frame []
   (let [sel-mode (r/atom nil)
-        from-gist (r/atom nil)]
+        from-gist (r/atom nil)
+        editors @(rf/subscribe [:editors])]
     [:div#pou-app
-     (for [e @(rf/subscribe [:editors])]
+     (for [e editors]
        (let [idx (key e)]
          ^{:key idx} @(rf/subscribe [:editor-comp idx])))
      [:button
@@ -75,7 +76,7 @@
      [:label "from-gist"
       [:input {:type "text"
                :value @from-gist
-               :on-change #(reset! from-gist (-> % .-target .-value))}]]]))
+               :on-change #(reset! from-gist (.. % -target -value))}]]]))
 
 (rf/reg-event-db
  :reg-editor-comp
