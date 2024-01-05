@@ -8,20 +8,37 @@
             [pou.core :as p]
             [applied-science.js-interop :as j]))
 
+; REG SUBS
+
 (rf/reg-sub
  :editors
  (fn [db _]
    (:editors db)))
 
 (rf/reg-sub
- :editor-comp
- (fn [db [_ idx]]
-   (get-in db [:editors idx])))   
-
-(rf/reg-sub
  :mode-options
  (fn [db _]
    (:mode-options db)))
+
+; REG EVENTS
+
+(rf/reg-event-db
+ :reg-editor-comp
+ (fn [db [_ editor]]
+   (update-in db [:editors] conj editor)))
+
+(rf/reg-event-db
+ :reg-mode-options
+ (fn [db [_ mode-options]]
+   (update-in db [:mode-options] into mode-options)))
+
+(rf/reg-event-db
+ :initialize
+ (fn [_ _]  
+   {:editors {}
+    :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
+
+; COMPONENTS
 
 (defn editor-comp [{:keys [mode attrs idx snippet klipsettings] :or {klipsettings {}}}]
   (let [s (r/atom {:visible? true})]
@@ -48,7 +65,9 @@
 
 (defn select-mode-comp [value-atom mode-options-atom]
   (r/create-class
-   {:component-did-mount #(reset! value-atom (. (rdom/dom-node %) -value))
+   {:component-did-mount 
+    (fn [this]
+      (reset! value-atom (. (rdom/dom-node this) -value)))
     :reagent-render
     (fn []
       [:select
@@ -62,8 +81,7 @@
     (fn []
       [:div#pou-app
        (for [e @(rf/subscribe [:editors])]
-         (let [idx (key e)]
-           ^{:key idx} @(rf/subscribe [:editor-comp idx])))
+         ^{:key (key e)} (val e))
        [:button
         {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
          "+eval-clojure"]
@@ -72,27 +90,16 @@
                      (append-editor :mode @sel-mode :attrs {:data-gist-id @from-gist :data-external-libs "https://bonuoq.github.io"})
                      (reset! from-gist nil))}
         "+"]
-       [select-mode-comp sel-mode (rf/subscribe [:mode-options])]
-       [:label "from-gist"
+       "&nbsp"
+       [:label "mode: "
+        [select-mode-comp sel-mode (rf/subscribe [:mode-options])]] 
+       "&nbsp"
+       [:label "from-gist: "
         [:input {:type "text"
                  :value @from-gist
                  :on-change #(reset! from-gist (.. % -target -value))}]]])))
 
-(rf/reg-event-db
- :reg-editor-comp
- (fn [db [_ editor]]
-   (update-in db [:editors] conj editor)))
-
-(rf/reg-event-db
- :reg-mode-options
- (fn [db [_ mode-options]]
-   (update-in db [:mode-options] into mode-options)))
-
-(rf/reg-event-db
- :initialize
- (fn [_ _]  
-   {:editors {}
-    :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
+; INITIALIZE
 
 (add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
 (rf/dispatch [:initialize])
