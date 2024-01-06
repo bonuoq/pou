@@ -67,7 +67,7 @@
   (r/create-class
    {:component-did-mount 
     (fn [this]
-      (println (. (rdom/dom-node this) -value)))
+      (j/assoc! (rdom/dom-node this) :value "eval-clojure"))
     :reagent-render
     (fn []
       [:select
@@ -93,6 +93,7 @@
        [select-mode-comp sel-mode (rf/subscribe [:mode-options])] " "
        [:label "from-gist: "
         [:input {:type "text"
+                 :placeholder "user/id"
                  :value @from-gist
                  :on-change #(reset! from-gist (.. % -target -value))}]]])))
 
