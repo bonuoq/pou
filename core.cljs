@@ -26,7 +26,12 @@
 
 (defn get-result [k] (call-in-result k :getValue))
 
-(defn on-res-change [k callback] (call-in-result k :on "change" #(callback (.getValue %))))
+(defn on-res-change [k callback]
+  (let [cb-handler (fn [r] (callback (.getValue r)))]
+    (call-in-result k :on "change" cb-handler)
+    cb-handler))
+
+(defn off-res-change [k handler] (call-in-result k :off "change" handler))
 
 (defn res-watch [k cb]
   (cb (get-result k))
