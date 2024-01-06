@@ -77,7 +77,8 @@
 
 (defn pou-re-frame []
   (let [sel-mode (r/atom nil)
-        from-gist (r/atom nil)]
+        from-gist (r/atom nil)
+        ext-libs (r/atom nil)]
     (fn []
       [:div#pou-app
        (for [e @(rf/subscribe [:editors])]
@@ -87,15 +88,22 @@
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
-                     (append-editor :mode @sel-mode :attrs {:data-gist-id @from-gist :data-external-libs "https://bonuoq.github.io"})
-                     (reset! from-gist nil))}
+                     (append-editor :mode @sel-mode 
+                                    :attrs {:data-gist-id @from-gist
+                                            :data-external-libs (or @ext-libs "https://bonuoq.github.io")})
+                     (reset! from-gist nil)
+                     (reset! ext-libs nil))}
         "+"]
        [select-mode-comp sel-mode (rf/subscribe [:mode-options])] " "
        [:label "from-gist: "
         [:input {:type "text"
                  :placeholder "user/id"
                  :value @from-gist
-                 :on-change #(reset! from-gist (.. % -target -value))}]]])))
+                 :on-change #(reset! from-gist (.. % -target -value))}]] " "
+       [:label "external-libs: "
+        [:input {:type "text"
+                 :value @ext-libs
+                 :on-change #(reset! ext-libs (.. % -target -value))}]]])))
 
 ; INITIALIZE
 
