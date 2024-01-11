@@ -18,9 +18,13 @@
   (let [component (. js/document createElement (if editor? "faust-editor" "faust-widget"))]
     (. component appendChild (. js/document createComment snippet))
     (. element replaceChildren component)))
+
+(defn get-comp [parent] (. parent querySelector "faust-editor, faust-widget"))
+
+(defn get-faust-node [parent] (. (get-comp parent) -faustNode))
            
 (defn set-param [parent param-path value]
-  (when-let [component (. parent querySelector "faust-editor, faust-widget")]
+  (when-let [component (get-comp parent)]
     (.. component -faustNode (setParamValue param-path value))
     (.. component -faustUI (paramChangeByDSP param-path value))))
 
