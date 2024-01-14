@@ -8,7 +8,7 @@
 
 (def url-params (or (klu/url-parameters) {}))
 
-(defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
+(defn append-editor [{:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure" klipsettings {}} :as editor-map}]
   (let [editor (update-in editor-map [:attrs :data-external-libs] #(or % "https://bonuoq.github.io"))
         div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))
         idx @klp/snippet-counter
@@ -16,6 +16,8 @@
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
     (gdom/insertSiblingAfter label js/klipse-container.nextSibling)
     (klp/klipsify div klipsettings mode)))
+
+(defn addp [& kvs] (append-editor (apply hash-map kvs)))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply (@kleds/editors k) method (clj->js args)))
@@ -61,6 +63,8 @@
        (.then (.json r)
               (fn [json]
                 (callback (-> (js->clj json :keywordize-keys true) :files ((keyword file)) :content))))))))
+
+(defn append-gist [{:keys [id file append-code clear-code] :or {append-code ""}}]
     
 (defn eval-gist [{:keys [id file editor append-code clear-code] :or {editor 0 append-code ""}}]
   (fetch-gist id file #(set-code editor (str % "\n" append-code
