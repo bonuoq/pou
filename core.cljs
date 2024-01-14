@@ -73,4 +73,4 @@
 (defn process-url-params [& param-procs]
   (doseq [pp (partition 2 param-procs)]
     (when-let [p (url-params (first pp))]
-      ((second pp) p))))
+      ((second pp) (js/atob p)))))
