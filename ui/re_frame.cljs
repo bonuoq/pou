@@ -90,7 +90,7 @@
         {:on-click (fn [_]
                      (append-editor :mode @sel-mode 
                                     :attrs {:data-gist-id @from-gist
-                                            :data-external-libs @ext-libs)})
+                                            :data-external-libs @ext-libs})
                      (reset! from-gist nil)
                      (reset! ext-libs "https://bonuoq.github.io"))}
         "+"]
