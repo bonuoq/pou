@@ -3,7 +3,8 @@
             [klipse.plugin :as klp]
             [klipse.utils :as klu]
             [klipse.klipse-editors :as kleds]
-            [applied-science.js-interop :as j]))
+            [applied-science.js-interop :as j]
+            [cljs.reader :refer [read-string]]))
 
 (def url-params (or (klu/url-parameters) {}))
 
@@ -74,3 +75,7 @@
   (doseq [pp (partition 2 param-procs)]
     (when-let [p (url-params (first pp))]
       ((second pp) (js/atob p)))))
+
+(def decode64 #(js/atob %))
+(def parse64 #(read-string (decode64 %)))
+(def flatten64 #(flatten (into [] (parse64 %))))
