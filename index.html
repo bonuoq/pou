@@ -64,9 +64,9 @@
 (-> "loading" gdom/getElement .-hidden (set! true))
 
 (p/process-url-params
-  :p #(p/append-editor :snippet (p/decode64 %))
-  :o #(apply p/append-editor (p/flatten64 %))
-  :u #(p/append-editor :snippet (str "(require '[pou.ui." % " :as pui])")))
+  :p #(p/addp :snippet (p/decode64 %))
+  :o #(p/append-editor (p/parse64 %))
+  :u #(p/addp :snippet (str "(require '[pou.ui." % " :as pui])")))
     </div>
   </div>
   <div id="app"></div>
