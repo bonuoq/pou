@@ -66,6 +66,19 @@
 (defn fetch-url [url callback]
   (-> (str url) js/fetch
     (.then #(callback %))))
+
+(defn read-edn [url callback]
+  (-> (str url)
+    (fetch-url
+     #(-> (.text %)
+        (.then 
+         (fn [edn] 
+           (callback (cljs.reader/read-string edn))))))))
+
+(defn load-module [module]
+  (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
+    (read-edn
+     #(append-editor %))))
     
 (defn fetch-gist [id file callback]
   (-> (str "https://api.github.com/gists/" id)
