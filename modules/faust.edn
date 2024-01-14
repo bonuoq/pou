@@ -1,0 +1,2 @@
+{:external-libs ["https://bonuoq.github.io"]
+ :snippet "(require '[pou.modules.faust :as faust])"}
