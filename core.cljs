@@ -8,6 +8,15 @@
 
 (def url-params (or (klu/url-parameters) {}))
 
+(defn process-url-params [& param-procs]
+  (doseq [pp (partition 2 param-procs)]
+    (when-let [p (url-params (first pp))]
+      ((second pp) p))))
+
+(def decode64 #(js/atob %))
+(def parse64 #(read-string (decode64 %)))
+(def flatten64 #(flatten (into [] (parse64 %))))
+
 (defn append-editor [{:keys [mode attrs snippet klipsettings external-libs] 
                       :or {mode "eval-clojure" klipsettings {} external-libs ["https://bonuoq.github.io"]}}]
   (let [data-external-libs (apply str (interpose "," external-libs))
@@ -70,12 +79,3 @@
                     :or {mode "eval-clojure" append-code ""} 
                     :as editor}]
   (fetch-gist id file #(addp (str % append-code) editor)))
-
-(defn process-url-params [& param-procs]
-  (doseq [pp (partition 2 param-procs)]
-    (when-let [p (url-params (first pp))]
-      ((second pp) (js/atob p)))))
-
-(def decode64 #(js/atob %))
-(def parse64 #(read-string (decode64 %)))
-(def flatten64 #(flatten (into [] (parse64 %))))
