@@ -63,8 +63,9 @@
 
 (-> "loading" gdom/getElement .-hidden (set! true))
 
-(when-let [p (p/url-params :p)]
-  (p/append-editor :snippet (js/atob p)))
+(p/process-url-params
+  :p #(p/append-editor :snippet (p/decode64 %))
+  :o #(apply p/append-editor (p/flatten64 p)))
     </div>
   </div>
   <div id="app"></div>
