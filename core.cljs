@@ -30,7 +30,7 @@
     (gdom/insertSiblingAfter label js/klipse-container.nextSibling)
     (klp/klipsify div klipsettings mode)))
 
-(defn addp [snippet & {:keys [mode attrs snippet klipsettings] :as editor-settings}] 
+(defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
                                                             
 (defn call-in-editor [k method & args]
