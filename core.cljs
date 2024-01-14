@@ -17,7 +17,7 @@
     (gdom/insertSiblingAfter label js/klipse-container.nextSibling)
     (klp/klipsify div klipsettings mode)))
 
-(defn addp [& kvs] (append-editor (apply hash-map kvs)))
+(defn addp [snippet & kvs] (append-editor (assoc (apply hash-map kvs) :snippet snippet)))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply (@kleds/editors k) method (clj->js args)))
