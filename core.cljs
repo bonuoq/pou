@@ -31,7 +31,7 @@
     (klp/klipsify div klipsettings mode)))
 
 (defn addp [snippet & {:keys [mode attrs snippet klipsettings] :as editor-settings}] 
-  (append-editor (assoc (apply hash-map editor-settings) :snippet snippet)))
+  (append-editor (assoc editor-settings :snippet snippet)))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply (@kleds/editors k) method (clj->js args)))
