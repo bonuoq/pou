@@ -69,3 +69,8 @@
   (eval-gist (assoc f :append-code (if (not (empty? (rest r)))
                                      `(apply eval-gists ~r)
                                      `(apply eval-gist ~(first r))))))
+
+(defn process-url-params [& param-procs]
+  (doseq [pp (partition 2 param-procs)]
+    (when-let [p (url-params (first pp))]
+      ((second pp) p))))
