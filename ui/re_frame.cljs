@@ -78,7 +78,7 @@
 (defn pou-re-frame []
   (let [sel-mode (r/atom nil)
         from-gist (r/atom nil)
-        ext-libs (r/atom nil)]
+        ext-libs (r/atom "https://bonuoq.github.io")]
     (fn []
       [:div#pou-app
        (for [e @(rf/subscribe [:editors])]
@@ -90,9 +90,9 @@
         {:on-click (fn [_]
                      (append-editor :mode @sel-mode 
                                     :attrs {:data-gist-id @from-gist
-                                            :data-external-libs (or @ext-libs "https://bonuoq.github.io")})
+                                            :data-external-libs @ext-libs)})
                      (reset! from-gist nil)
-                     (reset! ext-libs nil))}
+                     (reset! ext-libs "https://bonuoq.github.io"))}
         "+"]
        [select-mode-comp sel-mode (rf/subscribe [:mode-options])] " "
        [:label "from-gist: "
