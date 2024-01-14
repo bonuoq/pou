@@ -8,11 +8,13 @@
 
 (def url-params (or (klu/url-parameters) {}))
 
-(defn append-editor [{:keys [mode attrs snippet klipsettings] 
-                      :or {mode "eval-clojure" klipsettings {}} 
-                      :as editor-map}]
-  (let [editor (update-in editor-map [:attrs :data-external-libs] #(or % "https://bonuoq.github.io"))
-        div (gdom/createDom "div" (clj->js (:attrs editor)) (gdom/createTextNode (str snippet)))
+(defn append-editor [{:keys [mode attrs snippet klipsettings external-libs] 
+                      :or {mode "eval-clojure" klipsettings {} external-libs ["https://bonuoq.github.io"]}}]
+  (let [data-external-libs (apply str (interpose "," external-libs))
+        div (gdom/createDom 
+             "div" 
+             (clj->js (assoc attrs :data-external-libs data-external-libs)) 
+             (gdom/createTextNode (str snippet)))
         idx @klp/snippet-counter
         label (gdom/createTextNode (str "[" idx "] mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
