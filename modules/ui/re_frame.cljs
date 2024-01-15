@@ -53,6 +53,11 @@
    (update-in db [:editors] conj editor)))
 
 (rf/reg-event-db
+ :code-change
+ (fn [db [_ uid code]]
+   (assoc-in db [:editors uid :snippet] code)))
+
+(rf/reg-event-db
  :reg-mode-options
  (fn [db [_ mode-options]]
    (update-in db [:mode-options] into mode-options)))
