@@ -81,6 +81,9 @@
 
 (defn load-modules [& modules]
   (doseq [module modules] (load-module module)))
+
+(defn load-ui [ui]
+  (load-module (str "ui/" ui)))
     
 (defn fetch-gist [id file callback]
   (-> (str "https://api.github.com/gists/" id)
