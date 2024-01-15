@@ -50,7 +50,7 @@
   
   <div id="loading" class="loader">LOADING...</div>
   
-  <div class="pou-wrapper">
+  <div id="app" class="pou-wrapper">
     <button class="append-snippet" onclick="appendSnippet()">+</button><br>
     [0] mode: eval-clojure
     <div id="main" class="language-klipse" data-external-libs="
@@ -62,7 +62,7 @@
             [klipse.utils :as klu]
             [klipse-clj.repl :refer [doc]]))
 
-(set! js/appendSnippet #(p/addp ""))
+(set! js/appendSnippet #(p/addp %1 :mode %2))
 (-> "loading" gdom/getElement .-hidden (set! true))
 
 (p/process-url-params
@@ -71,7 +71,6 @@
   :u #(p/load-ui %))
     </div>
   </div>
-  <div id="app"></div>
   <div id="host"></div>
   
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
