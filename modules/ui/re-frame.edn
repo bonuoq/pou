@@ -1,0 +1,2 @@
+{:external-libs ["https://bonuoq.github.io"]
+ :snippet "(require '[pou.modules.ui.re-frame :as pui])"}
