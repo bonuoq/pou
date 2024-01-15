@@ -51,6 +51,7 @@
   <div id="loading" class="loader">LOADING...</div>
   
   <div class="pou-wrapper">
+    <button class="append-snippet" onclick="appendSnippet()">+</button><br>
     [0] mode: eval-clojure
     <div id="main" class="language-klipse" data-external-libs="
       https://bonuoq.github.io,
@@ -61,6 +62,7 @@
             [klipse.utils :as klu]
             [klipse-clj.repl :refer [doc]]))
 
+(set! js/appendSnippet #(p/addp ""))
 (-> "loading" gdom/getElement .-hidden (set! true))
 
 (p/process-url-params
