@@ -1,5 +1,6 @@
 (ns pou.modules.faust
-  (:require [klipse.common.registry :as klr]))
+  (:require [goog.dom :as gdom]
+            [klipse.common.registry :as klr]))
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
@@ -19,19 +20,26 @@
     (. component appendChild (. js/document createComment snippet))
     (. element replaceChildren component)))
 
-(defn get-comp [parent] (. parent querySelector "faust-editor, faust-widget"))
+(defn get-comp [idx] 
+  (some-> idx gdom/getElement .querySelector "faust-editor, faust-widget"))
 
-(defn get-faust-node [parent] (. (get-comp parent) -faustNode))
+(defn get-faust-code [idx] 
+  (or 
+   (some-> (get-comp idx) .-shadowRoot (.querySelector ".cm-content") .-innerText)
+   (some-> (get-comp idx) .-lastChild .-data)))
+
+(defn get-faust-node [idx] 
+  (. (get-comp idx) -faustNode))
            
-(defn set-param [parent param-path value]
-  (when-let [component (get-comp parent)]
+(defn set-param [idx param-path value]
+  (when-let [component (get-comp idx)]
     (.. component -faustNode (setParamValue param-path value))
     (.. component -faustUI (paramChangeByDSP param-path value))))
 
-(defn power-toggle [parent]
-  (.. parent -firstChild -shadowRoot (getElementById "power") click))
+(defn action [idx action]
+  (some-> (get-comp idx) .-shadowRoot (.getElementById (clj->js action)) .click))
 
-(defn eval-faust [exp {:keys [container-id]}]
+(defn eval-faust [exp {:keys [container-id] :as kwargs}]
   (if @loaded
     (let [container (js/document.getElementById container-id)]
       (try
@@ -39,7 +47,7 @@
         (place-in container :snippet (str exp) :mode widget)
         (catch :default e
           (set! (. container -innerHTML) (str e)))))
-    (init)))
+    (js/setTimeout #(eval-faust exp kwargs) 500)))
 
 (def widget-opts {:editor-in-mode "text/html"
                   :editor-out-mode "text"
@@ -50,3 +58,4 @@
                   :comment-str "//"})
 
 (klr/register-mode "faust-widget" "selector_faust" widget-opts)
+(init)
