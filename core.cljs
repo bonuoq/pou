@@ -79,6 +79,9 @@
   (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
     (read-edn
      #(append-editor %))))
+
+(defn load-modules [& modules]
+  (doseq [module modules] (load-module module)))
     
 (defn fetch-gist [id file callback]
   (-> (str "https://api.github.com/gists/" id)
@@ -92,3 +95,6 @@
                     :or {mode "eval-clojure" append-code ""} 
                     :as editor}]
   (fetch-gist id file #(addp (str % append-code) editor)))
+
+(defn append-gists [& gists]
+  (doseq [gist gists] (append-gist gist)))
