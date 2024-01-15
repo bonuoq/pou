@@ -53,7 +53,7 @@
    (update-in db [:editors] conj editor)))
 
 (rf/reg-event-db
- :code-change
+ :update-snippet
  (fn [db [_ uid code]]
    (assoc-in db [:editors uid :snippet] code)))
 
