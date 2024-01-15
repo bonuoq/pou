@@ -38,11 +38,6 @@
      (update-in [:editors] (partial map #(dissoc (val %) :kl))))))
 
 (rf/reg-sub
- :kl
- (fn [db [_ id]]
-   (-> db :editors id :kl)))
-
-(rf/reg-sub
  :mode-options
  (fn [db _]
    (:mode-options db)))
