@@ -50,7 +50,7 @@
 
 (defn set-code [k value] (call-in-editor k :setValue value))
 
-(defn get-code [k value] (call-in-editor k :getValue))
+(defn get-code [k] (call-in-editor k :getValue))
 
 (defn get-result [k] (call-in-result k :getValue))
 
