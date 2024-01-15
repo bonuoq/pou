@@ -123,8 +123,8 @@
      :reagent-render 
      (editor editor-settings)}))
 
-(defn append-editor [& {:keys [id mode attrs snippet klipsettings visible?] 
-                        :or {id :pou mode "eval-clojure" visible? true} :as editor-map}]
+(defn append-editor [{:keys [id mode attrs snippet klipsettings visible?] 
+                      :or {id :pou mode "eval-clojure" visible? true} :as editor-map}]
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :uid uid)}])
@@ -156,13 +156,13 @@
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:button
-        {:on-click #(append-editor :attrs {:data-external-libs "https://bonuoq.github.io"})}
+        {:on-click #(append-editor {:attrs {:data-external-libs "https://bonuoq.github.io"}})}
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
-                     (append-editor :mode @sel-mode 
-                                    :attrs {:data-gist-id @from-gist
-                                            :data-external-libs @ext-libs})
+                     (append-editor {:mode @sel-mode 
+                                     :attrs {:data-gist-id @from-gist
+                                             :data-external-libs @ext-libs}})
                      (reset! from-gist nil)
                      (reset! ext-libs "https://bonuoq.github.io"))}
         "+"]
@@ -181,3 +181,7 @@
 
 (rf/dispatch [:initialize])
 (rdom/render [pou-re-frame] (gdom/getElement "app"))
+
+(ns pou.core
+  (:require [pou.modules.ui.re-frame :as pui]))
+(def append-editor pui/append-editor)
