@@ -5,7 +5,7 @@
 (defonce synctx (syn/audio-context))
 
 (defn faust-node [id] 
-  (-> (str "klipse-container-" idx) gdom/getElement 
+  (-> (str "klipse-container-" id) gdom/getElement 
     (.querySelector "faust-editor, faust-widget") 
     .-faustNode))
 
