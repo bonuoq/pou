@@ -9,9 +9,6 @@
     (.querySelector "faust-editor, faust-widget") 
     .-faustNode))
 
-(defn provide-faust-ctx [id] 
-  (reset! faust-ctx (.-context (faust-node id))))
-
 (defn actx
   ([] synctx)
   ([faust-id] (.-context (faust-node faust-id))))
