@@ -1,6 +1,7 @@
 (ns pou.modules.faust
   (:require [goog.dom :as gdom]
-            [klipse.common.registry :as klr]))
+            [klipse.common.registry :refer [register-mode]]
+            [klipse.klipse-editors :refer [editors]]))
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
@@ -21,7 +22,7 @@
     (. element replaceChildren component)))
 
 (defn get-comp [idx] 
-  (some-> idx gdom/getElement .querySelector "faust-editor, faust-widget"))
+  (some-> (str "klipse-container-" idx) gdom/getElement (.querySelector "faust-editor, faust-widget")))
 
 (defn get-faust-code [idx] 
   (or 
@@ -39,23 +40,28 @@
 (defn action [idx action]
   (some-> (get-comp idx) .-shadowRoot (.getElementById (clj->js action)) .click))
 
-(defn eval-faust [exp {:keys [container-id] :as kwargs}]
+(defn eval-faust [mode exp {:keys [container container-id] :as kwargs}]
   (if @loaded
-    (let [container (js/document.getElementById container-id)]
-      (try
-        (js/console.log (str "FAUST eval: " exp))
-        (place-in container :snippet (str exp) :mode widget)
-        (catch :default e
-          (set! (. container -innerHTML) (str e)))))
+    (try
+      (js/console.log (str "FAUST eval: " exp))
+      (place-in container :snippet (str exp) :mode mode)
+      (when (= mode :editor) (. (->> container-id last int (get @editors)) setValue ""))
+      (catch :default e
+        (set! (. container -innerHTML) (str e))))
     (js/setTimeout #(eval-faust exp kwargs) 500)))
 
 (def widget-opts {:editor-in-mode "text/html"
                   :editor-out-mode "text"
                   :default-editor "html"
-                  :eval-fn eval-faust
+                  :eval-fn (partial eval-faust :widget)
                   :no-result true
                   :min-eval-idle-msec 1000
                   :comment-str "//"})
 
-(klr/register-mode "faust-widget" "selector_faust" widget-opts)
+(register-mode "faust-widget" "selector_faust_widget" widget-opts)
+
+(def editor-opts (assoc widget-opts :eval-fn (partial eval-faust :editor)))
+
+(register-mode "faust-editor" "selector_faust_editor" editor-opts)
+
 (init)
