@@ -12,8 +12,8 @@
 
 (rf/reg-sub
  :kl
- (fn [db [_ uid]]
-   (-> db :editors uid :kl)))
+ (fn [db [_ id]]
+   (-> db :editors id :kl)))
 
 (rf/reg-sub
  :uid
@@ -26,9 +26,21 @@
    (:editors db)))
 
 (rf/reg-sub
+ :ids
+ (fn [db _]
+   (-> db :editors keys)))
+
+(rf/reg-sub
+ :snapshot
+ (fn [db _]
+   (-> db
+     (select-keys [:editors :uids])
+     (update-in [:editors] (partial map #(dissoc (val %) :kl))))))
+
+(rf/reg-sub
  :kl
- (fn [db [_ uid]]
-   (-> db :editors uid :kl)))
+ (fn [db [_ id]]
+   (-> db :editors id :kl)))
 
 (rf/reg-sub
  :mode-options
@@ -44,13 +56,13 @@
 
 (rf/reg-event-db
  :visible?
- (fn [db [_ uid visible?]]
-   (assoc-in db [:editors uid :visible?] visible?)))
+ (fn [db [_ id visible?]]
+   (assoc-in db [:editors id :visible?] visible?)))
 
 (rf/reg-event-db
  :toggle-visible
- (fn [db [_ uid]]
-   (update-in db [:editors uid :visible?] not)))
+ (fn [db [_ id]]
+   (update-in db [:editors id :visible?] not)))
 
 (rf/reg-event-db
  :reg-editor
@@ -59,20 +71,20 @@
 
 (rf/reg-event-db
  :discard-editor
- (fn [db [_ uid]]
-   (let [discarded (assoc-in db [:trash uid] (-> db :editors uid))]
+ (fn [db [_ id]]
+   (let [discarded (assoc-in db [:trash id] (-> db :editors uid))]
      (update-in discarded [:editors] dissoc uid))))
 
 (rf/reg-event-db
  :recover-editor
- (fn [db [_ uid]]
-   (let [recovered (assoc-in db [:editors uid] (-> db :trash uid))]
+ (fn [db [_ id]]
+   (let [recovered (assoc-in db [:editors id] (-> db :trash uid))]
      (update-in recovered [:trash] dissoc uid))))
 
 (rf/reg-event-db
  :update-snippet
- (fn [db [_ uid code]]
-   (assoc-in db [:editors uid :snippet] (p/get-code (-> db :editors uid :kl)))))
+ (fn [db [_ id]]
+   (assoc-in db [:editors id :snippet] (p/get-code (-> db :editors id :kl)))))
 
 (rf/reg-event-db
  :reg-mode-options
@@ -117,6 +129,11 @@
         uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :uid uid)}])
     (rf/dispatch [:new-uid id])))
+
+(defn snapshot []
+  (doseq [id @(rf/subscribe [:ids])]
+    (rf/dispatch [:update-snippet id]))
+  (rf/subscribe [:snapshot]))
 
 (defn select-mode-comp [value-atom mode-options-atom]
   (r/create-class
