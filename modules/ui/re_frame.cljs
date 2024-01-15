@@ -34,7 +34,8 @@
 
 (rf/reg-event-db
  :initialize
- (fn [_ _]  
+ (fn [_ _]
+   (add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
    {:editors {}
     :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
 
@@ -107,6 +108,5 @@
 
 ; INITIALIZE
 
-(add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
 (rf/dispatch [:initialize])
 (rdom/render [pou-re-frame] (gdom/getElement "app"))
