@@ -66,4 +66,4 @@
 
 (klr/register-mode "faust-editor" "selector_faust_editor" editor-opts)
 
-(init)
+(when-not @loaded (init))
