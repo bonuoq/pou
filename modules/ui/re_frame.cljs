@@ -11,6 +11,16 @@
 ; REG SUBS
 
 (rf/reg-sub
+ :kl
+ (fn [db [_ uid]]
+   (-> db :editors uid :kl)))
+
+(rf/reg-sub
+ :uid
+ (fn [db [_ id]]
+   (str id (-> db :uids id))))
+
+(rf/reg-sub
  :editors
  (fn [db _]
    (:editors db)))
@@ -23,14 +33,19 @@
 ; REG EVENTS
 
 (rf/reg-event-db
+ :new-uid
+ (fn [db [_ id]]
+   (update-in db [:uids id] inc)))
+
+(rf/reg-event-db
  :visible?
- (fn [db [_ idx visible?]]
-   (assoc-in db [:editors idx :visible?] visible?)))
+ (fn [db [_ uid visible?]]
+   (assoc-in db [:editors uid :visible?] visible?)))
 
 (rf/reg-event-db
  :toggle-visible
- (fn [db [_ idx]]
-   (update-in db [:editors idx :visible?] not)))
+ (fn [db [_ uid]]
+   (update-in db [:editors uid :visible?] not)))
 
 (rf/reg-event-db
  :reg-editor
@@ -51,18 +66,18 @@
 
 ; COMPONENTS
 
-(defn- editor [{:keys [mode attrs idx snippet visible?]
+(defn- editor [{:keys [mode attrs kl uid snippet visible?]
                 :or {mode "eval-clojure" visible? true}}]
   (fn []
     [:div.pou-wrapper
      [:div.pou-toolbar
       [:button.toggle-min
-       {:on-click #(rf/dispatch [:toggle-visible idx])}
+       {:on-click #(rf/dispatch [:toggle-visible uid])}
        (if visible? "<" ">")]
-      (str "[" idx "] mode: " mode)]
+      (str "[" uid "] mode: " mode " #klipse-" kl)]
      [:div.pou-editor
       {:style {:display (if visible? "block" "none")}}
-      [:div.pou-klipse attrs (str snippet)]]]))
+      [:div.pou-klipse (assoc attrs :id uid) (str snippet)]]]))
 
 (defn editor-comp [{:keys [mode klipsettings] 
                     :or {mode "eval-clojure" klipsettings {}}
@@ -74,10 +89,11 @@
      :reagent-render 
      (editor editor-settings)}))
 
-(defn append-editor [& {:keys [mode attrs snippet klipsettings visible?] 
-                        :or {mode "eval-clojure" visible? true} :as editor-map}]
-  (let [idx @klp/snippet-counter]
-    (rf/dispatch [:reg-editor {idx (assoc editor-map :mode mode :idx idx)}])))
+(defn append-editor [& {:keys [id mode attrs snippet klipsettings visible?] 
+                        :or {id (or mode "clj") mode "eval-clojure" visible? true} :as editor-map}]
+  (let [kl @klp/snippet-counter
+        uid @(rf/subscribe [:uid id])]
+    (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :uid uid)}])))
 
 (defn select-mode-comp [value-atom mode-options-atom]
   (r/create-class
