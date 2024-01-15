@@ -68,7 +68,7 @@
 (p/process-url-params
   :p #(p/addp (p/decode64 %))
   :o #(apply p/addp (p/flatten64 %))
-  :u #(p/addp (str "(require '[pou.ui." % " :as pui])")))
+  :u #(p/load-ui %))
     </div>
   </div>
   <div id="app"></div>
