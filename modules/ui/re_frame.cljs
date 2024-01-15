@@ -41,8 +41,8 @@
 
 ; COMPONENTS
 
-(defn editor [{:keys [mode attrs idx snippet visible?]
-               :or {mode "eval-clojure" visible? true}}]
+(defn- editor [{:keys [mode attrs idx snippet visible?]
+                :or {mode "eval-clojure" visible? true}}]
   (fn []
     [:div.pou-wrapper
      [:div.pou-toolbar
@@ -62,7 +62,7 @@
      (fn [this]
        (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode))               
      :reagent-render 
-     [editor editor-settings]}))
+     (editor editor-settings)}))
 
 (defn append-editor [& {:keys [mode attrs snippet klipsettings visible?] 
                         :or {mode "eval-clojure" visible? true} :as editor-map}]
