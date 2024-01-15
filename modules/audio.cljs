@@ -13,7 +13,9 @@
   ([] synctx)
   ([faust-id] (.-context (faust-node faust-id))))
 
-(def actime #(syn/current-time (actx %)))
+(def actime 
+  ([] (syn/current-time (actx)))
+  ([faust-id] (syn/current-time (actx faust-id))))
 
 (defn play! [notes]
   (doseq [{:keys [instrument time duration] :as note} notes]
@@ -33,7 +35,7 @@
 (defn play-faust!
   ([id events]
    (doseq [{:keys [param time value pitch duration] :as event} events]
-     (plug-faust-param id param (or pitch value) (+ time (actime id) duration))))
+     (plug-faust-param id param (or pitch value) (+ time (actime id)) duration)))
   ([events]
    (doseq [{:keys [id param time value pitch duration] :as event} events]
-     (plug-faust-param id param (or pitch value) (+ time (actime id) duration)))))
+     (plug-faust-param id param (or pitch value) (+ time (actime id)) duration))))
