@@ -90,7 +90,7 @@
      (editor editor-settings)}))
 
 (defn append-editor [& {:keys [id mode attrs snippet klipsettings visible?] 
-                        :or {id (or mode "clj") mode "eval-clojure" visible? true} :as editor-map}]
+                        :or {id :pou mode "eval-clojure" visible? true} :as editor-map}]
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :uid uid)}])))
