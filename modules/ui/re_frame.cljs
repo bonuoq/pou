@@ -1,4 +1,4 @@
-(ns pou.ui.re-frame
+(ns pou.modules.ui.re-frame
   (:require [goog.dom :as gdom]
             [klipse.plugin :as klp]
             [klipse.common.registry :as klreg]
