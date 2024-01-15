@@ -41,26 +41,31 @@
 
 ; COMPONENTS
 
-(defn editor-comp [{:keys [mode attrs idx snippet klipsettings] :or {klipsettings {}}}]
-  (let [s (r/atom {:visible? true})]
-    (r/create-class
-      {:component-did-mount
-       (fn [this]
-         (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode))               
-       :reagent-render
-       (fn []
-         (let [visible? (:visible? @s)]
-           [:div.pou-wrapper
-            [:div.pou-toolbar
-             [:button.toggle-min
-              {:on-click #(swap! s update :visible? not)}
-              (if visible? "<" ">")]
-             (str "[" idx "] mode: " mode)]
-            [:div.pou-editor
-             {:style {:display (if visible? "block" "none")}}
-             [:div.pou-klipse attrs (str snippet)]]]))})))
+(defn editor [{:keys [mode attrs idx snippet visible?]
+               :or {mode "eval-clojure" visible? true}}]
+  (fn []
+    [:div.pou-wrapper
+     [:div.pou-toolbar
+      [:button.toggle-min
+       {:on-click #(swap! s update :visible? not)}
+       (if visible? "<" ">")]
+      (str "[" idx "] mode: " mode)]
+     [:div.pou-editor
+      {:style {:display (if visible? "block" "none")}}
+      [:div.pou-klipse attrs (str snippet)]]]))
 
-(defn append-editor [& {:keys [mode attrs snippet klipsettings] :or {mode "eval-clojure"} :as editor-map}]
+(defn editor-comp [{:keys [mode klipsettings] 
+                    :or {mode "eval-clojure" klipsettings {}}
+                    :as editor-settings}]
+  (r/create-class
+    {:component-did-mount
+     (fn [this]
+       (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode))               
+     :reagent-render 
+     [editor editor-settings]}))
+
+(defn append-editor [& {:keys [mode attrs snippet klipsettings visible?] 
+                        :or {mode "eval-clojure" visible? true} :as editor-map}]
   (let [idx @klp/snippet-counter]
     (rf/dispatch [:reg-editor {idx (assoc editor-map :mode mode :idx idx)}])))
 
