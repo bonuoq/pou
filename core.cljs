@@ -17,8 +17,13 @@
 (def parse64 #(read-string (decode64 %)))
 (def flatten64 #(flatten (into [] (parse64 %))))
 
-(defn toggle [div visible?]
-  (-> div gdom/getElement .-hidden (set! visible?)))
+(defn- h? [d] (.-hidden d))
+(defn- th [d h?] (-> d .-hidden (set! h?)))
+(defn toggle-hidden 
+  ([div-id hidden?] (th (gdom/getElement div-id) hidden?))
+  ([div-id] (let [d (gdom/getElement div-id)] (th d (not (h? d))))))
+
+(set! js/toggleHidden #(partial toggle-Hidden))
 
 (defn append-editor [{:keys [mode attrs snippet klipsettings external-libs] 
                       :or {mode "eval-clojure" klipsettings {} external-libs ["https://bonuoq.github.io"]}}]
