@@ -24,8 +24,7 @@
              "div" 
              (clj->js (assoc attrs :data-external-libs data-external-libs)) 
              (gdom/createTextNode (str snippet)))
-        idx @klp/snippet-counter
-        label (gdom/createTextNode (str "[" idx "] mode: " mode))]
+        label (gdom/createTextNode (str "[" @klp/snippet-counter "] -- mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
     (gdom/insertSiblingAfter label js/klipse-container.nextSibling)
     (klp/klipsify div klipsettings mode)))
