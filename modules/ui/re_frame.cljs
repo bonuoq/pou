@@ -26,6 +26,11 @@
    (:editors db)))
 
 (rf/reg-sub
+ :kl
+ (fn [db [_ uid]]
+   (-> db :editors uid :kl)))
+
+(rf/reg-sub
  :mode-options
  (fn [db _]
    (:mode-options db)))
@@ -67,7 +72,7 @@
 (rf/reg-event-db
  :update-snippet
  (fn [db [_ uid code]]
-   (assoc-in db [:editors uid :snippet] code)))
+   (assoc-in db [:editors uid :snippet] (p/get-code (-> db :editors uid :kl)))))
 
 (rf/reg-event-db
  :reg-mode-options
