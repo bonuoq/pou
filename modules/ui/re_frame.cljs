@@ -23,6 +23,16 @@
 ; REG EVENTS
 
 (rf/reg-event-db
+ :visible?
+ (fn [db [_ idx visible?]]
+   (assoc-in db [:editors idx :visible?] visible?)))
+
+(rf/reg-event-db
+ :toggle-visible
+ (fn [db [_ idx]]
+   (update-in db [:editors idx visible?] not)))
+
+(rf/reg-event-db
  :reg-editor
  (fn [db [_ editor]]
    (update-in db [:editors] conj editor)))
@@ -47,7 +57,7 @@
     [:div.pou-wrapper
      [:div.pou-toolbar
       [:button.toggle-min
-       {:on-click #(swap! s update :visible? not)}
+       {:on-click #(rf/dispatch [:toggle-visible idx])}
        (if visible? "<" ">")]
       (str "[" idx "] mode: " mode)]
      [:div.pou-editor
