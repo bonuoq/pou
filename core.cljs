@@ -52,6 +52,11 @@
 
 (defn get-result [k] (call-in-result k :getValue))
 
+(defn on-code-change [k callback]
+  (let [cb-handler (fn [cm] (callback (.getValue cm)))]
+    (call-in-editor k :on "change" cb-handler)
+    cb-handler))
+
 (defn on-res-change [k callback]
   (let [cb-handler (fn [r] (callback (.getValue r)))]
     (call-in-result k :on "change" cb-handler)
