@@ -1,7 +1,7 @@
 (ns pou.modules.faust
   (:require [goog.dom :as gdom]
-            [klipse.common.registry :refer [register-mode]]
-            [klipse.klipse-editors :refer [editors]]))
+            [klipse.common.registry :as klr]
+            [klipse.klipse-editors :as kleds]))
 
 (def trusted-url js/goog.html.legacyconversions.trustedResourceUrlFromString)
 (def js-safe-load js/goog.net.jsloader.safeLoad)
@@ -45,7 +45,7 @@
     (try
       (js/console.log (str "FAUST eval: " exp))
       (place-in container :snippet (str exp) :mode mode)
-      (when (= mode :editor) (. (->> container-id last int (get @editors)) setValue ""))
+      (when (= mode :editor) (. (->> container-id last int (get @kleds/editors)) setValue ""))
       (catch :default e
         (set! (. container -innerHTML) (str e))))
     (js/setTimeout #(eval-faust exp kwargs) 500)))
@@ -58,10 +58,10 @@
                   :min-eval-idle-msec 1000
                   :comment-str "//"})
 
-(register-mode "faust-widget" "selector_faust_widget" widget-opts)
+(klr/register-mode "faust-widget" "selector_faust_widget" widget-opts)
 
 (def editor-opts (assoc widget-opts :eval-fn (partial eval-faust :editor)))
 
-(register-mode "faust-editor" "selector_faust_editor" editor-opts)
+(klr/register-mode "faust-editor" "selector_faust_editor" editor-opts)
 
 (init)
