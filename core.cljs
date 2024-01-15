@@ -17,6 +17,9 @@
 (def parse64 #(read-string (decode64 %)))
 (def flatten64 #(flatten (into [] (parse64 %))))
 
+(defn toggle [div visible?]
+  (-> div gdom/getElement .-hidden (set! visible?)))
+
 (defn append-editor [{:keys [mode attrs snippet klipsettings external-libs] 
                       :or {mode "eval-clojure" klipsettings {} external-libs ["https://bonuoq.github.io"]}}]
   (let [data-external-libs (apply str (interpose "," external-libs))
@@ -31,6 +34,8 @@
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
+
+(set! js/appendSnippet #(addp %1 :mode %2))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply (@kleds/editors k) method (clj->js args)))
