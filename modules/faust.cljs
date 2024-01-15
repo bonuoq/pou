@@ -45,7 +45,9 @@
     (try
       (js/console.log (str "FAUST eval: " exp))
       (place-in container :snippet (str exp) :mode mode)
-      (when (= mode :editor) (. (->> container-id last int (get @kleds/editors)) setValue ""))
+      (when (= mode :editor) 
+        (when-let [e (some->> container-id last int (get @kleds/editors))] 
+          (.setValue e "")))
       (catch :default e
         (set! (. container -innerHTML) (str e))))
     (js/setTimeout #(eval-faust exp kwargs) 500)))
