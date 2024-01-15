@@ -23,7 +23,7 @@
   ([div-id hidden?] (th (gdom/getElement div-id) hidden?))
   ([div-id] (let [d (gdom/getElement div-id)] (th d (not (h? d))))))
 
-(set! js/toggleHidden #(partial toggle-hidden))
+(set! js/toggleHidden (partial toggle-hidden))
 
 (defn append-editor [{:keys [mode attrs snippet klipsettings external-libs] 
                       :or {mode "eval-clojure" klipsettings {} external-libs ["https://bonuoq.github.io"]}}]
