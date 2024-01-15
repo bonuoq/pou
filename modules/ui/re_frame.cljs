@@ -94,6 +94,7 @@
 (rf/reg-event-db
  :initialize
  (fn [_ _]
+   (set! js/pou.core.append-editor append-editor)
    (add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
    {:editors {}
     :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
@@ -181,7 +182,3 @@
 
 (rf/dispatch [:initialize])
 (rdom/render [pou-re-frame] (gdom/getElement "app"))
-
-(ns pou.core
-  (:require [pou.modules.ui.re-frame :as pui]))
-(def append-editor pui/append-editor)
