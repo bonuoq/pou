@@ -13,7 +13,7 @@
   ([] synctx)
   ([faust-id] (.-context (faust-node faust-id))))
 
-(def actime 
+(defn actime 
   ([] (syn/current-time (actx)))
   ([faust-id] (syn/current-time (actx faust-id))))
 
