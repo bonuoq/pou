@@ -63,11 +63,15 @@
             [pou.core :as p]
             [klipse.utils :as klu]
             [klipse-clj.repl :refer [doc]]))
+        
 (p/toggle-hidden "loading" true)
+        
 (p/process-url-params
   :p #(p/addp (p/decode64 %))
   :o #(apply p/addp (p/flatten64 %))
-  :u (fn[ui] (p/load-ui ui) (p/toggle-hidden "toolbar" true))
+  :u (fn [ui] 
+        (p/load-ui ui) 
+        (p/toggle-hidden "toolbar" true))
         </div>
     </div>
   </div>
