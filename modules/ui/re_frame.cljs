@@ -30,7 +30,7 @@
 (rf/reg-event-db
  :toggle-visible
  (fn [db [_ idx]]
-   (update-in db [:editors idx visible?] not)))
+   (update-in db [:editors idx :visible?] not)))
 
 (rf/reg-event-db
  :reg-editor
