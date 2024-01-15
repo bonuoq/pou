@@ -53,6 +53,18 @@
    (update-in db [:editors] conj editor)))
 
 (rf/reg-event-db
+ :discard-editor
+ (fn [db [_ uid]]
+   (let [discarded (assoc-in db [:trash uid] (-> db :editors uid))]
+     (update-in discarded [:editors] dissoc uid))))
+
+(rf/reg-event-db
+ :recover-editor
+ (fn [db [_ uid]]
+   (let [recovered (assoc-in db [:editors uid] (-> db :trash uid))]
+     (update-in recovered [:trash] dissoc uid))))
+
+(rf/reg-event-db
  :update-snippet
  (fn [db [_ uid code]]
    (assoc-in db [:editors uid :snippet] code)))
