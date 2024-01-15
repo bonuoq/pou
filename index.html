@@ -50,27 +50,28 @@
   
   <div id="loading" class="loader">LOADING...</div>
   
-  <div id="app" class="pou-wrapper">
+  <div class="pou-wrapper">
     <button class="append-snippet" onclick="appendSnippet()">+</button><br>
+    <button class="hide-start" onclick="toggleHidden("start")>&lt&gt</button>
     [0] mode: eval-clojure
-    <div id="main" class="language-klipse" data-external-libs="
-      https://bonuoq.github.io,
-      https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main">
+    <div id="start">
+      <div class="language-klipse" data-external-libs="
+        https://bonuoq.github.io,
+        https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main">
 (ns pou.user
   (:require [goog.dom :as gdom]
             [pou.core :as p]
             [klipse.utils :as klu]
             [klipse-clj.repl :refer [doc]]))
-
-(set! js/appendSnippet #(p/addp %1 :mode %2))
-(-> "loading" gdom/getElement .-hidden (set! true))
-
+(p/toggle-hidden "loading" true)
 (p/process-url-params
   :p #(p/addp (p/decode64 %))
   :o #(apply p/addp (p/flatten64 %))
   :u #(p/load-ui %))
+        </div>
     </div>
   </div>
+  <div id="app"></div>
   <div id="host"></div>
   
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
