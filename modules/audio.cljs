@@ -1,5 +1,6 @@
 (ns pou.modules.audio
-  (:require [cljs-bach.synthesis :as syn]))
+  (:require [goog.dom :as gdom]
+            [cljs-bach.synthesis :as syn]))
 
 (defonce synctx (syn/audio-context))
 
