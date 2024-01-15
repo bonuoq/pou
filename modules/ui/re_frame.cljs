@@ -115,7 +115,8 @@
                         :or {id :pou mode "eval-clojure" visible? true} :as editor-map}]
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
-    (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :uid uid)}])))
+    (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :uid uid)}])
+    (rf/dispatch [:new-uid id])))
 
 (defn select-mode-comp [value-atom mode-options-atom]
   (r/create-class
