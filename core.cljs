@@ -35,9 +35,7 @@
   (swap! ui assoc :append-fn append-fn))
 
 (defn append-editor-base [{:keys [id mode attrs snippet klipsettings] :as editor}]
-  (let [k @klp/snippet-counter
-        id (or id (str "pou-klipse-" k))
-        div (gdom/createDom "div" 
+  (let [div (gdom/createDom "div" 
                             (clj->js (assoc attrs :id id)) 
                             (gdom/createTextNode (str snippet)))
         title (gdom/createTextNode (str "#" k ", id: " id ", mode: " mode))]
@@ -48,14 +46,19 @@
 
 (reg-append-fn append-editor-base)
 
-(defn append-editor [{:keys [mode attrs klipsettings external-libs] :as editor}]
-  (let [data-external-libs (->> external-libs 
-                             (into (:external-libs @ui)) 
+(defn append-editor [{:keys [id mode attrs external-libs]
+                      :or {mode "eval-clojure" id (:id attrs)}
+                      :as editor}]
+  (let [kl @klp/snippet-counter
+        data-external-libs (->> external-libs 
+                             (into (conj (:external-libs @ui) 
+                                         (:data-external-libs attrs)))
                              (interpose ",") 
                              (apply str))]
-    ((:append-fn @ui) (merge editor {:attrs (merge attrs {:data-external-libs data-external-libs})
-                                     :mode (or mode "eval-clojure")
-                                     :klipsettings (or klipsettings {})}))))
+    ((:append-fn @ui) (merge editor 
+                             {:mode mode
+                              :attrs (merge attrs {:id (or id (str "pou-" kl))
+                                                   :data-external-libs data-external-libs})}))))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
