@@ -38,9 +38,7 @@
 (rf/reg-sub
  :snapshot
  (fn [db _]
-   (-> db
-     (select-keys [:editors :uids])
-     (update-in [:editors] (partial mapv #(dissoc (val %) :kl))))))
+   (mapv #(dissoc (val %) :kl) (:editors db))))
 
 (rf/reg-sub
  :mode-options
@@ -129,12 +127,17 @@
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :id uid)}])
-    (rf/dispatch [:new-uid id])))
+    (rf/dispatch [:new-uid id])
+    (when-not (= id uid) 
+      (rf/dispatch [:new-uid uid]))))
 
 (defn snapshot []
   (doseq [id @(rf/subscribe [:ids])]
     (rf/dispatch [:update-snippet id]))
   (rf/subscribe [:snapshot]))
+
+(defn load-snapshot [snapshot]
+  (->> snapshot :editors (map append-editor)))
 
 (defn select-mode-comp [value-atom mode-options-atom]
   (fn []
