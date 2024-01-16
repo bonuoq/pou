@@ -136,7 +136,7 @@
     (rf/dispatch [:update-snippet id]))
   (rf/subscribe [:snapshot]))
 
-(defn load-snapshot [snapshot]
+(defn load-snapshot [snapshot discard-old?]
   (map append-editor snapshot))
 
 (defn select-mode-comp [value-atom mode-options-atom]
