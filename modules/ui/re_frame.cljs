@@ -123,13 +123,15 @@
      (editor editor-settings)}))
 
 (defn append-editor [{:keys [id mode attrs snippet klipsettings hidden?] 
-                      :or {id "pou" mode "eval-clojure"} :as editor-map}]
+                      :or {id "pou"} :as editor-map}]
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :id uid)}])
     (rf/dispatch [:new-uid id])
     (when-not (= id uid) 
       (rf/dispatch [:new-uid uid]))))
+
+(p/reg-append-fn append-editor)
 
 (defn snapshot []
   (doseq [id @(rf/subscribe [:ids])]
@@ -149,21 +151,21 @@
 (defn pou-re-frame []
   (let [sel-mode (r/atom nil)
         from-gist (r/atom nil)
-        ext-libs (r/atom "https://bonuoq.github.io")]
+        ext-libs (r/atom nil)]
     (fn []
       [:div#pou-app
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:button
-        {:on-click #(append-editor {:attrs {:data-external-libs "https://bonuoq.github.io"}})}
+        {:on-click #(p/append-editor {})}
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
-                     (append-editor {:mode @sel-mode 
-                                     :attrs {:data-gist-id @from-gist
-                                             :data-external-libs @ext-libs}})
+                     (p/append-editor {:mode @sel-mode 
+                                       :external-libs @ext-libs
+                                       :attrs {:data-gist-id @from-gist}})
                      (reset! from-gist nil)
-                     (reset! ext-libs "https://bonuoq.github.io"))}
+                     (reset! ext-libs nil))}
         "+"]
        [select-mode-comp sel-mode (rf/subscribe [:mode-options])] " "
        [:label "from-gist: "
