@@ -54,7 +54,8 @@
                              (interpose ",") 
                              (apply str))]
     ((:append-fn @ui) (merge editor {:attrs (merge attrs {:data-external-libs data-external-libs})
-                                     :mode (or mode "eval-clojure")}))))
+                                     :mode (or mode "eval-clojure")
+                                     :klipsettings (or klipsettings {})}))))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
