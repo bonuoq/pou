@@ -108,7 +108,7 @@
         [:button.toggle-min
          {:on-click #(rf/dispatch [:show-hide id])}
          (if @hidden? ">" "<")]
-        (str "[" id "] mode: " mode " #klipse-" kl)]
+        (str "#" kl ", id: " id ", mode: " mode)]
        [:div.pou-editor
         {:style {:display (if @hidden? "none" "block")}}
         [:div.pou-klipse (assoc attrs :id id) (str snippet)]]])))
