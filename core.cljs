@@ -40,7 +40,7 @@
   (let [div (gdom/createDom "div" 
                             (clj->js (assoc attrs :id id)) 
                             (gdom/createTextNode (str snippet)))
-        title (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode)]
+        title (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
     (gdom/insertSiblingAfter title js/klipse-container.nextSibling)
     (klp/klipsify div klipsettings mode)))
