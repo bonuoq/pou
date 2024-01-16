@@ -122,11 +122,10 @@
      :reagent-render 
      (editor editor-settings)}))
 
-(defn append-editor [{:keys [id mode attrs snippet klipsettings hidden?] 
-                      :or {id "pou"} :as editor-map}]
+(defn append-editor [{:keys [id] :or {id "pou"} :as editor-map}]
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
-    (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :id uid)}])
+    (rf/dispatch [:reg-editor {uid (assoc editor-map :kl kl :id uid)}])
     (rf/dispatch [:new-uid id])
     (when-not (= id uid) 
       (rf/dispatch [:new-uid uid]))))
