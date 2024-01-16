@@ -68,13 +68,13 @@
  :discard-editor
  (fn [db [_ id]]
    (let [discarded (assoc-in db [:trash id] (-> db :editors uid))]
-     (update-in discarded [:editors] dissoc uid))))
+     (update-in discarded [:editors] dissoc id))))
 
 (rf/reg-event-db
  :recover-editor
  (fn [db [_ id]]
    (let [recovered (assoc-in db [:editors id] (-> db :trash uid))]
-     (update-in recovered [:trash] dissoc uid))))
+     (update-in recovered [:trash] dissoc id))))
 
 (rf/reg-event-db
  :update-snippet
@@ -120,10 +120,10 @@
      (editor editor-settings)}))
 
 (defn append-editor [{:keys [id mode attrs snippet klipsettings visible?] 
-                      :or {id :pou mode "eval-clojure" visible? true} :as editor-map}]
+                      :or {id "pou" mode "eval-clojure" visible? true} :as editor-map}]
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
-    (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :uid uid)}])
+    (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :id uid)}])
     (rf/dispatch [:new-uid id])))
 
 (defn snapshot []
@@ -132,16 +132,11 @@
   (rf/subscribe [:snapshot]))
 
 (defn select-mode-comp [value-atom mode-options-atom]
-  (r/create-class
-   {:component-did-mount 
-    (fn [this]
-      (j/assoc! (rdom/dom-node this) :value "eval-clojure"))
-    :reagent-render
-    (fn []
-      [:select
-       {:on-change #(reset! value-atom (.. % -target -value))}
-       (for [k @mode-options-atom]
-         ^{:key k} [:option {:value k} k])])}))
+  (fn []
+    [:select
+     {:on-change #(reset! value-atom (.. % -target -value))}
+     (for [k @mode-options-atom]
+       ^{:key k} [:option {:value k} k])]))
 
 (defn pou-re-frame []
   (let [sel-mode (r/atom nil)
