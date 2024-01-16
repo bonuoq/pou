@@ -177,6 +177,5 @@
 
 ; INITIALIZE
 
-(set! js/pou.core.append-editor append-editor)
 (rf/dispatch [:initialize])
 (rdom/render [pou-re-frame] (gdom/getElement "app"))
