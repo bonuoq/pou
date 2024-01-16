@@ -40,7 +40,7 @@
  (fn [db _]
    (-> db
      (select-keys [:editors :uids])
-     (update-in [:editors] (partial map #(dissoc (val %) :kl))))))
+     (update-in [:editors] (partial mapv #(dissoc (val %) :kl))))))
 
 (rf/reg-sub
  :mode-options
