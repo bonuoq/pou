@@ -48,14 +48,13 @@
 
 (reg-append-fn append-editor-base)
 
-(defn append-editor [{:keys [mode klipsettings external-libs] 
-                      :or {mode "eval-clojure" klipsettings {}}
-                      :as editor}]
+(defn append-editor [{:keys [mode attrs klipsettings external-libs] :as editor}]
   (let [data-external-libs (->> external-libs 
                              (into (:external-libs @ui)) 
                              (interpose ",") 
                              (apply str))]
-    ((:append-fn @ui) (assoc-in editor [:attrs :data-external-libs] data-external-libs))))
+    ((:append-fn @ui) (merge editor {:attrs (merge attrs {:data-external-libs data-external-libs})
+                                     :mode (or mode "eval-clojure")}))))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
@@ -131,7 +130,7 @@
             (callback (-> (js->clj json :keywordize-keys true) :files ((keyword file)) :content))))))))
 
 (defn append-gist [{:keys [id file mode attrs klipsettings append-code] 
-                    :or {mode "eval-clojure" append-code ""} 
+                    :or {append-code ""} 
                     :as editor}]
   (fetch-gist id file #(addp (str % append-code) editor)))
 
