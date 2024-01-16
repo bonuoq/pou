@@ -21,24 +21,24 @@
     (. component appendChild (. js/document createComment snippet))
     (. element replaceChildren component)))
 
-(defn get-comp [idx] 
-  (some-> (str "klipse-container-" idx) gdom/getElement (.querySelector "faust-editor, faust-widget")))
+(defn get-comp [id] 
+  (some-> id gdom/getElement (.querySelector "faust-editor, faust-widget")))
 
-(defn get-faust-code [idx] 
+(defn get-faust-code [id] 
   (or 
-   (some-> (get-comp idx) .-shadowRoot (.querySelector ".cm-content") .-innerText)
-   (some-> (get-comp idx) .-lastChild .-data)))
+   (some-> (get-comp id) .-shadowRoot (.querySelector ".cm-content") .-innerText)
+   (some-> (get-comp id) .-lastChild .-data)))
 
-(defn get-faust-node [idx] 
-  (. (get-comp idx) -faustNode))
+(defn get-faust-node [id] 
+  (. (get-comp id) -faustNode))
            
-(defn set-param [idx param-path value]
-  (when-let [component (get-comp idx)]
+(defn set-param [id param-path value]
+  (when-let [component (get-comp id)]
     (.. component -faustNode (setParamValue param-path value))
     (.. component -faustUI (paramChangeByDSP param-path value))))
 
-(defn action [idx action]
-  (some-> (get-comp idx) .-shadowRoot (.getElementById (clj->js action)) .click))
+(defn action [id action]
+  (some-> (get-comp id) .-shadowRoot (.getElementById (clj->js action)) .click))
 
 (defn eval-faust [mode exp {:keys [container container-id] :as kwargs}]
   (if @loaded
