@@ -60,10 +60,8 @@
                              (interpose ",")
                              (apply str)
                              not-empty)
-        new-editor (merge {:id id :kl kl :mode mode
-                                  :attrs (when data-external-libs 
-                                           (assoc attrs :data-external-libs data-external-libs))}
-                          editor)]
+        new-editor (merge editor {:id id :kl kl :mode mode
+                                  :attrs (merge attrs {:data-external-libs data-external-libs})})]
     ((:append-fn @ui) new-editor)
     (reg-editor id new-editor)))
 
