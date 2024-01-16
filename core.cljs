@@ -25,17 +25,37 @@
 
 (set! js/toggleHidden (partial toggle-hidden))
 
-(defn append-editor [{:keys [mode attrs snippet klipsettings external-libs] 
-                      :or {mode "eval-clojure" klipsettings {} external-libs ["https://bonuoq.github.io"]}}]
-  (let [data-external-libs (apply str (interpose "," external-libs))
-        div (gdom/createDom 
-             "div" 
-             (clj->js (assoc attrs :data-external-libs data-external-libs)) 
-             (gdom/createTextNode (str snippet)))
-        label (gdom/createTextNode (str "[" @klp/snippet-counter "] -- mode: " mode))]
+(def ui (atom {:editors {}
+               :external-libs ["https://bonuoq.github.io"]
+               :append-fn #(str "Not defined, cannot append:" %)}))
+
+(defn reg-editor [k editor]
+  (swap! ui assoc-in [:editors] id editor))
+(defn reg-append-fn [append-fn]
+  (swap! ui assoc :append-fn append-fn))
+
+(defn append-editor-base [{:keys [id mode attrs snippet klipsettings]
+                           :or {mode "eval-clojure" klipsettings {}}
+                           :as editor}]
+  (let [k @klp/snippet-counter
+        id (or id (str "pou-klipse-" k))
+        div (gdom/createDom "div" 
+                            (clj->js (assoc attrs :id id)) 
+                            (gdom/createTextNode (str snippet)))
+        title (gdom/createTextNode (str "# " k ", id: " id ", mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
-    (gdom/insertSiblingAfter label js/klipse-container.nextSibling)
-    (klp/klipsify div klipsettings mode)))
+    (gdom/insertSiblingAfter title js/klipse-container.nextSibling)
+    (klp/klipsify div klipsettings mode)
+    (reg-editor k editor)))
+
+(reg-append-fn append-editor-base)
+
+(defn append-editor [{:keys [external-libs] :as editor}]
+  (let [data-external-libs (->> external-libs 
+                             (into (:external-libs @ui)) 
+                             (interpose ",") 
+                             (apply str))]
+    ((:append-fn @ui) (assoc-in editor [:attrs :data-external-libs] data-external-libs))))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
