@@ -101,7 +101,7 @@
     [:div.pou-wrapper
      [:div.pou-toolbar
       [:button.toggle-min
-       {:on-click #(rf/dispatch [:toggle-visible uid])}
+       {:on-click #(rf/dispatch [:toggle-visible id])}
        (if visible? "<" ">")]
       (str "[" id "] mode: " mode " #klipse-" kl)]
      [:div.pou-editor
