@@ -66,7 +66,7 @@
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
 
-(set! js/appendSnippet #(addp %1 :mode %2))
+(set! js/appendSnippet #(append-editor (js->clj %)))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply (@kleds/editors k) method (clj->js args)))
