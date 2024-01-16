@@ -31,6 +31,11 @@
    (-> db :editors keys)))
 
 (rf/reg-sub
+ :visible?
+ (fn [db [_ id]]
+   (-> db :editors (get id) :visible?)))
+
+(rf/reg-sub
  :snapshot
  (fn [db _]
    (-> db
@@ -95,18 +100,19 @@
 
 ; COMPONENTS
 
-(defn- editor [{:keys [mode attrs kl id snippet visible?]
-                :or {mode "eval-clojure" visible? true}}]
-  (fn []
-    [:div.pou-wrapper
-     [:div.pou-toolbar
-      [:button.toggle-min
-       {:on-click #(rf/dispatch [:toggle-visible id])}
-       (if visible? "<" ">")]
-      (str "[" id "] mode: " mode " #klipse-" kl)]
-     [:div.pou-editor
-      {:style {:display (if visible? "block" "none")}}
-      [:div.pou-klipse (assoc attrs :id id) (str snippet)]]]))
+(defn- editor [{:keys [mode attrs kl id snippet]
+                :or {mode "eval-clojure"}}]
+  (let [visible? (rf/subscribe [:visible? id])]
+    (fn []
+      [:div.pou-wrapper
+       [:div.pou-toolbar
+        [:button.toggle-min
+         {:on-click #(rf/dispatch [:toggle-visible id])}
+         (if @visible? "<" ">")]
+        (str "[" id "] mode: " mode " #klipse-" kl)]
+       [:div.pou-editor
+        {:style {:display (if @visible? "block" "none")}}
+        [:div.pou-klipse (assoc attrs :id id) (str snippet)]]])))
 
 (defn editor-comp [{:keys [mode klipsettings] 
                     :or {mode "eval-clojure" klipsettings {}}
