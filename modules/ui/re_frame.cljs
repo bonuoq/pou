@@ -13,12 +13,12 @@
 (rf/reg-sub
  :kl
  (fn [db [_ id]]
-   (-> db :editors id :kl)))
+   (-> db :editors (get id) :kl)))
 
 (rf/reg-sub
  :uid
  (fn [db [_ id]]
-   (str id (-> db :uids id))))
+   (str id (-> db :uids (get id)))))
 
 (rf/reg-sub
  :editors
@@ -67,19 +67,19 @@
 (rf/reg-event-db
  :discard-editor
  (fn [db [_ id]]
-   (let [discarded (assoc-in db [:trash id] (-> db :editors uid))]
+   (let [discarded (assoc-in db [:trash id] (-> db :editors (get id)))]
      (update-in discarded [:editors] dissoc id))))
 
 (rf/reg-event-db
  :recover-editor
  (fn [db [_ id]]
-   (let [recovered (assoc-in db [:editors id] (-> db :trash uid))]
+   (let [recovered (assoc-in db [:editors id] (-> db :trash (get id)))]
      (update-in recovered [:trash] dissoc id))))
 
 (rf/reg-event-db
  :update-snippet
  (fn [db [_ id]]
-   (assoc-in db [:editors id :snippet] (p/get-code (-> db :editors id :kl)))))
+   (assoc-in db [:editors id :snippet] (p/get-code (-> db :editors (get id) :kl)))))
 
 (rf/reg-event-db
  :reg-mode-options
