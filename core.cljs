@@ -30,7 +30,7 @@
                :append-fn #(str "Not defined, cannot append:" %)}))
 
 (defn reg-editor [k editor]
-  (swap! ui assoc-in [:editors] id editor))
+  (swap! ui assoc-in [:editors] k editor))
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
@@ -43,8 +43,8 @@
         title (gdom/createTextNode (str "# " k ", id: " id ", mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
     (gdom/insertSiblingAfter title js/klipse-container.nextSibling)
-    (klp/klipsify div klipsettings mode)
-    (reg-editor k editor)))
+    (reg-editor k editor)
+    (klp/klipsify div klipsettings mode)))
 
 (reg-append-fn append-editor-base)
 
