@@ -43,7 +43,6 @@
         title (gdom/createTextNode (str "#" kl ", mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
     (gdom/insertSiblingAfter title js/klipse-container.nextSibling)
-    (reg-editor id editor)
     (klp/klipsify div klipsettings mode)))
 
 (reg-append-fn append-editor-base)
@@ -57,12 +56,11 @@
                              (into (conj (:external-libs @ui) 
                                          (:data-external-libs attrs)))
                              (interpose ",") 
-                             (apply str))]
-    ((:append-fn @ui) (merge editor 
-                             {:id id
-                              :kl kl
-                              :mode mode
-                              :attrs (merge attrs {:data-external-libs data-external-libs})}))))
+                             (apply str))
+        new-editor (merge editor {:id id :kl kl :mode mode
+                                  :attrs (merge attrs {:data-external-libs data-external-libs})})]
+    ((:append-fn @ui) new-editor)
+    (reg-editor id new-editor)))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
