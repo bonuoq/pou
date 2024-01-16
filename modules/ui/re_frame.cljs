@@ -98,6 +98,25 @@
    {:editors {}
     :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
 
+; ACTIONS AND HELPER FNS
+
+(defn append-editor [{:keys [id] :as editor}]
+  (let [uid @(rf/subscribe [:uid id])]
+    (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
+    (rf/dispatch [:new-uid id])
+    (when-not (= id uid) 
+      (rf/dispatch [:new-uid uid]))))
+
+(p/reg-append-fn append-editor)
+
+(defn snapshot []
+  (doseq [id @(rf/subscribe [:ids])]
+    (rf/dispatch [:update-snippet id]))
+  (rf/subscribe [:snapshot]))
+
+(defn load-snapshot [snapshot discard-old?]
+  (map append-editor snapshot))
+
 ; COMPONENTS
 
 (defn- editor [{:keys [mode attrs kl id snippet]}]
@@ -121,23 +140,6 @@
      :reagent-render 
      (editor editor-settings)}))
 
-(defn append-editor [{:keys [id] :as editor}]
-  (let [uid @(rf/subscribe [:uid id])]
-    (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
-    (rf/dispatch [:new-uid id])
-    (when-not (= id uid) 
-      (rf/dispatch [:new-uid uid]))))
-
-(p/reg-append-fn append-editor)
-
-(defn snapshot []
-  (doseq [id @(rf/subscribe [:ids])]
-    (rf/dispatch [:update-snippet id]))
-  (rf/subscribe [:snapshot]))
-
-(defn load-snapshot [snapshot discard-old?]
-  (map append-editor snapshot))
-
 (defn select-mode-comp [value-atom mode-options-atom]
   (fn []
     [:select
@@ -146,7 +148,8 @@
        ^{:key k} [:option {:value k} k])]))
 
 (defn pou-re-frame []
-  (let [sel-mode (r/atom nil)
+  (let [mode-options (rf/subscribe [:mode-options])
+        sel-mode (r/atom (first mode-options))
         from-gist (r/atom nil)
         ext-libs (r/atom nil)]
     (fn []
@@ -164,7 +167,7 @@
                      (reset! from-gist nil)
                      (reset! ext-libs nil))}
         "+"]
-       [select-mode-comp sel-mode (rf/subscribe [:mode-options])] " "
+       [select-mode-comp sel-mode mode-options] " "
        [:label "from-gist: "
         [:input {:type "text"
                  :placeholder "user/id"
