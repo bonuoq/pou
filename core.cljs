@@ -52,15 +52,17 @@
                       :or {mode "eval-clojure"}
                       :as editor}]
   (let [kl @klp/snippet-counter
+        id (or id (:id attrs) (str "pou-" kl))
         data-external-libs (->> external-libs 
                              (into (conj (:external-libs @ui) 
                                          (:data-external-libs attrs)))
                              (interpose ",") 
                              (apply str))]
     ((:append-fn @ui) (merge editor 
-                             {:kl kl
+                             {:id id
+                              :kl kl
                               :mode mode
-                              :attrs (merge attrs {:id (or id (:id attrs) (str "pou-" kl))
+                              :attrs (merge attrs {:id id
                                                    :data-external-libs data-external-libs})}))))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
