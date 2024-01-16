@@ -44,8 +44,8 @@
 
 (rf/reg-sub
  :mode-options
- (fn [db [_ r]]
-   (-> db :mode-options (or r fnil))))
+ (fn [db _]
+   (:mode-options db)))
 
 ; REG EVENTS
 
@@ -160,7 +160,7 @@
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
-                     (p/append-editor {:mode (or @sel-mode @(rf/subscribe [:mode-options first]))
+                     (p/append-editor {:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
                                        :external-libs @ext-libs
                                        :attrs {:data-gist-id @from-gist}})
                      (reset! from-gist nil)
