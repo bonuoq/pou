@@ -34,7 +34,9 @@
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
-(defn append-editor-base [{:keys [id mode attrs snippet klipsettings] :as editor}]
+(defn append-editor-base [{:keys [id mode attrs snippet klipsettings]
+                           :or {klipsettings {}}
+                           :as editor}]
   (let [div (gdom/createDom "div" 
                             (clj->js (assoc attrs :id id)) 
                             (gdom/createTextNode (str snippet)))
