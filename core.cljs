@@ -30,7 +30,7 @@
                :append-fn #(str "Not defined, cannot append:" %)}))
 
 (defn reg-editor [k editor]
-  (swap! ui assoc-in [:editors] k editor))
+  (swap! ui assoc-in [:editors k] editor))
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
