@@ -34,9 +34,7 @@
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
-(defn append-editor-base [{:keys [id mode attrs snippet klipsettings]
-                           :or {mode "eval-clojure" klipsettings {}}
-                           :as editor}]
+(defn append-editor-base [{:keys [id mode attrs snippet klipsettings] :as editor}]
   (let [k @klp/snippet-counter
         id (or id (str "pou-klipse-" k))
         div (gdom/createDom "div" 
@@ -50,7 +48,9 @@
 
 (reg-append-fn append-editor-base)
 
-(defn append-editor [{:keys [external-libs] :as editor}]
+(defn append-editor [{:keys [mode klipsettings external-libs] 
+                      :or {mode "eval-clojure" klipsettings {}}
+                      :as editor}]
   (let [data-external-libs (->> external-libs 
                              (into (:external-libs @ui)) 
                              (interpose ",") 
