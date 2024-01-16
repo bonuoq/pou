@@ -34,16 +34,16 @@
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
-(defn append-editor-base [{:keys [id mode attrs snippet klipsettings]
+(defn append-editor-base [{:keys [id kl mode attrs snippet klipsettings]
                            :or {klipsettings {}}
                            :as editor}]
   (let [div (gdom/createDom "div" 
                             (clj->js (assoc attrs :id id)) 
                             (gdom/createTextNode (str snippet)))
-        title (gdom/createTextNode (str "#" k ", id: " id ", mode: " mode))]
+        title (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
     (gdom/insertSiblingAfter title js/klipse-container.nextSibling)
-    (reg-editor k editor)
+    (reg-editor kl editor)
     (klp/klipsify div klipsettings mode)))
 
 (reg-append-fn append-editor-base)
@@ -58,7 +58,8 @@
                              (interpose ",") 
                              (apply str))]
     ((:append-fn @ui) (merge editor 
-                             {:mode mode
+                             {:kl kl
+                              :mode mode
                               :attrs (merge attrs {:id (or id (str "pou-" kl))
                                                    :data-external-libs data-external-libs})}))))
 
