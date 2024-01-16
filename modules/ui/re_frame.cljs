@@ -18,7 +18,9 @@
 (rf/reg-sub
  :uid
  (fn [db [_ id]]
-   (str id (-> db :uids (get id)))))
+   (if-let [n (-> db :uids (get id))]
+     (str id "-" n)
+     id)))
 
 (rf/reg-sub
  :editors
@@ -98,8 +100,7 @@
 
 ; COMPONENTS
 
-(defn- editor [{:keys [mode attrs kl id snippet]
-                :or {mode "eval-clojure"}}]
+(defn- editor [{:keys [mode attrs kl id snippet]}]
   (let [hidden? (rf/subscribe [:hidden? id])]
     (fn []
       [:div.pou-wrapper
@@ -112,9 +113,7 @@
         {:style {:display (if @hidden? "none" "block")}}
         [:div.pou-klipse (assoc attrs :id id) (str snippet)]]])))
 
-(defn editor-comp [{:keys [mode klipsettings] 
-                    :or {mode "eval-clojure" klipsettings {}}
-                    :as editor-settings}]
+(defn editor-comp [{:keys [mode klipsettings] :as editor-settings}]
   (r/create-class
     {:component-did-mount
      (fn [this]
@@ -122,10 +121,9 @@
      :reagent-render 
      (editor editor-settings)}))
 
-(defn append-editor [{:keys [id] :or {id "pou"} :as editor-map}]
-  (let [kl @klp/snippet-counter
-        uid @(rf/subscribe [:uid id])]
-    (rf/dispatch [:reg-editor {uid (assoc editor-map :kl kl :id uid)}])
+(defn append-editor [{:keys [id] :as editor}]
+  (let [uid @(rf/subscribe [:uid id])]
+    (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
     (rf/dispatch [:new-uid id])
     (when-not (= id uid) 
       (rf/dispatch [:new-uid uid]))))
