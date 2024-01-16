@@ -52,14 +52,18 @@
                       :as editor}]
   (let [kl @klp/snippet-counter
         id (or id (:id attrs) (str "pou-" kl))
-        data-external-libs (->> external-libs 
-                             (into (conj (-> @ui :external-libs (get mode)) 
-                                         (:data-external-libs attrs)))
+        data-external-libs (->> external-libs
+                             (into (-> @ui :external-libs (get mode)))
+                             (cons (:data-external-libs attrs))
                              (filter some?)
-                             (interpose ",") 
-                             (apply str))
-        new-editor (merge editor {:id id :kl kl :mode mode
-                                  :attrs (merge attrs {:data-external-libs data-external-libs})})]
+                             distinct
+                             (interpose ",")
+                             (apply str)
+                             not-empty)
+        new-editor (merge {:id id :kl kl :mode mode
+                                  :attrs (when data-external-libs 
+                                           (assoc attrs :data-external-libs data-external-libs))}
+                          editor)]
     ((:append-fn @ui) new-editor)
     (reg-editor id new-editor)))
 
