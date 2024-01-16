@@ -137,7 +137,7 @@
   (rf/subscribe [:snapshot]))
 
 (defn load-snapshot [snapshot]
-  (->> snapshot :editors (map append-editor)))
+  (map append-editor snapshot))
 
 (defn select-mode-comp [value-atom mode-options-atom]
   (fn []
