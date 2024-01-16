@@ -40,10 +40,10 @@
   (let [div (gdom/createDom "div" 
                             (clj->js (assoc attrs :id id)) 
                             (gdom/createTextNode (str snippet)))
-        title (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))]
+        title (gdom/createTextNode (str "#" kl ", mode: " mode))]
     (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
     (gdom/insertSiblingAfter title js/klipse-container.nextSibling)
-    (reg-editor kl editor)
+    (reg-editor id editor)
     (klp/klipsify div klipsettings mode)))
 
 (reg-append-fn append-editor-base)
@@ -62,19 +62,22 @@
                              {:id id
                               :kl kl
                               :mode mode
-                              :attrs (merge attrs {:id id
-                                                   :data-external-libs data-external-libs})}))))
+                              :attrs (merge attrs {:data-external-libs data-external-libs})}))))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
 
 (set! js/appendSnippet #(append-editor (js->clj %)))
+
+(def get-kl #(if (number? %) % (-> ui :editors (get %) :kl)))
                                                             
 (defn call-in-editor [k method & args]
-  (j/apply (@kleds/editors k) method (clj->js args)))
+  (let [kl (get-kl k)]
+    (j/apply (@kleds/editors k) method (clj->js args))))
 
 (defn call-in-result [k method & args]
-  (j/apply (@kleds/result-elements k) method (clj->js args)))
+  (let [kl (get-kl k)]
+    (j/apply (@kleds/result-elements k) method (clj->js args))))
 
 (defn set-code [k value] (call-in-editor k :setValue value))
 
