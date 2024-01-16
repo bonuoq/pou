@@ -141,15 +141,18 @@
      (editor editor-settings)}))
 
 (defn select-comp [value-atom options-atom]
-  (fn []
-    [:select
-     {:on-change #(reset! value-atom (.. % -target -value))}
-     (for [k @options-atom]
-       ^{:key k} [:option {:value k} k])]))
+  (r/create-class
+   {:component-did-mount
+    #(reset! value-atom (first @options-atom))
+    :reagent-render
+    (fn []
+      [:select
+       {:on-change #(reset! value-atom (.. % -target -value))}
+       (for [k @options-atom]
+         ^{:key k} [:option {:value k} k])])}))
 
 (defn pou-re-frame []
-  (let [mode-options (rf/subscribe [:mode-options])
-        sel-mode (r/atom (first @mode-options))
+  (let [sel-mode (r/atom nil)
         from-gist (r/atom nil)
         ext-libs (r/atom nil)]
     (fn []
@@ -167,7 +170,7 @@
                      (reset! from-gist nil)
                      (reset! ext-libs nil))}
         "+"]
-       [select-comp sel-mode mode-options] " "
+       [select-comp sel-mode (rf/subscribe [:mode-options])] " "
        [:label "from-gist: "
         [:input {:type "text"
                  :placeholder "user/id"
