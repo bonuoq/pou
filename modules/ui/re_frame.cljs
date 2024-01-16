@@ -140,16 +140,16 @@
      :reagent-render 
      (editor editor-settings)}))
 
-(defn select-mode-comp [value-atom mode-options-atom]
+(defn select-comp [value-atom options-atom]
   (fn []
     [:select
      {:on-change #(reset! value-atom (.. % -target -value))}
-     (for [k @mode-options-atom]
+     (for [k @options-atom]
        ^{:key k} [:option {:value k} k])]))
 
 (defn pou-re-frame []
   (let [mode-options (rf/subscribe [:mode-options])
-        sel-mode (r/atom (first mode-options))
+        sel-mode (r/atom (first @mode-options))
         from-gist (r/atom nil)
         ext-libs (r/atom nil)]
     (fn []
@@ -167,7 +167,7 @@
                      (reset! from-gist nil)
                      (reset! ext-libs nil))}
         "+"]
-       [select-mode-comp sel-mode mode-options] " "
+       [select-comp sel-mode mode-options] " "
        [:label "from-gist: "
         [:input {:type "text"
                  :placeholder "user/id"
