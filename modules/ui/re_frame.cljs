@@ -95,7 +95,7 @@
 
 ; COMPONENTS
 
-(defn- editor [{:keys [mode attrs kl uid snippet visible?]
+(defn- editor [{:keys [mode attrs kl id snippet visible?]
                 :or {mode "eval-clojure" visible? true}}]
   (fn []
     [:div.pou-wrapper
@@ -103,10 +103,10 @@
       [:button.toggle-min
        {:on-click #(rf/dispatch [:toggle-visible uid])}
        (if visible? "<" ">")]
-      (str "[" uid "] mode: " mode " #klipse-" kl)]
+      (str "[" id "] mode: " mode " #klipse-" kl)]
      [:div.pou-editor
       {:style {:display (if visible? "block" "none")}}
-      [:div.pou-klipse (assoc attrs :id uid) (str snippet)]]]))
+      [:div.pou-klipse (assoc attrs :id id) (str snippet)]]]))
 
 (defn editor-comp [{:keys [mode klipsettings] 
                     :or {mode "eval-clojure" klipsettings {}}
