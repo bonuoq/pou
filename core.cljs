@@ -49,7 +49,7 @@
 (reg-append-fn append-editor-base)
 
 (defn append-editor [{:keys [id mode attrs external-libs]
-                      :or {mode "eval-clojure" id (:id attrs)}
+                      :or {mode "eval-clojure"}
                       :as editor}]
   (let [kl @klp/snippet-counter
         data-external-libs (->> external-libs 
@@ -60,7 +60,7 @@
     ((:append-fn @ui) (merge editor 
                              {:kl kl
                               :mode mode
-                              :attrs (merge attrs {:id (or id (str "pou-" kl))
+                              :attrs (merge attrs {:id (or id (:id attrs) (str "pou-" kl))
                                                    :data-external-libs data-external-libs})}))))
 
 (defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
