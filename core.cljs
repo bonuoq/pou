@@ -26,7 +26,7 @@
 (set! js/toggleHidden (partial toggle-hidden))
 
 (def ui (atom {:editors {}
-               :external-libs ["https://bonuoq.github.io"]
+               :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
                :append-fn #(str "Not defined, cannot append:" %)}))
 
 (defn reg-editor [k editor]
@@ -53,7 +53,7 @@
   (let [kl @klp/snippet-counter
         id (or id (:id attrs) (str "pou-" kl))
         data-external-libs (->> external-libs 
-                             (into (conj (:external-libs @ui) 
+                             (into (conj (-> @ui :external-libs (get mode)) 
                                          (:data-external-libs attrs)))
                              (interpose ",") 
                              (apply str))
