@@ -55,6 +55,7 @@
         data-external-libs (->> external-libs 
                              (into (conj (-> @ui :external-libs (get mode)) 
                                          (:data-external-libs attrs)))
+                             (filter some?)
                              (interpose ",") 
                              (apply str))
         new-editor (merge editor {:id id :kl kl :mode mode
