@@ -31,9 +31,9 @@
    (-> db :editors keys)))
 
 (rf/reg-sub
- :visible?
+ :hidden?
  (fn [db [_ id]]
-   (-> db :editors (get id) :visible?)))
+   (-> db :editors (get id) :hidden?)))
 
 (rf/reg-sub
  :snapshot
@@ -55,14 +55,14 @@
    (update-in db [:uids id] inc)))
 
 (rf/reg-event-db
- :visible?
- (fn [db [_ id visible?]]
-   (assoc-in db [:editors id :visible?] visible?)))
+ :hidden?
+ (fn [db [_ id hidden?]]
+   (assoc-in db [:editors id :hidden?] hidden?)))
 
 (rf/reg-event-db
- :toggle-visible
+ :show-hide
  (fn [db [_ id]]
-   (update-in db [:editors id :visible?] not)))
+   (update-in db [:editors id :hidden?] not)))
 
 (rf/reg-event-db
  :reg-editor
@@ -102,16 +102,16 @@
 
 (defn- editor [{:keys [mode attrs kl id snippet]
                 :or {mode "eval-clojure"}}]
-  (let [visible? (rf/subscribe [:visible? id])]
+  (let [hidden? (rf/subscribe [:hidden? id])]
     (fn []
       [:div.pou-wrapper
        [:div.pou-toolbar
         [:button.toggle-min
-         {:on-click #(rf/dispatch [:toggle-visible id])}
-         (if @visible? "<" ">")]
+         {:on-click #(rf/dispatch [:show-hide id])}
+         (if @hidden? ">" "<")]
         (str "[" id "] mode: " mode " #klipse-" kl)]
        [:div.pou-editor
-        {:style {:display (if @visible? "block" "none")}}
+        {:style {:display (if @hidden? "none" "block")}}
         [:div.pou-klipse (assoc attrs :id id) (str snippet)]]])))
 
 (defn editor-comp [{:keys [mode klipsettings] 
@@ -124,8 +124,8 @@
      :reagent-render 
      (editor editor-settings)}))
 
-(defn append-editor [{:keys [id mode attrs snippet klipsettings visible?] 
-                      :or {id "pou" mode "eval-clojure" visible? true} :as editor-map}]
+(defn append-editor [{:keys [id mode attrs snippet klipsettings hidden?] 
+                      :or {id "pou" mode "eval-clojure"} :as editor-map}]
   (let [kl @klp/snippet-counter
         uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor-map :mode mode :kl kl :id uid)}])
