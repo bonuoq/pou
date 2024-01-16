@@ -44,8 +44,8 @@
 
 (rf/reg-sub
  :mode-options
- (fn [db _]
-   (:mode-options db)))
+ (fn [db [_ r]]
+   (-> db :mode-options (or r fnil))))
 
 ; REG EVENTS
 
@@ -141,15 +141,11 @@
      (editor editor-settings)}))
 
 (defn select-comp [value-atom options-atom]
-  (r/create-class
-   {:component-did-mount
-    #(reset! value-atom (first @options-atom))
-    :reagent-render
-    (fn []
-      [:select
-       {:on-change #(reset! value-atom (.. % -target -value))}
-       (for [k @options-atom]
-         ^{:key k} [:option {:value k} k])])}))
+  (fn []
+    [:select
+     {:on-change #(reset! value-atom (.. % -target -value))}
+     (for [k @options-atom]
+       ^{:key k} [:option {:value k} k])]))
 
 (defn pou-re-frame []
   (let [sel-mode (r/atom nil)
@@ -164,7 +160,7 @@
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
-                     (p/append-editor {:mode @sel-mode 
+                     (p/append-editor {:mode (or @sel-mode @(rf/subscribe [:mode-options first]))
                                        :external-libs @ext-libs
                                        :attrs {:data-gist-id @from-gist}})
                      (reset! from-gist nil)
