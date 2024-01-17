@@ -180,4 +180,4 @@
 ; INITIALIZE
 
 (rf/dispatch [:initialize])
-(rdom/render [pou-re-frame] (gdom/getElement "app"))
+(rdom/render [pou-re-frame] (gdom/getElement "ui"))
