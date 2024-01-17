@@ -114,6 +114,7 @@
     (rf/dispatch [:update-snippet id]))
   (rf/subscribe [:snapshot]))
 
+;;;;; TODO : ASYNC
 (defn load-snapshot [snapshot discard-old?]
   (map append-editor snapshot))
 
