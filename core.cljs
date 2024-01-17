@@ -150,3 +150,14 @@
 
 (defn append-gists [& gists]
   (doseq [gist gists] (append-gist gist)))
+
+; INIT
+
+(toggle-hidden "loading" true)
+        
+(process-url-params
+  :p #(aed (decode64 %))
+  :o #(map append-editor (parse64 %))
+  :u #(do 
+        (load-ui %) 
+        (toggle-hidden "toolbar" true)))
