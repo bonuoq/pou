@@ -1,5 +1,7 @@
 (ns pou.core
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [goog.dom :as gdom]
+            [cljs.core.async :refer [<!]]
             [klipse.plugin :as klp]
             [klipse.utils :as klu]
             [klipse.klipse-editors :as kleds]
@@ -64,7 +66,7 @@
                                   :attrs (when data-external-libs
                                            (merge attrs {:data-external-libs data-external-libs}))})]
     (reg-editor id new-editor)
-    ((:append-fn @ui) new-editor)))
+    (go (<! ((:append-fn @ui) new-editor)))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
