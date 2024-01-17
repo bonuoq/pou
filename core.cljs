@@ -146,7 +146,7 @@
 (defn append-gist [{:keys [id file mode attrs klipsettings append-code] 
                     :or {append-code ""} 
                     :as editor}]
-  (fetch-gist id file #(addp (str % append-code) editor)))
+  (fetch-gist id file #(aed (str % append-code) editor)))
 
 (defn append-gists [& gists]
   (doseq [gist gists] (append-gist gist)))
