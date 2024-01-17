@@ -63,8 +63,8 @@
         new-editor (merge editor {:id id :kl kl :mode mode
                                   :attrs (when data-external-libs
                                            (merge attrs {:data-external-libs data-external-libs}))})]
-    ((:append-fn @ui) new-editor)
-    (reg-editor id new-editor)))
+    (reg-editor id new-editor)
+    ((:append-fn @ui) new-editor)))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
