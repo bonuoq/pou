@@ -49,12 +49,14 @@
 <body>
   
   <div id="loading" class="loader">LOADING...</div>
-  
+  <div id="host"></div>
+  <div id="app"></div>
+  <button class="hide-editors" onclick="toggleHidden('pou-app')">&lt&gt</button>
+  hide / show ALL
   <div id="pou-app">
-    <div id="toolbar"><button class="append-snippet" onclick="appendSnippet()">+</button><br></div>
-    <button class="hide-editors" onclick="toggleHidden('editors')">&lt&gt</button>
-    hide / show
-    <div id="editors">
+    <div id="ui"><button class="append-snippet" onclick="appendSnippet()">+</button><br></div>
+    <button class="hide-editors" onclick="toggleHidden('base')">&lt&gt</button>
+    <div id="base">
       <div class="language-klipse" data-external-libs="
         https://bonuoq.github.io,
         https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main">
@@ -65,9 +67,7 @@
             [klipse-clj.repl :refer [doc]]))
         </div>
     </div>
-    <div id="app"></div>
   </div>
-  <div id="host"></div>
   
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
   <script>
