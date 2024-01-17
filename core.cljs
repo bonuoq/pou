@@ -61,11 +61,12 @@
                              (apply str)
                              not-empty)
         new-editor (merge editor {:id id :kl kl :mode mode
-                                  :attrs (merge attrs {:data-external-libs data-external-libs})})]
+                                  :attrs (when data-external-libs
+                                           (merge attrs {:data-external-libs data-external-libs}))})]
     ((:append-fn @ui) new-editor)
     (reg-editor id new-editor)))
 
-(defn addp [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
+(defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
 
 (set! js/appendSnippet #(append-editor (js->clj %)))
