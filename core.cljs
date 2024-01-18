@@ -154,11 +154,16 @@
 (defn append-gists [& gists]
   (doseq [gist gists] (append-gist gist)))
 
+(defn load-editors-async [editors]
+  (go
+   (doseq [e editors]
+     (<! (append-editor e)))))
+
 ; INIT
 
 (toggle-hidden "loading" true)
         
-(process-url-params
-  :p #(aed (decode64 %))
-  :o #(map append-editor (parse64 %))
-  :u #(load-ui %))
+(process-url-params :u #(load-ui %)
+                    :o #(load-editors-async (parse64 %))
+                    :p #(aed (decode64 %)))
+
