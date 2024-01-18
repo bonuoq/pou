@@ -118,25 +118,6 @@
 (defn fetch-url [url callback]
   (-> (str url) js/fetch
     (.then #(callback %))))
-
-(defn read-edn [url callback]
-  (-> (str url)
-    (fetch-url
-     #(-> (.text %)
-        (.then 
-         (fn [edn] 
-           (callback (cljs.reader/read-string edn))))))))
-
-(defn load-module [module]
-  (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-    (read-edn
-     #(append-editor %))))
-
-(defn load-modules [& modules]
-  (doseq [module modules] (load-module module)))
-
-(defn load-ui [ui]
-  (load-module (str "ui/" ui)))
     
 (defn fetch-gist [id file callback]
   (-> (str "https://api.github.com/gists/" id)
@@ -158,6 +139,27 @@
   (go
    (doseq [e editors]
      (<! (append-editor e)))))
+
+(defn read-edn [url callback]
+  (-> (str url)
+    (fetch-url
+     #(-> (.text %)
+        (.then 
+         (fn [edn] 
+           (callback (cljs.reader/read-string edn))))))))
+
+(defn load-module [module]
+  (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
+    (read-edn
+     #(append-editor %))))
+
+(defn load-modules-async [& modules]
+  (go
+   (doseq [m modules] 
+     (<! (load-module module)))))
+
+(defn load-ui [ui]
+  (load-module (str "ui/" ui)))
 
 ; INIT
 
