@@ -39,10 +39,11 @@
 
 (rf/reg-sub
  :snapshot
+ (fn [db _]
    (->> (:editors db)
      (mapv #(assoc (val %) :snippet (p/get-code (:kl (val %)))))
      (mapv #(dissoc % :kl))
-     (mapv #(dissoc % :klipsify?))))
+     (mapv #(dissoc % :klipsify?)))))
 
 (rf/reg-sub
  :mode-options
