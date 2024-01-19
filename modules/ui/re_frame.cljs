@@ -140,7 +140,7 @@
 (defn editor-comp [{:keys [mode klipsettings] :as editor-settings}]
   (r/create-class
     {:component-did-mount
-     (fn [_] (klp/init-clj {})
+     (fn [_] (klp/init-clj {}))
      :reagent-render 
      (editor editor-settings)}))
 
