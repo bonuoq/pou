@@ -3,12 +3,13 @@
   (:require [goog.dom :as gdom]
             [cljs.core.async :refer [<!]]
             [klipse.plugin :as klp]
-            [klipse.utils :as klu]
+            [klipse.utils :refer [url-parameters]]
+            [klipse.common.registry :as klreg]
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]
             [cljs.reader :refer [read-string]]))
 
-(def url-params (or (klu/url-parameters) {}))
+(def url-params (or (url-parameters) {}))
 
 (defn process-url-params [& param-procs]
   (doseq [pp (partition 2 param-procs)]
@@ -39,7 +40,7 @@
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
-(defn append-editor-base [{:keys [intro mode attrs snippet klipsettings]
+(defn append-editor-base [{:keys [id kl intro mode attrs snippet klipsettings]
                            :or {klipsettings {}}
                            :as editor}]
   (let [div (gdom/createDom "div" 
@@ -63,7 +64,7 @@
     (let [{:keys [id mode attrs external-libs]
            :or {mode "eval-clojure" klipsify? true}
            :as editor} (get editors n)
-          kl (+ @klp/snippet-counter n)
+          kl (max (+ @klp/snippet-counter n) (-> @ui :editors count inc))
           id (or id (:id attrs) (str "pou-" kl))
           data-external-libs (->> external-libs
                                (into (-> @ui :external-libs (get mode)))
@@ -180,8 +181,8 @@
 (toggle-hidden "loading" true)
         
 (process-url-params :u #(load-ui %)
-                    :o #(load-editors-async (parse64 %))
+                    :o #(append (parse64 %))
                     :p #(aed (decode64 %))
-                    :d #(append (parse64 %))
+                    :d #(append [(parse64 %)])
                     :n #(apply load-modules-async (flatten64 %)))
 
