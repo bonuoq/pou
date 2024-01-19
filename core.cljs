@@ -1,7 +1,7 @@
 (ns pou.core
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [goog.dom :as gdom]
-            [cljs.core.async :refer [<!]]
+            [cljs.core.async :refer [<! <!!]]
             [klipse.plugin :as klp]
             [klipse.utils :as klu]
             [klipse.common.registry :as klreg]
@@ -49,7 +49,7 @@
         label (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))
         text (gdom/createTextNode (str intro))]
     (doseq [elm [div label text]]
-      (go (<! (gdom/insertSiblingAfter elm js/klipse-container.nextSibling))))))
+      (gdom/insertSiblingAfter elm js/klipse-container.nextSibling))))
 
 (reg-append-fn append-editor-base)
 
@@ -79,9 +79,9 @@
                                             (merge attrs {:id id :class (mode->class mode)
                                                           :data-external-libs data-external-libs}))})]
      (reg-editor id new-editor)
-     ((:append-fn @ui) new-editor)))
+     (<!! ((:append-fn @ui) new-editor))))
   (when klipsify? 
-    (klp/init-clj (:klipse-settings @ui))))
+    (go (<! (klp/init-clj (:klipse-settings @ui))))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
