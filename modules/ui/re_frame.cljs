@@ -123,7 +123,7 @@
    {:editors {}
     :mode-options (into (sorted-set) (keys @klreg/mode-options))
     :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
-    :klipse-settings (js->clj klipse-settings)}))
+    :klipse-settings (js->clj ja/klipse-settings)}))
 
 ; ACTIONS AND HELPER FNS
 
@@ -164,7 +164,7 @@
         (str "#" kl ", id: " id ", mode: " mode)]
        [:div.pou-editor
         {:style {:display (if @hidden? "none" "block")}}
-        [:div.pou-klipse (assoc attrs :id id :class (mode-class mode)) (str snippet)]]])))
+        [:div.pou-klipse (assoc attrs :id id :class (mode->class mode)) (str snippet)]]])))
 
 (defn editor-comp [{:keys [mode klipsettings] :as editor-settings}]
   (r/create-class
