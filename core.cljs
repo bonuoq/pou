@@ -169,5 +169,6 @@
 (process-url-params :u #(load-ui %)
                     :o #(load-editors-async (parse64 %))
                     :p #(aed (decode64 %))
-                    :n #(load-modules)
+                    :d #(append-editor (parse64 %))
+                    :n #(apply load-modules-async (flatten64 %)))
 
