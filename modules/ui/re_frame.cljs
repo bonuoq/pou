@@ -101,7 +101,8 @@
 ; ACTIONS AND HELPER FNS
 
 (defn append-editor [{:keys [id] :as editor}]
-  (let [uid @(rf/subscribe [:uid id])]
+  (let [uid @(rf/subscribe [:uid id])
+        editor-no-klipsify (assoc editor :klipsify? false)]
     (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
     (rf/dispatch [:new-uid id])
     (when-not (= id uid) 
@@ -139,8 +140,7 @@
 (defn editor-comp [{:keys [mode klipsettings] :as editor-settings}]
   (r/create-class
     {:component-did-mount
-     (fn [this]
-       (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode))               
+     (fn [_] (klp/init-clj {})
      :reagent-render 
      (editor editor-settings)}))
 
