@@ -156,7 +156,7 @@
 
 (defn load-modules-async [& modules]
   (doseq [m modules] 
-    (go (<! (load-module module)))))
+    (go (<! (load-module m)))))
 
 (defn load-ui [ui]
   (load-module (str "ui/" ui)))
