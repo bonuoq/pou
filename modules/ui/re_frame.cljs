@@ -39,10 +39,10 @@
 
 (rf/reg-sub
  :snapshot
- (fn [db _]
    (->> (:editors db)
-     (mapv #(dissoc (val %) :kl))
-     (mapv #(dissoc % :klipsify?)))))
+     (mapv #(assoc (val %) :snippet (p/get-code (:kl (val %)))))
+     (mapv #(dissoc % :kl))
+     (mapv #(dissoc % :klipsify?))))
 
 (rf/reg-sub
  :mode-options
@@ -94,11 +94,6 @@
      (update-in recovered [:trash] dissoc id))))
 
 (rf/reg-event-db
- :update-snippet
- (fn [db [_ id]]
-   (assoc-in db [:editors id :snippet] (p/get-code (-> db :editors (get id) :kl)))))
-
-(rf/reg-event-db
  :reg-mode-options
  (fn [db [_ mode-options]]
    (update-in db [:mode-options] into mode-options)))
@@ -136,10 +131,7 @@
 
 (p/reg-append-fn append-editor)
 
-(defn snapshot []
-  (doseq [id @(rf/subscribe [:ids])]
-    (rf/dispatch [:update-snippet id]))
-  (rf/subscribe [:snapshot]))
+(defn snapshot [] (rf/subscribe [:snapshot]))
 
 ;;;;; TODO : ASYNC
 (defn load-snapshot [snapshot discard-old?]
