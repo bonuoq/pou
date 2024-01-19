@@ -170,7 +170,8 @@
   (r/create-class
     {:component-did-mount
      (fn [this]
-       (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode))
+       ;(klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode)
+       (klp/init-clj @(rf/subscribe [:klipse-settings])))
      :reagent-render 
      (editor editor-settings)}))
 
