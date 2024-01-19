@@ -28,6 +28,9 @@
 (set! js/toggleHidden (partial toggle-hidden))
 
 (def ui (atom {:editors {}
+               :mode-options (into (sorted-set) (keys @klreg/mode-options))
+               :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
+               :klipse-settings (js->clj js/klipse-settings)
                :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
                :append-fn #(str "Not defined, cannot append:" %)}))
 
@@ -36,45 +39,53 @@
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
-(defn append-editor-base [{:keys [id kl mode attrs snippet klipsettings]
+(defn append-editor-base [{:keys [intro mode attrs snippet klipsettings]
                            :or {klipsettings {}}
                            :as editor}]
   (let [div (gdom/createDom "div" 
-                            (clj->js (assoc attrs :id id)) 
+                            (clj->js attrs) 
                             (gdom/createTextNode (str snippet)))
-        title (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))]
-    (gdom/insertSiblingAfter div js/klipse-container.nextSibling)
-    (gdom/insertSiblingAfter title js/klipse-container.nextSibling)
-    [div klipsettings mode]))
+        label (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))
+        text (gdom/createTextNode (str intro))]
+    (doseq [elm [div label text]]
+      (gdom/insertSiblingAfter elm js/klipse-container.nextSibling))))
 
 (reg-append-fn append-editor-base)
 
-(defn append-editor [{:keys [id mode attrs external-libs klipsify?]
-                      :or {mode "eval-clojure" klipsify? true}
-                      :as editor}]
-  (let [kl @klp/snippet-counter
-        id (or id (:id attrs) (str "pou-" kl))
-        data-external-libs (->> external-libs
-                             (into (-> @ui :external-libs (get mode)))
-                             (cons (:data-external-libs attrs))
-                             (filter some?)
-                             distinct
-                             (interpose ",")
-                             (apply str)
-                             not-empty)
-        new-editor (merge editor {:id id :kl kl :mode mode
-                                  :attrs (when data-external-libs
-                                           (merge attrs {:data-external-libs data-external-libs}))})]
-    (reg-editor id new-editor)
-    (let [append-fn (:append-fn @ui)]
-      (if klipsify? 
-        (go (<! (apply klp/klipsify (append-fn new-editor))))
-        (append-fn new-editor)))))
+(defn mode->class [mode]
+  (->> (get (:mode-selectors @ui) mode)
+    (get (:klipse-settings @ui))
+    rest
+    (apply str)))
+
+(defn append [editors & {:keys [klipsify?] :or {klipsify? true}}]
+  (dotimes [n (count editors)]
+    (let [{:keys [id mode attrs external-libs]
+           :or {mode "eval-clojure" klipsify? true}
+           :as editor} (get editors n)
+          kl (+ @klp/snippet-counter n)
+          id (or id (:id attrs) (str "pou-" kl))
+          data-external-libs (->> external-libs
+                               (into (-> @ui :external-libs (get mode)))
+                               (cons (:data-external-libs attrs))
+                               (filter some?)
+                               distinct
+                               (interpose ",")
+                               (apply str)
+                               not-empty)
+          new-editor (merge editor {:id id :kl kl :mode mode
+                                    :attrs (when data-external-libs
+                                             (merge attrs {:id id :class (mode->class mode)
+                                                           :data-external-libs data-external-libs}))})]
+      (reg-editor id new-editor)
+      ((:append-fn @ui) new-editor)))
+  (when klipsify? 
+    (go (<! (klp/init-clj (:klipse-settings @ui))))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
-  (append-editor (assoc editor-settings :snippet snippet)))
+  (append [(assoc editor-settings :snippet snippet)]))
 
-(set! js/appendSnippet #(append-editor (js->clj %)))
+(set! js/appendSnippet #(append [(js->clj %)]))
 
 (def get-kl #(if (number? %) % (-> @ui :editors (get %) :kl)))
                                                             
@@ -143,11 +154,6 @@
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
 
-(defn load-editors-async [editors]
-  (go
-   (doseq [e editors]
-     (<! (append-editor e)))))
-
 (defn read-edn [url callback]
   (-> (str url)
     (fetch-url
@@ -160,7 +166,7 @@
   (go (<!
    (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
      (read-edn
-      #(append-editor %))))))
+      #(append [%]))))))
 
 (defn load-modules-async [& modules]
   (doseq [m modules] 
@@ -176,6 +182,6 @@
 (process-url-params :u #(load-ui %)
                     :o #(load-editors-async (parse64 %))
                     :p #(aed (decode64 %))
-                    :d #(append-editor (parse64 %))
+                    :d #(append (parse64 %))
                     :n #(apply load-modules-async (flatten64 %)))
 
