@@ -114,9 +114,10 @@
    (update-in db [:mode-selectors] into mode-selectors)))
 
 (defn- to-class-settings [settings]
-  (js->clj 
-   (zipmap (keys m) 
-           (map #(->> % val rest (apply str)) m))))
+  (let [ks (keys settings)
+        vs (vals settings)]
+    (js->clj 
+     (zipmap ks (map #(apply str (rest %)) vs)))))
 
 (rf/reg-event-db
  :initialize
