@@ -42,13 +42,13 @@
 (defn append-editor-base [{:keys [id kl intro mode attrs snippet klipsettings]
                            :or {klipsettings {}}
                            :as editor}]
-  (let [div (gdom/createDom "div" 
+  (let [base (gdom/getElement "base")
+        div (gdom/createDom "div" 
                             (clj->js attrs) 
                             (gdom/createTextNode (str snippet)))
         label (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))
         text (gdom/createTextNode (str intro))]
-    (doseq [elm [div label text]]
-      (gdom/insertSiblingAfter elm js/klipse-container.nextSibling))))
+    (map #(gdom/appendChild % base) [text label div])))
 
 (reg-append-fn append-editor-base)
 
@@ -80,7 +80,7 @@
      (reg-editor id new-editor)
      (a/go (a/<! ((:append-fn @ui) new-editor)))))
   (when klipsify? 
-    (a/go (a/<! (klp/init-clj (:klipse-settings @ui))))))
+    (klp/init-clj (:klipse-settings @ui))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
