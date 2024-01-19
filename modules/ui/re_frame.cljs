@@ -139,7 +139,8 @@
 (defn editor-comp [{:keys [mode klipsettings] :as editor-settings}]
   (r/create-class
     {:component-did-mount
-     (fn [_] (klp/init-clj {}))
+     (fn [this]
+       (klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode))
      :reagent-render 
      (editor editor-settings)}))
 
