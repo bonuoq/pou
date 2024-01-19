@@ -149,9 +149,10 @@
            (callback (cljs.reader/read-string edn))))))))
 
 (defn load-module [module]
-  (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-    (read-edn
-     #(append-editor %))))
+  (go
+    (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
+      (read-edn
+       #(append-editor %)))))
 
 (defn load-modules-async [& modules]
   (go
@@ -167,5 +168,6 @@
         
 (process-url-params :u #(load-ui %)
                     :o #(load-editors-async (parse64 %))
-                    :p #(aed (decode64 %)))
+                    :p #(aed (decode64 %))
+                    :n #(load-modules)
 
