@@ -101,8 +101,7 @@
 ; ACTIONS AND HELPER FNS
 
 (defn append-editor [{:keys [id] :as editor}]
-  (let [uid @(rf/subscribe [:uid id])
-        editor-no-klipsify (assoc editor :klipsify? false)]
+  (let [uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
     (rf/dispatch [:new-uid id])
     (when-not (= id uid) 
@@ -160,13 +159,14 @@
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:button
-        {:on-click #(p/append-editor {})}
+        {:on-click #(p/append-editor {:klipsify? false})}
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
                      (p/append-editor {:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
                                        :external-libs @ext-libs
-                                       :attrs {:data-gist-id @from-gist}})
+                                       :attrs {:data-gist-id @from-gist}
+                                       :klipsify? false})
                      (reset! from-gist nil)
                      (reset! ext-libs nil))}
         "+"]
