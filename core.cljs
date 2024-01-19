@@ -48,7 +48,7 @@
                             (gdom/createTextNode (str snippet)))
         label (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))
         text (gdom/createTextNode (str intro))]
-    (map #(gdom/appendChild % base) [text label div])))
+    (map (partial gdom/appendChild base) [text label div])))
 
 (reg-append-fn append-editor-base)
 
