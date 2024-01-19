@@ -123,7 +123,7 @@
    {:editors {}
     :mode-options (into (sorted-set) (keys @klreg/mode-options))
     :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
-    :klipse-settings (js->clj ja/klipse-settings)}))
+    :klipse-settings (js->clj js/klipse-settings)}))
 
 ; ACTIONS AND HELPER FNS
 
