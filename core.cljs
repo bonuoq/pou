@@ -150,14 +150,13 @@
 
 (defn load-module [module]
   (go
-    (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-      (read-edn
-       #(append-editor %)))))
+   (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
+     (read-edn
+      #(append-editor %)))))
 
 (defn load-modules-async [& modules]
-  (go
-   (doseq [m modules] 
-     (<! (load-module module)))))
+  (doseq [m modules] 
+    (go (<! (load-module module)))))
 
 (defn load-ui [ui]
   (load-module (str "ui/" ui)))
