@@ -79,7 +79,7 @@
                                             (merge attrs {:id id :class (mode->class mode)
                                                           :data-external-libs data-external-libs}))})]
      (reg-editor id new-editor)
-     (go (<! ((:append-fn @ui) new-editor)))))
+     ((:append-fn @ui) new-editor))))
   (when klipsify? 
     (klp/init-clj (:klipse-settings @ui))))
 
