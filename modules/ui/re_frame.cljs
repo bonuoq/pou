@@ -116,7 +116,10 @@
 
 ;;;;; TODO : ASYNC
 (defn load-snapshot [snapshot discard-old?]
-  (map append-editor snapshot))
+  (when discard-old? 
+    (for [i @(rf/subscribe [:ids])]
+      (rf/dispatch [:discard-editor i])))
+  (p/load-editors-async snapshot))
 
 ; COMPONENTS
 
