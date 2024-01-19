@@ -48,8 +48,9 @@
                             (gdom/createTextNode (str snippet)))
         label (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))
         text (gdom/createTextNode (str intro))]
-    (doseq [elm [div label text]]
-      (gdom/insertSiblingAfter elm js/klipse-container.nextSibling))))
+    (go 
+     (doseq [elm [div label text]]
+       (<! (gdom/insertSiblingAfter elm js/klipse-container.nextSibling))))))
 
 (reg-append-fn append-editor-base)
 
@@ -60,26 +61,27 @@
     (apply str)))
 
 (defn append [editors & {:keys [klipsify?] :or {klipsify? true}}]
-  (dotimes [n (count editors)]
-    (let [{:keys [id mode attrs external-libs]
-           :or {mode "eval-clojure" klipsify? true}
-           :as editor} (get editors n)
-          kl (max (+ @klp/snippet-counter n) (-> @ui :editors count inc))
-          id (or id (:id attrs) (str "pou-" kl))
-          data-external-libs (->> external-libs
-                               (into (-> @ui :external-libs (get mode)))
-                               (cons (:data-external-libs attrs))
-                               (filter some?)
-                               distinct
-                               (interpose ",")
-                               (apply str)
-                               not-empty)
-          new-editor (merge editor {:id id :kl kl :mode mode
-                                    :attrs (when data-external-libs
-                                             (merge attrs {:id id :class (mode->class mode)
-                                                           :data-external-libs data-external-libs}))})]
-      (reg-editor id new-editor)
-      ((:append-fn @ui) new-editor)))
+  (go
+   (dotimes [n (count editors)]
+     (let [{:keys [id mode attrs external-libs]
+            :or {mode "eval-clojure" klipsify? true}
+            :as editor} (get editors n)
+           kl (+ @klp/snippet-counter n)
+           id (or id (:id attrs) (str "pou-" kl))
+           data-external-libs (->> external-libs
+                                (into (-> @ui :external-libs (get mode)))
+                                (cons (:data-external-libs attrs))
+                                (filter some?)
+                                distinct
+                                (interpose ",")
+                                (apply str)
+                                not-empty)
+           new-editor (merge editor {:id id :kl kl :mode mode
+                                     :attrs (when data-external-libs
+                                              (merge attrs {:id id :class (mode->class mode)
+                                                            :data-external-libs data-external-libs}))})]
+       (reg-editor id new-editor)
+       (<! ((:append-fn @ui) new-editor)))))
   (when klipsify? 
     (klp/init-clj (:klipse-settings @ui))))
 
