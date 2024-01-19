@@ -66,7 +66,10 @@
                                   :attrs (when data-external-libs
                                            (merge attrs {:data-external-libs data-external-libs}))})]
     (reg-editor id new-editor)
-    (when klipsify? (go (<! (apply klp/klipsify ((:append-fn @ui) new-editor)))))))
+    (let [append-fn (:append-fn @ui)]
+      (if klipsify? 
+        (go (<! (apply klp/klipsify (append-fn new-editor))))
+        (append-fn new-editor)))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append-editor (assoc editor-settings :snippet snippet)))
