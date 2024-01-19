@@ -78,9 +78,9 @@
                                             (merge attrs {:id id :class (mode->class mode)
                                                           :data-external-libs data-external-libs}))})]
      (reg-editor id new-editor)
-     (go (a/<! ((:append-fn @ui) new-editor)))))
+     ((:append-fn @ui) new-editor)))
   (when klipsify? 
-    (klp/init-clj (:klipse-settings @ui))))
+    (go (a/<! (klp/init-clj (:klipse-settings @ui))))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
