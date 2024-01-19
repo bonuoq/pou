@@ -165,7 +165,7 @@
 (defn load-module [module]
   (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
    (read-edn
-    #(append [%]))))))
+    #(append [%]))))
 
 (defn load-modules-async [& modules]
   (doseq [m modules] 
