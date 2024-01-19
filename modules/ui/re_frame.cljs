@@ -151,7 +151,7 @@
 ; COMPONENTS
 
 (defn- mode->class [mode]
-  (@(rf/subscribe [:klipse-settings]) @(rf/subscribe [:mode-selectors mode])))
+  (get @(rf/subscribe [:klipse-settings]) @(rf/subscribe [:mode-selectors mode])))
 
 (defn- editor [{:keys [mode attrs kl id snippet]}]
   (let [hidden? (rf/subscribe [:hidden? id])]
