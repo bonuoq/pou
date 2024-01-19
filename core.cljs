@@ -46,8 +46,8 @@
         div (gdom/createDom "div" 
                             (clj->js attrs) 
                             (gdom/createTextNode (str snippet)))
-        label (gdom/createTextNode (str "#" kl ", id: " id ", mode: " mode))
-        text (gdom/createTextNode (str intro))]
+        label (gdom/createDom "p" "pou-label" (str "#" kl ", id: " id ", mode: " mode))
+        text (gdom/createDom "p" "pou-text" (str intro))]
     (mapv [elm [text label div]]
       (.appendChild base elm))))
 
@@ -164,14 +164,13 @@
            (callback (cljs.reader/read-string edn))))))))
 
 (defn load-module [module]
-  (go (<!
-   (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-     (read-edn
-      #(append [%]))))))
+  (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
+   (read-edn
+    #(append [%]))))))
 
 (defn load-modules-async [& modules]
   (doseq [m modules] 
-    (go (<! (load-module m)))))
+    (a/go (a/<! (load-module m)))))
 
 (defn load-ui [ui]
   (load-module (str "ui/" ui)))
