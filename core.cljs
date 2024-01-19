@@ -74,7 +74,7 @@
 
 (set! js/appendSnippet #(append-editor (js->clj %)))
 
-(def get-kl #(if (number? %) % (-> ui :editors (get %) :kl)))
+(def get-kl #(if (number? %) % (-> @ui :editors (get %) :kl)))
                                                             
 (defn call-in-editor [k method & args]
   (let [kl (get-kl k)]
@@ -134,6 +134,12 @@
 
 (defn append-gists [& gists]
   (doseq [gist gists] (append-gist gist)))
+
+(defn editors-array []
+  (let [array (-> @ui :editors vals)]
+    (->> array
+      (map #(assoc % :snippet (get-code (:kl %))))
+      (map #(dissoc % :kl)))))
 
 (defn load-editors-async [editors]
   (go
