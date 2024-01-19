@@ -113,12 +113,6 @@
  (fn [db [_ mode-selectors]]
    (update-in db [:mode-selectors] into mode-selectors)))
 
-(defn- to-class-settings [settings]
-  (let [clj-settings (js->clj settings)
-        ks (keys clj-settings)
-        vs (vals clj-settings)]
-    (zipmap ks (map #(apply str (rest %)) vs))))
-
 (rf/reg-event-db
  :initialize
  (fn [_ _]
@@ -129,7 +123,7 @@
    {:editors {}
     :mode-options (into (sorted-set) (keys @klreg/mode-options))
     :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
-    :klipse-settings (to-class-settings js/klipse-settings)}))
+    :klipse-settings (js->clj js/klipse-settings)}))
 
 ; ACTIONS AND HELPER FNS
 
@@ -157,7 +151,10 @@
 ; COMPONENTS
 
 (defn- mode->class [mode]
-  (get @(rf/subscribe [:klipse-settings]) @(rf/subscribe [:mode-selectors mode])))
+  (->> @(rf/subscribe [:mode-selectors mode])
+    (get @(rf/subscribe [:klipse-settings]))
+    rest
+    (apply str)))
 
 (defn- editor [{:keys [mode attrs kl id snippet]}]
   (let [hidden? (rf/subscribe [:hidden? id])]
