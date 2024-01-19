@@ -80,7 +80,7 @@
      (reg-editor id new-editor)
      (a/<!! ((:append-fn @ui) new-editor))))
   (when klipsify? 
-    (a/go (<! (klp/init-clj (:klipse-settings @ui))))))
+    (a/go (a/<! (klp/init-clj (:klipse-settings @ui))))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
