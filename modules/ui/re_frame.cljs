@@ -40,12 +40,24 @@
 (rf/reg-sub
  :snapshot
  (fn [db _]
-   (mapv #(dissoc (val %) :kl) (:editors db))))
+   (->> (:editors db)
+     (mapv #(dissoc (val %) :kl))
+     (mapv #(dissoc % :klipsify?)))))
 
 (rf/reg-sub
  :mode-options
  (fn [db _]
    (:mode-options db)))
+
+(rf/reg-sub
+ :mode-selectors
+ (fn [db [_ mode]]
+   (-> db :mode-selectors mode)))
+
+(rf/reg-sub
+ :klipse-settings
+ (fn [db _]
+   (:klipse-settings db)))
 
 ; REG EVENTS
 
@@ -92,11 +104,26 @@
    (update-in db [:mode-options] into mode-options)))
 
 (rf/reg-event-db
+ :reg-klipse-settings
+ (fn [db [_ klipse-settings]]
+   (update-in db [:klipse-settings] into klipse-settings)))
+
+(rf/reg-event-db
+ :reg-mode-selectors
+ (fn [db [_ mode-selectors]]
+   (update-in db [:mode-selectors] into mode-selectors)))
+
+(rf/reg-event-db
  :initialize
  (fn [_ _]
-   (add-watch klreg/mode-options :re-frame-reg #(rf/dispatch [:reg-mode-options (keys %4)]))
+   (add-watch klreg/mode-options :re-frame-reg-mode-options 
+              #(rf/dispatch [:reg-mode-options (keys %4)]))
+   (add-watch klreg/selector->mode :re-frame-reg-mode-selectors 
+              #(rf/dispatch [:reg-mode-selectors (clojure.set/map-invert %4)]))
    {:editors {}
-    :mode-options (into (sorted-set) (keys @klreg/mode-options))}))
+    :mode-options (into (sorted-set) (keys @klreg/mode-options))
+    :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
+    :klipse-settings (js->clj klipse-settings)}))
 
 ; ACTIONS AND HELPER FNS
 
@@ -123,6 +150,9 @@
 
 ; COMPONENTS
 
+(defn- mode->class [mode]
+  (@(rf/subscribe [:klipse-settings]) @(rf/subscribe [:mode-selectors mode])))
+
 (defn- editor [{:keys [mode attrs kl id snippet]}]
   (let [hidden? (rf/subscribe [:hidden? id])]
     (fn []
@@ -134,7 +164,7 @@
         (str "#" kl ", id: " id ", mode: " mode)]
        [:div.pou-editor
         {:style {:display (if @hidden? "none" "block")}}
-        [:div.pou-klipse (assoc attrs :id id) (str snippet)]]])))
+        [:div.pou-klipse (assoc attrs :id id :class (mode-class mode)) (str snippet)]]])))
 
 (defn editor-comp [{:keys [mode klipsettings] :as editor-settings}]
   (r/create-class
