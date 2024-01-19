@@ -52,7 +52,7 @@
 (rf/reg-sub
  :mode-selectors
  (fn [db [_ mode]]
-   (-> db :mode-selectors mode)))
+   (-> db :mode-selectors (get mode))))
 
 (rf/reg-sub
  :klipse-settings
