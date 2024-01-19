@@ -3,13 +3,13 @@
   (:require [goog.dom :as gdom]
             [cljs.core.async :refer [<!]]
             [klipse.plugin :as klp]
-            [klipse.utils :refer [url-parameters]]
+            [klipse.utils :as klu]
             [klipse.common.registry :as klreg]
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]
             [cljs.reader :refer [read-string]]))
 
-(def url-params (or (url-parameters) {}))
+(def url-params (or (klu/url-parameters) {}))
 
 (defn process-url-params [& param-procs]
   (doseq [pp (partition 2 param-procs)]
