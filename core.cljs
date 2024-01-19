@@ -48,7 +48,7 @@
                             (gdom/createTextNode (str snippet)))
         label (gdom/createDom "p" "pou-label" (str "#" kl ", id: " id ", mode: " mode))
         text (gdom/createDom "p" "pou-text" (str intro))]
-    (mapv (.appendChild base %) [text label div])))
+    (mapv #(.appendChild base %) [text label div])))
 
 (reg-append-fn append-editor-base)
 
