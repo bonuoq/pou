@@ -8,7 +8,7 @@
             [applied-science.js-interop :as j]
             [cljs.reader :refer [read-string]]))
 
-(def url-params (or (klu/url-parameters) {}))
+(defonce url-params (or (klu/url-parameters) {}))
 
 (defn process-url-params [& param-procs]
   (doseq [pp (partition 2 param-procs)]
@@ -182,12 +182,12 @@
   (load-module (str "ui/" ui)))
 
 ; INIT
-
-(toggle-hidden "loading" true)
         
 (process-url-params :u #(load-ui %)
                     :o #(append (parse64 %))
                     :p #(aed (decode64 %))
                     :d #(append [(parse64 %)])
                     :n #(apply load-modules-async (flatten64 %)))
+
+(when-not (:u url-params) (toggle-hidden "loading" true))
 
