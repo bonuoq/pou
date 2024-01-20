@@ -173,3 +173,4 @@
 
 (rf/dispatch [:initialize])
 (rdom/render [pou-re-frame] (gdom/getElement "ui"))
+(toggle-hidden "loading" true)
