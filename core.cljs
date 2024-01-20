@@ -50,8 +50,9 @@
                            :as editor}]
   (let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
-        text (gdom/createDom "p" "pou-text" (or intro (str "#" kl ", id: " id ", mode: " mode)))
-        wrapper (gdom/createDom "div" (clj->js {:class "pou-wrapper" 
+        text (gdom/createDom "p" "pou-intro" (or intro (str "#" kl ", id: " id ", mode: " mode)))
+        wrapper (gdom/createDom "div" (clj->js {:id id
+                                                :class "pou-wrapper" 
                                                 :style {:display (if hidden? "none" "block")}})
                                 text klipse)]
     (.appendChild base wrapper)))
