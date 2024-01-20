@@ -8,6 +8,8 @@
             [applied-science.js-interop :as j]
             [cljs.reader :refer [read-string]]))
 
+; UTILS
+
 (defonce url-params (or (klu/url-parameters) {}))
 
 (defn process-url-params [& param-procs]
@@ -27,85 +29,36 @@
 
 (set! js/toggleHidden (partial toggle-hidden))
 
-(def ui (atom {:editors {}
-               :id-kls {}
-               :mode-options (into (sorted-set) (keys @klreg/mode-options))
-               :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
-               :klipse-settings (js->clj js/klipse-settings)
-               :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
-               :append-fn #(str "Not defined, cannot append:" %)
-               :auto-klipsify true}))
+(defn loaded! [] (toggle-hidden "loading" true))
+(defn loading! [] (toggle-hidden "loading" false))
+
+; BASE STATE
+
+(def base (atom {:editors {}
+                 :id-kls {}
+                 :mode-options (into (sorted-set) (keys @klreg/mode-options))
+                 :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
+                 :klipse-settings (js->clj js/klipse-settings)
+                 :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
+                 :append-fn #(str "Not defined, cannot append:" %)
+                 :auto-klipsify true}))
 
 (add-watch klreg/mode-options :re-frame-reg-mode-options 
-           #(swap! ui assoc :mode-options (keys %4)))
+           #(swap! base assoc :mode-options (keys %4)))
 (add-watch klreg/selector->mode :re-frame-reg-mode-selectors 
-           #(swap! ui assoc :mode-selectors (clojure.set/map-invert %4)))
+           #(swap! base assoc :mode-selectors (clojure.set/map-invert %4)))
+
 
 (defn reg-editor [{:keys [id kl] :as editor}]
-  (swap! ui assoc-in [:editors kl] editor)
-  (swap! ui assoc-in [:id-kls id] kl))
+  (swap! base assoc-in [:editors kl] editor)
+  (swap! base assoc-in [:id-kls id] kl))
 
 (defn reg-append-fn [append-fn]
-  (swap! ui assoc :append-fn append-fn))
+  (swap! base assoc :append-fn append-fn))
 
-(defn append-editor-base [{:keys [id kl intro mode attrs snippet hidden?]
-                           :or {klipsettings {}}
-                           :as editor}]
-  (let [base (gdom/getElement "base")
-        klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
-        text (gdom/createDom "p" "pou-intro" (str "#" kl "> " (or 
-                                                               intro
-                                                               (str "id: " id ", mode: " mode))))
-        wrapper (gdom/createDom "div" (clj->js {:id id
-                                                :class "pou-wrapper" 
-                                                :style {:display (if hidden? "none" "block")}})
-                                text klipse)]
-    (.appendChild base wrapper)))
+; EDITOR FUNCTIONS
 
-(reg-append-fn append-editor-base)
-
-(defn mode->class [mode]
-  (->> (get (:mode-selectors @ui) mode)
-    (get (:klipse-settings @ui))
-    rest
-    (apply str)))
-
-(defn klipsify! [] 
-  (go 
-   (a/<! (klp/init-clj (:klipse-settings @ui)))))
-
-(defn append [editors & {:keys [klipsify?] :or {klipsify? (:auto-klipsify @ui)}}]
-  (dotimes [n (count editors)]
-   (let [{:keys [id mode attrs external-libs]
-          :or {mode "eval-clojure" klipsify? true}
-          :as editor} (get editors n)
-         kl (+ @klp/snippet-counter n)
-         id (or id (:id attrs) (str "pou-" kl))
-         data-external-libs (->> external-libs
-                              (into (-> @ui :external-libs (get mode)))
-                              (cons (:data-external-libs attrs))
-                              (filter some?)
-                              distinct
-                              (interpose ",")
-                              (apply str)
-                              not-empty)
-         new-editor (merge editor {:id id :kl kl :mode mode
-                                   :attrs (when data-external-libs
-                                            (merge attrs {:id id :class (mode->class mode)
-                                                          :data-external-libs data-external-libs}))})]
-     (reg-editor new-editor)
-     ((:append-fn @ui) new-editor)))
-  (when klipsify? 
-    (go
-     (a/<! (klipsify!))
-     (call-in-editor (dec @klp/snippet-counter) :focus))))
-
-(defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
-  (append [(assoc editor-settings :snippet snippet)]))
-
-(set! js/appendSnippet #(append [(js->clj %)]))
-
-(def get-kl #(if (number? %) % (-> @ui :id-kls %)))
+(def get-kl #(if (number? %) % (-> @base :id-kls %)))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply (@kleds/editors (get-kl k)) method (clj->js args)))
@@ -144,6 +97,65 @@
 (defn trigger-eval [k] 
   (set-code k (call-in-editor k :getValue)))
 
+; BASE UI
+
+(defn append-editor-base [{:keys [id kl intro mode attrs snippet hidden?]
+                           :or {klipsettings {}}
+                           :as editor}]
+  (let [base (gdom/getElement "base")
+        klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
+        text (gdom/createDom "p" "pou-intro" (str "#" kl "> " (or 
+                                                               intro
+                                                               (str "id: " id ", mode: " mode))))
+        wrapper (gdom/createDom "div" (clj->js {:id id
+                                                :class "pou-wrapper" 
+                                                :style {:display (if hidden? "none" "block")}})
+                                text klipse)]
+    (.appendChild base wrapper)))
+
+(reg-append-fn append-editor-base)
+
+(defn mode->class [mode]
+  (->> (get (:mode-selectors @base) mode)
+    (get (:klipse-settings @base))
+    rest
+    (apply str)))
+
+(defn klipsify! [] 
+  (go 
+   (a/<! (klp/init-clj (:klipse-settings @base)))))
+
+(defn append [editors & {:keys [klipsify?] :or {klipsify? (:auto-klipsify @base)}}]
+  (dotimes [n (count editors)]
+   (let [{:keys [id mode attrs external-libs]
+          :or {mode "eval-clojure" klipsify? true}
+          :as editor} (get editors n)
+         kl (+ @klp/snippet-counter n)
+         id (or id (:id attrs) (str "pou-" kl))
+         data-external-libs (->> external-libs
+                              (into (-> @base :external-libs (get mode)))
+                              (cons (:data-external-libs attrs))
+                              (filter some?)
+                              distinct
+                              (interpose ",")
+                              (apply str)
+                              not-empty)
+         new-editor (merge editor {:id id :kl kl :mode mode
+                                   :attrs (when data-external-libs
+                                            (merge attrs {:id id :class (mode->class mode)
+                                                          :data-external-libs data-external-libs}))})]
+     (reg-editor new-editor)
+     ((:append-fn @base) new-editor)))
+  (when klipsify? 
+    (go
+     (a/<! (klipsify!))
+     (call-in-editor (dec @klp/snippet-counter) :focus))))
+
+(defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
+  (append [(assoc editor-settings :snippet snippet)]))
+
+(set! js/appendSnippet #(append [(js->clj %)]))
+
 (defn fetch-url [url callback]
   (-> (str url) js/fetch
     (.then #(callback %))))
@@ -160,10 +172,12 @@
   (fetch-gist id file #(append (cljs.reader/read-string (str %)))))
 
 (defn editors-array []
-  (let [array (-> @ui :editors vals)]
+  (let [array (-> @base :editors vals)]
     (->> array
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
+
+; LOAD & EXPORT FNS
 
 (defn read-edn [url callback]
   (-> (str url)
@@ -185,8 +199,7 @@
 (defn load-ui [ui]
   (load-module (str "ui/" ui)))
 
-(defn loaded! [] (toggle-hidden "loading" true))
-(defn loading! [] (toggle-hidden "loading" false))
+(set! js/loadUI #(load-ui %))
 
 ; INIT
         
