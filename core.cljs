@@ -28,6 +28,7 @@
 (set! js/toggleHidden (partial toggle-hidden))
 
 (def ui (atom {:editors {}
+               :id-kls {}
                :mode-options (into (sorted-set) (keys @klreg/mode-options))
                :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
                :klipse-settings (js->clj js/klipse-settings)
@@ -40,8 +41,10 @@
 (add-watch klreg/selector->mode :re-frame-reg-mode-selectors 
            #(swap! ui assoc :mode-selectors (clojure.set/map-invert %4)))
 
-(defn reg-editor [k editor]
-  (swap! ui assoc-in [:editors k] editor))
+(defn reg-editor [{:keys [id kl] :as editor}]
+  (swap! ui assoc-in [:editors kl] editor)
+  (swap! ui assoc-in [:id-kls id] kl))
+
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
@@ -86,7 +89,7 @@
                                    :attrs (when data-external-libs
                                             (merge attrs {:id id :class (mode->class mode)
                                                           :data-external-libs data-external-libs}))})]
-     (reg-editor id new-editor)
+     (reg-editor new-editor)
      ((:append-fn @ui) new-editor)))
   (when klipsify? (klipsify!)))
 
@@ -95,15 +98,13 @@
 
 (set! js/appendSnippet #(append [(js->clj %)]))
 
-(def get-kl #(if (number? %) % (-> @ui :editors (get %) :kl)))
+(def get-kl #(if (number? %) % (-> @ui :id-kls %)))
                                                             
 (defn call-in-editor [k method & args]
-  (let [kl (get-kl k)]
-    (j/apply (@kleds/editors k) method (clj->js args))))
+  (j/apply (@kleds/editors (get-kl k)) method (clj->js args)))
 
 (defn call-in-result [k method & args]
-  (let [kl (get-kl k)]
-    (j/apply (@kleds/result-elements k) method (clj->js args))))
+  (j/apply (@kleds/result-elements (get-kl k)) method (clj->js args)))
 
 (defn set-code [k value] (call-in-editor k :setValue value))
 
