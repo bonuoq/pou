@@ -63,6 +63,8 @@
     rest
     (apply str)))
 
+(defn klipsify! [] (go (a/<! (klp/init-clj (:klipse-settings @ui)))))
+
 (defn append [editors & {:keys [klipsify?] :or {klipsify? true}}]
   (dotimes [n (count editors)]
    (let [{:keys [id mode attrs external-libs]
@@ -84,8 +86,7 @@
                                                           :data-external-libs data-external-libs}))})]
      (reg-editor id new-editor)
      ((:append-fn @ui) new-editor)))
-  (when klipsify? 
-    (go (a/<! (klp/init-clj (:klipse-settings @ui))))))
+  (when klipsify? (klipsify!)))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
