@@ -27,8 +27,6 @@
   ([div-id hidden?] (th (gdom/getElement div-id) hidden?))
   ([div-id] (let [d (gdom/getElement div-id)] (th d (not (h? d))))))
 
-(set! js/toggleHidden (partial toggle-hidden))
-
 (defn loaded! [] (toggle-hidden "loading" true))
 (defn loading! [] (toggle-hidden "loading" false))
 
@@ -154,8 +152,6 @@
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
 
-(set! js/appendSnippet #(append [(js->clj %)]))
-
 ; LOAD & EXPORT FNS
 
 (defn fetch-url [url callback]
@@ -193,13 +189,15 @@
     #(append [%]))))
 
 (defn load-modules-async [& modules]
-  (doseq [m modules] 
-    (go (a/<! (load-module m)))))
+  (go
+   (doseq [m modules] 
+     (a/<! (load-module m)))))
 
 (defn load-ui [ui]
-  (load-module (str "ui/" ui)))
-
-(set! js/loadUI #(load-ui %))
+  (go
+   (loading!)
+   (a/<! (load-module (str "ui/" ui)))
+   (loaded!)))
 
 ; INIT
         
