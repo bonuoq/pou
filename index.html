@@ -56,9 +56,9 @@
   <div id="pou-app">
     <div id="ui">
       <button class="append-snippet" onclick="appendSnippet()">+cljSnippet</button>
-      <select class="load-ui">
+      <select class="load-ui" onchange="(e)=>{loadUI(e.target.value)}">
         <option value="" disabled selected style="display:none;">Load UI</option>
-        <option value="re-frame" onclick="loadUI('re-frame')">POU Editor (re-frame)</option>
+        <option value="re-frame">POU Editor (re-frame)</option>
       </select>
     </div>
     <button class="hide-base" onclick="toggleHidden('base')">&lt&gt</button>
