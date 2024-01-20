@@ -44,16 +44,14 @@
 (defn reg-append-fn [append-fn]
   (swap! ui assoc :append-fn append-fn))
 
-(defn append-editor-base [{:keys [id kl intro mode attrs snippet klipsettings hidden?]
+(defn append-editor-base [{:keys [id kl intro mode attrs snippet hidden?]
                            :or {klipsettings {}}
                            :as editor}]
   (let [base (gdom/getElement "base")
-        div (gdom/createDom "div" 
-                            (clj->js (assoc-in attrs [:style :display] (if hidden? "none" "block")))
-                            (gdom/createTextNode (str snippet)))
-        text (gdom/createDom "p" "pou-text" (str (or intro 
-                                                     (str "#" kl ", id: " id ", mode: " mode))))]
-    (mapv #(.appendChild base %) [text div])))
+        wrapper (gdom/createDom "div" (clj->js {:class "pou-wrapper" :style {:display (if hidden? "none" "block")}}))
+        klipse (gdom/createDom "div" attrs (gdom/createTextNode (str snippet)))
+        text (gdom/createDom "p" "pou-text" (or intro (str "#" kl ", id: " id ", mode: " mode)))]
+    (mapv #(.appendChild base %) [text (.appendChild wrapper klipse)])))
 
 (reg-append-fn append-editor-base)
 
