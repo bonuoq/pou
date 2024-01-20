@@ -36,7 +36,7 @@
 
 (rf/reg-sub
  :mode-options
- #(:mode-options @p/ui))
+ #(:mode-options @base))
 
 (rf/reg-sub
  :snapshot
@@ -103,7 +103,7 @@
       (rf/dispatch [:new-uid uid]))))
 
 (p/reg-append-fn append-editor)
-(swap! p/ui assoc :auto-klipsify false)
+(swap! base assoc :auto-klipsify false)
 
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
