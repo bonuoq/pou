@@ -42,8 +42,8 @@
  :snapshot
  (fn [db _]
    (->> (:editors db)
-     (mapv #(assoc (val %) :snippet (p/get-code (:kl (val %)))))
-     (mapv #(dissoc % :kl))
+     (map #(assoc (val %) :snippet (p/get-code (:kl (val %)))))
+     (map #(dissoc % :kl))
      (mapv #(dissoc % :klipsify?)))))
 
 ; REG EVENTS
@@ -81,6 +81,11 @@
      (update-in recovered [:trash] dissoc id))))
 
 (rf/reg-event-db
+ :change-intro
+ (fn [db [_ id intro]]
+   (assoc-in db [:editors id] :intro intro)))
+
+(rf/reg-event-db
  :initialize
  (fn [_ _] 
    {:editors {}}))
@@ -107,7 +112,7 @@
 
 ; COMPONENTS
 
-(defn- editor-comp [{:keys [mode title attrs kl id snippet]}]
+(defn- editor-comp [{:keys [mode intro attrs kl id snippet]}]
   (let [hidden? (rf/subscribe [:hidden? id])]
     (fn []
       [:div.pou-wrapper
@@ -115,8 +120,10 @@
         [:button.toggle-min
          {:on-click #(rf/dispatch [:show-hide id])}
          (if @hidden? ">" "<")]
-        (when title [:p (str title)])
-        [:p (str "#" kl ", id: " id ", mode: " mode)]]
+        (str "#" kl ", id: " id ", mode: " mode)
+        [:p.pou-text {:contenteditable true
+                      :on-change #(rf/dispatch [:change-intro id (.. % -target -value)])} 
+         (str (or intro "<add description>"))]]
        [:div.pou-editor
         {:style {:display (if @hidden? "none" "block")}}
         [:div.pou-klipse attrs (str snippet)]]])))
