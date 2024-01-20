@@ -83,7 +83,7 @@
 (rf/reg-event-db
  :change-intro
  (fn [db [_ id intro]]
-   (assoc-in db [:editors id] :intro intro)))
+   (assoc-in db [:editors id :intro] intro)))
 
 (rf/reg-event-db
  :initialize
@@ -108,7 +108,7 @@
   (when discard-old? 
     (for [i @(rf/subscribe [:ids])]
       (rf/dispatch [:discard-editor i])))
-  (p/load-editors-async snapshot))
+  (p/append snapshot))
 
 ; COMPONENTS
 
@@ -144,13 +144,13 @@
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:button
-        {:on-click #(p/append-editor)}
+        {:on-click #(p/append [{}])}
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
-                     (p/append-editor {:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
-                                       :external-libs @ext-libs
-                                       :attrs {:data-gist-id @from-gist}})
+                     (p/append [{:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
+                                 :external-libs @ext-libs
+                                 :attrs {:data-gist-id @from-gist}}])
                      (reset! from-gist nil)
                      (reset! ext-libs nil))}
         "+"]
