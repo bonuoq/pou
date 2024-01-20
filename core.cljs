@@ -48,11 +48,12 @@
                            :or {klipsettings {}}
                            :as editor}]
   (let [base (gdom/getElement "base")
-        wrapper (gdom/createDom "div" (clj->js {:class "pou-wrapper" :style {:display (if hidden? "none" "block")}}))
-        klipse (gdom/createDom "div" attrs (gdom/createTextNode (str snippet)))
-        text (gdom/createDom "p" "pou-text" (or intro (str "#" kl ", id: " id ", mode: " mode)))]
-    (mapv #(.appendChild base %) [text wrapper])
-    (.appendChild wrapper klipse)))
+        klipse (gdom/createDom "div" attrs (str snippet))
+        text (gdom/createDom "p" "pou-text" (or intro (str "#" kl ", id: " id ", mode: " mode)))
+        wrapper (gdom/createDom "div" (clj->js {:class "pou-wrapper" 
+                                                :style {:display (if hidden? "none" "block")}})
+                                text klipse)]
+    (.appendChild base wrapper)))
 
 (reg-append-fn append-editor-base)
 
