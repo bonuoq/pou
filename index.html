@@ -56,7 +56,7 @@
   <div id="pou-app">
     <div id="ui">
       <button class="append-snippet" onclick="pou.core.aed()">+cljSnippet</button>
-      <select class="load-ui" onchange="(e)=>{pou.core.load_ui(e.target.value)}">
+      <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
         <option value="" disabled selected style="display:none;">Load UI</option>
         <option value="re-frame">POU Editor (re-frame)</option>
       </select>
