@@ -44,7 +44,7 @@
    (->> (:editors db)
      (map #(assoc (val %) :snippet (p/get-code (:kl (val %))))) 
      (map #(dissoc % :kl))
-     (map #(assoc % :intro (-> (:id %) 
+     (mapv #(assoc % :intro (-> (:id %) 
                              gdom/getElement 
                              (.querySelector ".pou-intro") 
                              .-textContent))))))
