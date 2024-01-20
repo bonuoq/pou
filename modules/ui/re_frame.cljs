@@ -175,4 +175,3 @@
 
 (rf/dispatch [:initialize])
 (rdom/render [pou-re-frame] (gdom/getElement "ui"))
-(p/loaded!)
