@@ -156,6 +156,8 @@
 
 (set! js/appendSnippet #(append [(js->clj %)]))
 
+; LOAD & EXPORT FNS
+
 (defn fetch-url [url callback]
   (-> (str url) js/fetch
     (.then #(callback %))))
@@ -176,8 +178,6 @@
     (->> array
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
-
-; LOAD & EXPORT FNS
 
 (defn read-edn [url callback]
   (-> (str url)
