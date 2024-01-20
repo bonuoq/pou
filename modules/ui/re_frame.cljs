@@ -1,12 +1,9 @@
 (ns pou.modules.ui.re-frame
   (:require [goog.dom :as gdom]
-            [klipse.plugin :as klp]
-            [klipse.common.registry :as klreg]
             [reagent.core :as r]
             [reagent.dom :as rdom]
             [re-frame.core :as rf]
-            [pou.core :as p]
-            [applied-science.js-interop :as j]))
+            [pou.core :as p]))
 
 ; REG SUBS
 
@@ -38,27 +35,16 @@
    (-> db :editors (get id) :hidden?)))
 
 (rf/reg-sub
+ :mode-options
+ #(:mode-options @p/ui))
+
+(rf/reg-sub
  :snapshot
  (fn [db _]
    (->> (:editors db)
      (mapv #(assoc (val %) :snippet (p/get-code (:kl (val %)))))
      (mapv #(dissoc % :kl))
      (mapv #(dissoc % :klipsify?)))))
-
-(rf/reg-sub
- :mode-options
- (fn [db _]
-   (:mode-options db)))
-
-(rf/reg-sub
- :mode-selectors
- (fn [db [_ mode]]
-   (-> db :mode-selectors (get mode))))
-
-(rf/reg-sub
- :klipse-settings
- (fn [db _]
-   (:klipse-settings db)))
 
 ; REG EVENTS
 
@@ -95,31 +81,9 @@
      (update-in recovered [:trash] dissoc id))))
 
 (rf/reg-event-db
- :reg-mode-options
- (fn [db [_ mode-options]]
-   (update-in db [:mode-options] into mode-options)))
-
-(rf/reg-event-db
- :reg-klipse-settings
- (fn [db [_ klipse-settings]]
-   (update-in db [:klipse-settings] into klipse-settings)))
-
-(rf/reg-event-db
- :reg-mode-selectors
- (fn [db [_ mode-selectors]]
-   (update-in db [:mode-selectors] into mode-selectors)))
-
-(rf/reg-event-db
  :initialize
- (fn [_ _]
-   (add-watch klreg/mode-options :re-frame-reg-mode-options 
-              #(rf/dispatch [:reg-mode-options (keys %4)]))
-   (add-watch klreg/selector->mode :re-frame-reg-mode-selectors 
-              #(rf/dispatch [:reg-mode-selectors (clojure.set/map-invert %4)]))
-   {:editors {}
-    :mode-options (into (sorted-set) (keys @klreg/mode-options))
-    :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
-    :klipse-settings (js->clj js/klipse-settings)}))
+ (fn [_ _] 
+   {:editors {}}))
 
 ; ACTIONS AND HELPER FNS
 
@@ -143,13 +107,7 @@
 
 ; COMPONENTS
 
-(defn- mode->class [mode]
-  (->> @(rf/subscribe [:mode-selectors mode])
-    (get @(rf/subscribe [:klipse-settings]))
-    rest
-    (apply str)))
-
-(defn- editor [{:keys [mode attrs kl id snippet]}]
+(defn- editor-comp [{:keys [mode title attrs kl id snippet]}]
   (let [hidden? (rf/subscribe [:hidden? id])]
     (fn []
       [:div.pou-wrapper
@@ -157,19 +115,11 @@
         [:button.toggle-min
          {:on-click #(rf/dispatch [:show-hide id])}
          (if @hidden? ">" "<")]
-        (str "#" kl ", id: " id ", mode: " mode)]
+        (when title [:p (str title)])
+        [:p (str "#" kl ", id: " id ", mode: " mode)]]
        [:div.pou-editor
         {:style {:display (if @hidden? "none" "block")}}
-        [:div.pou-klipse (assoc attrs :id id :class (mode->class mode)) (str snippet)]]])))
-
-(defn editor-comp [{:keys [mode klipsettings] :as editor-settings}]
-  (r/create-class
-    {:component-did-mount
-     (fn [this]
-       ;(klp/klipsify (. (rdom/dom-node this) querySelector ".pou-klipse") klipsettings mode)
-       (klp/init-clj @(rf/subscribe [:klipse-settings])))
-     :reagent-render 
-     (editor editor-settings)}))
+        [:div.pou-klipse attrs (str snippet)]]])))
 
 (defn select-comp [value-atom options-atom]
   (fn []
@@ -187,14 +137,13 @@
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:button
-        {:on-click #(p/append-editor {:klipsify? false})}
+        {:on-click #(p/append-editor)}
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
                      (p/append-editor {:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
                                        :external-libs @ext-libs
-                                       :attrs {:data-gist-id @from-gist}
-                                       :klipsify? false})
+                                       :attrs {:data-gist-id @from-gist}})
                      (reset! from-gist nil)
                      (reset! ext-libs nil))}
         "+"]
