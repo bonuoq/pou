@@ -70,7 +70,9 @@
     rest
     (apply str)))
 
-(defn klipsify! [] (go (a/<! (klp/init-clj (:klipse-settings @ui)))))
+(defn klipsify! [] 
+  (go 
+   (a/<! (klp/init-clj (:klipse-settings @ui)))))
 
 (defn append [editors & {:keys [klipsify?] :or {klipsify? (:auto-klipsify @ui)}}]
   (dotimes [n (count editors)]
@@ -93,7 +95,10 @@
                                                           :data-external-libs data-external-libs}))})]
      (reg-editor new-editor)
      ((:append-fn @ui) new-editor)))
-  (when klipsify? (klipsify!)))
+  (when klipsify? 
+    (go
+     (a/<! (klipsify!))
+     (call-in-editor (dec @klp/snippet-counter) :focus)))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
