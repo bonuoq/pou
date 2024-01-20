@@ -51,7 +51,8 @@
         wrapper (gdom/createDom "div" (clj->js {:class "pou-wrapper" :style {:display (if hidden? "none" "block")}}))
         klipse (gdom/createDom "div" attrs (gdom/createTextNode (str snippet)))
         text (gdom/createDom "p" "pou-text" (or intro (str "#" kl ", id: " id ", mode: " mode)))]
-    (mapv #(.appendChild base %) [text (.appendChild wrapper klipse)])))
+    (mapv #(.appendChild base %) [text wrapper])
+    (.appendChild wrapper klipse)))
 
 (reg-append-fn append-editor-base)
 
