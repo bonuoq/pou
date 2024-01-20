@@ -48,7 +48,7 @@
                            :or {klipsettings {}}
                            :as editor}]
   (let [base (gdom/getElement "base")
-        klipse (gdom/createDom "div" attrs (str snippet))
+        klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
         text (gdom/createDom "p" "pou-text" (or intro (str "#" kl ", id: " id ", mode: " mode)))
         wrapper (gdom/createDom "div" (clj->js {:class "pou-wrapper" 
                                                 :style {:display (if hidden? "none" "block")}})
