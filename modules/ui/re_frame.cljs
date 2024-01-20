@@ -100,6 +100,7 @@
       (rf/dispatch [:new-uid uid]))))
 
 (p/reg-append-fn append-editor)
+(swap! @p/ui assoc :auto-klipsify false)
 
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
@@ -112,21 +113,24 @@
 
 ; COMPONENTS
 
-(defn- editor-comp [{:keys [mode intro attrs kl id snippet]}]
-  (let [hidden? (rf/subscribe [:hidden? id])]
+(defn editor-comp [{:keys [kl id intro mode attrs id snippet]}]
+  (r/create-class
+   {:component-did-mount #(p/klipsify!)
+    :reagent-render
     (fn []
-      [:div.pou-wrapper
-       [:div.pou-toolbar
-        [:button.toggle-min
-         {:on-click #(rf/dispatch [:show-hide id])}
-         (if @hidden? ">" "<")]
-        (str "#" kl ", id: " id ", mode: " mode)
-        [:p.pou-text {:contenteditable true
-                      :on-change #(rf/dispatch [:change-intro id (.. % -target -value)])} 
-         (str (or intro "<add description>"))]]
-       [:div.pou-editor
-        {:style {:display (if @hidden? "none" "block")}}
-        [:div.pou-klipse attrs (str snippet)]]])))
+      (let [hidden? @(rf/subscribe [:hidden? id])]
+        [:div.pou-wrapper
+         [:div.pou-toolbar
+          [:button.toggle-min
+           {:on-click #(rf/dispatch [:show-hide id])}
+           (if hidden? ">" "<")]
+          (str "#" kl ", id: " id ", mode: " mode)
+          [:p.pou-text {:contenteditable true
+                        :on-change #(rf/dispatch [:change-intro id (.. % -target -value)])} 
+           (str (or intro "<add description>"))]]
+         [:div.pou-editor
+          {:style {:display (if hidden? "none" "block")}}
+          [:div.pou-klipse attrs (str snippet)]]]))}))
 
 (defn select-comp [value-atom options-atom]
   (fn []
