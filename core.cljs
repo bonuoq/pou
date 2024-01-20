@@ -34,6 +34,11 @@
                :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
                :append-fn #(str "Not defined, cannot append:" %)}))
 
+(add-watch klreg/mode-options :re-frame-reg-mode-options 
+           #(swap! ui assoc :mode-options (keys %4)))
+(add-watch klreg/selector->mode :re-frame-reg-mode-selectors 
+           #(swap! ui assoc :mode-selectors (clojure.set/map-invert %4)))
+
 (defn reg-editor [k editor]
   (swap! ui assoc-in [:editors k] editor))
 (defn reg-append-fn [append-fn]
