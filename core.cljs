@@ -181,6 +181,9 @@
 (defn load-ui [ui]
   (load-module (str "ui/" ui)))
 
+(defn loaded! [] (toggle-hidden "loading" true))
+(defn loading! [] (toggle-hidden "loading" false))
+
 ; INIT
         
 (process-url-params :u #(load-ui %)
@@ -189,5 +192,5 @@
                     :d #(append [(parse64 %)])
                     :n #(apply load-modules-async (flatten64 %)))
 
-(when-not (:u url-params) (toggle-hidden "loading" true))
+(when-not (:u url-params) (loaded!))
 
