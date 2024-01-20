@@ -42,9 +42,12 @@
  :snapshot
  (fn [db _]
    (->> (:editors db)
-     (map #(assoc (val %) :snippet (p/get-code (:kl (val %)))))
+     (map #(assoc (val %) :snippet (p/get-code (:kl (val %))))) 
      (map #(dissoc % :kl))
-     (mapv #(dissoc % :klipsify?)))))
+     (map #(assoc % :intro (-> (:id %) 
+                             gdom/getElement 
+                             (.querySelector ".pou-intro") 
+                             .-textContent))))))
 
 ; REG EVENTS
 
@@ -119,15 +122,13 @@
     :reagent-render
     (fn []
       (let [hidden? @(rf/subscribe [:hidden? id])]
-        [:div.pou-wrapper
+        [:div.pou-wrapper {:id id}
          [:div.pou-toolbar
           [:button.toggle-min
            {:on-click #(rf/dispatch [:show-hide id])}
            (if hidden? ">" "<")]
-          (str "#" kl ", id: " id ", mode: " mode)
-          [:p.pou-text {:contenteditable true
-                        :on-change #(rf/dispatch [:change-intro id (.. % -target -value)])} 
-           (str (or intro "<add description>"))]]
+          [:p.pou-intro {:contentEditable true}
+           (str (or intro (str "#" kl ", id: " id ", mode: " mode)))]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
           [:div.pou-klipse attrs (str snippet)]]]))}))
