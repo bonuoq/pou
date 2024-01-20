@@ -49,7 +49,7 @@
                            :as editor}]
   (let [base (gdom/getElement "base")
         div (gdom/createDom "div" 
-                            (clj->js (assoc-in attrs [:style :display] (if @hidden? "none" "block")))
+                            (clj->js (assoc-in attrs [:style :display] (if hidden? "none" "block")))
                             (gdom/createTextNode (str snippet)))
         text (gdom/createDom "p" "pou-text" (str (or intro 
                                                      (str "#" kl ", id: " id ", mode: " mode))))]
