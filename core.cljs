@@ -32,7 +32,8 @@
                :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
                :klipse-settings (js->clj js/klipse-settings)
                :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
-               :append-fn #(str "Not defined, cannot append:" %)}))
+               :append-fn #(str "Not defined, cannot append:" %)
+               :auto-klipsify true}))
 
 (add-watch klreg/mode-options :re-frame-reg-mode-options 
            #(swap! ui assoc :mode-options (keys %4)))
@@ -65,7 +66,7 @@
 
 (defn klipsify! [] (go (a/<! (klp/init-clj (:klipse-settings @ui)))))
 
-(defn append [editors & {:keys [klipsify?] :or {klipsify? true}}]
+(defn append [editors & {:keys [klipsify?] :or {klipsify? (:auto-klipsify @ui)}}]
   (dotimes [n (count editors)]
    (let [{:keys [id mode attrs external-libs]
           :or {mode "eval-clojure" klipsify? true}
