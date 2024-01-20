@@ -127,8 +127,8 @@
           (str "#" kl)
           [:button.toggle-min
            {:on-click #(rf/dispatch [:show-hide id])}
-           (if hidden? "<" ">")]
-          [:p.pou-intro {:contentEditable true}
+           (if hidden? "<" ">")] " "
+          [:span.pou-intro {:contentEditable true}
            (or intro (str "id: " id ", mode: " mode))]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
