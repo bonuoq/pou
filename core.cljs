@@ -148,13 +148,8 @@
           (fn [json]
             (callback (-> (js->clj json :keywordize-keys true) :files ((keyword file)) :content))))))))
 
-(defn append-gist [{:keys [id file mode attrs klipsettings append-code] 
-                    :or {append-code ""} 
-                    :as editor}]
-  (fetch-gist id file #(aed (str % append-code) editor)))
-
-(defn append-gists [& gists]
-  (doseq [gist gists] (append-gist gist)))
+(defn append-gist [{:keys [id file]}]
+  (fetch-gist id file #(append (cljs.reader/read-string (str %)))))
 
 (defn editors-array []
   (let [array (-> @ui :editors vals)]
