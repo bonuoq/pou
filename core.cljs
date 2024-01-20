@@ -98,7 +98,7 @@
   (when klipsify? 
     (go
      (a/<! (klipsify!))
-     (call-in-editor (dec @klp/snippet-counter) :focus)))
+     (call-in-editor (dec @klp/snippet-counter) :focus))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)]))
