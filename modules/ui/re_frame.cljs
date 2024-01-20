@@ -124,11 +124,12 @@
       (let [hidden? @(rf/subscribe [:hidden? id])]
         [:div.pou-wrapper {:id id}
          [:div.pou-toolbar
+          (str "#" kl)
           [:button.toggle-min
            {:on-click #(rf/dispatch [:show-hide id])}
-           (if hidden? ">" "<")]
+           (if hidden? "<" ">")]
           [:p.pou-intro {:contentEditable true}
-           (str (or intro (str "#" kl ", id: " id ", mode: " mode)))]]
+           (or intro (str "id: " id ", mode: " mode))]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
           [:div.pou-klipse attrs (str snippet)]]]))}))
