@@ -51,12 +51,18 @@
   <div id="loading" class="loader">LOADING...</div>
   <div id="host"></div>
   <div id="app"></div>
-  <button class="hide-editors" onclick="toggleHidden('pou-app')">&lt&gt</button>
-  hide / show ALL
+  <button class="hide-ui" onclick="toggleHidden('pou-app')">&lt&gt</button>
+  hide / show all-UIs
   <div id="pou-app">
-    <div id="ui"><button class="append-snippet" onclick="appendSnippet()">+</button><br></div>
-    <button class="hide-editors" onclick="toggleHidden('base')">&lt&gt</button>
-    hide / show BASE
+    <div id="ui">
+      <button class="append-snippet" onclick="appendSnippet()">+</button><br>
+      <select class="load-ui">
+        <option value="" disabled selected style="display:none;">Load UI</option>
+        <option value="re-frame" onclick="loadUI('re-frame')">POU Editor (re-frame)</option>
+      </select>
+    </div>
+    <button class="hide-base" onclick="toggleHidden('base')">&lt&gt</button>
+    hide / show base-UI
     <div id="base">
       <div class="language-klipse" data-external-libs="
         https://bonuoq.github.io,
