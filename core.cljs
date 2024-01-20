@@ -1,6 +1,7 @@
 (ns pou.core
   (:require [goog.dom :as gdom]
-            [cljs.core.async :as a :refer-macros [go]]
+            [cljs.core.async :refer [<!] :refer-macros [go]]
+            [cljs.core.async.interop :refer-macros [<p!]]
             [klipse.plugin :as klp]
             [klipse.utils :as klu]
             [klipse.common.registry :as klreg]
@@ -121,7 +122,7 @@
 
 (defn klipsify! [] 
   (go 
-   (a/<! (klp/init-clj (:klipse-settings @base)))))
+   (<! (klp/init-clj (:klipse-settings @base)))))
 
 (defn append [editors & {:keys [klipsify?] :or {klipsify? (:auto-klipsify @base)}}]
   (dotimes [n (count editors)]
@@ -146,7 +147,7 @@
      ((:append-fn @base) new-editor)))
   (when klipsify? 
     (go
-     (a/<! (klipsify!))
+     (<! (klipsify!))
      (call-in-editor (dec @klp/snippet-counter) :focus))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
@@ -184,19 +185,19 @@
            (callback (cljs.reader/read-string edn))))))))
 
 (defn load-module [module]
-  (-> (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-   (read-edn
-    #(append [%]))))
+  (read-edn
+   (str "https://bonuoq.github.io/pou/modules/" module ".edn")
+   #(append [%])))
 
 (defn load-modules-async [& modules]
   (go
    (doseq [m modules] 
-     (a/<! (load-module m)))))
+     (<p! (load-module m)))))
 
 (defn load-ui [ui]
   (go
    (loading!)
-   (a/<! (load-module (str "ui/" ui)))
+   (<p! (load-module (str "ui/" ui)))
    (loaded!)))
 
 ; INIT
