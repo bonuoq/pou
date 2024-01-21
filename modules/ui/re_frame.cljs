@@ -181,4 +181,4 @@
 ; INITIALIZE
 
 (rf/dispatch [:initialize])
-(rdom/render [pou-re-frame] (gdom/getElement "ui"))
+(rdom/render [pou-re-frame] (gdom/getElement "re-frame"))
