@@ -53,7 +53,7 @@
 
 (defn reg-ui [ui-keyword {:keys [append-fn klipsify?] :as ui}]
   (let [div-uis (gdom/getElement "uis")
-        div-new-ui (gdom/createDom "div" (clj->js {:id ui-keyword}))]
+        div-new-ui (gdom/createDom "div" (clj->js {:class "pou-ui" :id ui-keyword}))]
     (swap! pou assoc-in [:uis ui-keyword] ui)
     (.appendChild div-uis div-new-ui)))
 
@@ -103,7 +103,7 @@
 (defn append-editor-base [{:keys [id kl intro mode attrs snippet hidden?]
                            :or {klipsettings {}}
                            :as editor}]
-  (let [base (gdom/getElement "base-editors")
+  (let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
         text (gdom/createDom "p" "pou-intro" (str "#" kl "> " (or 
                                                                intro
