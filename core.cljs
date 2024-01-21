@@ -170,8 +170,8 @@
      (when on-mounted (on-mounted))
      (call-in-editor (dec @klp/snippet-counter) :focus))))
 
-(defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
-  (append [(assoc editor-settings :snippet snippet)]))
+(defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
+  (append [(assoc editor-settings :snippet snippet)] :on-mounted on-mounted :on-ready on-ready))
 
 ; LOAD & EXPORT FNS
 
