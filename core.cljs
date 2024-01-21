@@ -198,7 +198,7 @@
          (fn [edn] 
            (callback (cljs.reader/read-string edn))))))))
 
-(defn load-module [module & {:keys on-ready}]
+(defn load-module [module & {:keys [on-ready]}]
   (read-edn
    (str "https://bonuoq.github.io/pou/modules/" module ".edn")
    #(append [%] :on-ready on-ready)))
