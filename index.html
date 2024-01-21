@@ -54,26 +54,28 @@
   <button class="hide-ui" onclick="pou.core.toggle_hidden('pou-app')">&lt&gt</button>
   hide / show UI
   <div id="pou-app">
-    <div id="ui">
-      <button class="append-snippet" onclick="pou.core.aed()">+cljSnippet</button>
-      <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
-        <option value="" disabled selected style="display:none;">Load UI</option>
-        <option value="re-frame">POU Editor (re-frame)</option>
-      </select>
-    </div>
-    <button class="hide-base" onclick="pou.core.toggle_hidden('base')">&lt&gt</button>
-    hide / show baseUI snippets
-    <div id="base">
-      <div class="language-klipse" data-external-libs="
-        https://bonuoq.github.io,
-        https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
-        https://raw.githubusercontent.com/clojure/core.async/master/src/main/clojure">
+    <div id="uis">
+      <div class="pou-ui" id="base">
+        <button class="append-cljs" onclick="pou.core.aed()">+cljSnippet</button>
+        <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
+          <option value="" disabled selected style="display:none;">Load UI</option>
+          <option value="re-frame">POU Editor (re-frame)</option>
+        </select>
+        <button class="hide-base" onclick="pou.core.toggle_hidden('base-editors')">&lt&gt</button>
+        hide / show baseUI editors
+        <div id="base-editors">
+          <div class="language-klipse" data-external-libs="
+            https://bonuoq.github.io,
+            https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
+            https://raw.githubusercontent.com/clojure/core.async/master/src/main/clojure">
 (ns pou.user
   (:require [goog.dom :as gdom]
             [pou.core :as p]
             [klipse.utils :as klu]
             [klipse-clj.repl :refer [doc]]))
+          </div>
         </div>
+      </div>
     </div>
   </div>
   
