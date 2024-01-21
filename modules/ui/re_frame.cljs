@@ -96,7 +96,7 @@
 (rf/reg-event-db
  :initialize
  (fn [_ _] 
-   {:editors {}}))
+   {:editors {} :ready {}}))
 
 ; ACTIONS AND HELPER FNS
 
@@ -124,7 +124,7 @@
 (defn editor-comp [{:keys [kl id intro mode attrs id snippet]}]
   (r/create-class
    {:component-did-mount 
-    (fn [this] 
+    (fn [this]
       (p/klipsify! #(rf/dispatch [:ready {id this}])))
     :reagent-render
     (fn []
