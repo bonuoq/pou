@@ -57,7 +57,7 @@
    (update-in db [:uids id] inc)))
 
 (rf/reg-event-db
- :hidden?
+ :hide
  (fn [db [_ id hidden?]]
    (assoc-in db [:editors id :hidden?] hidden?)))
 
@@ -70,6 +70,11 @@
  :reg-editor
  (fn [db [_ editor]]
    (update-in db [:editors] conj editor)))
+
+(rf/reg-event-db
+ :ready
+ (fn [db [_ editor-comp]]
+   (update-in db [:ready] conj editor-comp)))
 
 (rf/reg-event-db
  :discard-editor
@@ -118,7 +123,9 @@
 
 (defn editor-comp [{:keys [kl id intro mode attrs id snippet]}]
   (r/create-class
-   {:component-did-mount #(p/klipsify!)
+   {:component-did-mount 
+    (fn [this] 
+      (p/klipsify! #(rf/dispatch [:ready {id this}])))
     :reagent-render
     (fn []
       (let [hidden? @(rf/subscribe [:hidden? id])]
