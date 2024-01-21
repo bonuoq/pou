@@ -16,7 +16,6 @@
       right: 0px;
       bottom: 0px;
       left: 0px;
-      padding-top: 10vh;
       opacity: 0.2;
       z-index: -999999
     }
@@ -25,6 +24,10 @@
       height: 100vh;
       animation: blinker 2s linear infinite;
       text-align: center;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
       padding-top: 38vh; 
       font-size: x-large;
       font-family: monospace;
@@ -60,7 +63,6 @@
     }
   </script>
   <div id="loading" class="loader">LOADING...</div>
-  <div id="top-space" style="height='10vh'"></div>
   <div id="top-menu" class="floating-top">
     <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
       &lt&gt
@@ -69,7 +71,7 @@
   </div>
   <div id="host"></div>
   <div id="app"></div>
-  <div id="pou-app">
+  <div id="pou-app" style="padding-top='10vh'">
     <div class="pou-wrapper" id="start">
         <div class="language-klipse" data-external-libs="
           https://bonuoq.github.io,
