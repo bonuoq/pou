@@ -108,7 +108,7 @@
       (rf/dispatch [:new-uid uid]))))
 
 (p/reg-ui :re-frame {:append-fn append-editor
-                     :klipsify? false}})
+                     :klipsify? false})
 
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
