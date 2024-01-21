@@ -157,9 +157,10 @@
                               (apply str)
                               not-empty)
          new-editor (merge editor {:id id :kl kl :mode mode
-                                   :attrs (when data-external-libs
-                                            (merge attrs {:id id :class (mode->class mode)
-                                                          :data-external-libs data-external-libs}))})]
+                                   :attrs (merge attrs 
+                                                 {:id id :class (mode->class mode)}
+                                                 (when data-external-libs 
+                                                   {:data-external-libs data-external-libs}))})]
      (reg-editor new-editor)
      (let [append-fn (-> @pou :uis ui :append-fn)]
        (append-fn new-editor))))
