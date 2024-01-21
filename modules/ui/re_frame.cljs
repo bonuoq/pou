@@ -100,12 +100,15 @@
 
 ; ACTIONS AND HELPER FNS
 
-(defn append-editor [{:keys [id] :as editor}]
+(defn append-editor-re-frame [{:keys [id] :as editor}]
   (let [uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
     (rf/dispatch [:new-uid id])
     (when-not (= id uid) 
       (rf/dispatch [:new-uid uid]))))
+
+(defn append [editors & args]
+  (apply p/append editors :ui :re-frame args))
 
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
@@ -114,7 +117,7 @@
   (when discard-old? 
     (for [i @(rf/subscribe [:ids])]
       (rf/dispatch [:discard-editor i])))
-  (p/append snapshot))
+  (p/append snapshot :ui :re-frame))
 
 ; COMPONENTS
 
@@ -150,7 +153,7 @@
         from-gist (r/atom nil)
         ext-libs (r/atom nil)]
     (fn []
-      [:div#pou-app
+      [:div.pou-re-frame-ui
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:button
@@ -178,6 +181,6 @@
 ; INITIALIZE
 
 (rf/dispatch [:initialize])
-(let [ui-div (p/reg-ui :re-frame {:append-fn append-editor
+(let [ui-div (p/reg-ui :re-frame {:append-fn append-editor-re-frame
                                   :klipsify? false})]
   (rdom/render [pou-re-frame] (gdom/getElement ui-div)))
