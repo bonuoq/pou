@@ -38,13 +38,28 @@
       }
     }
 
+    #pou-app {
+      padding-top: 2em;
+    }
+
     .CodeMirror {
       opacity: 0.9;
     }
 
+    .pou-toolbar {
+      opacity: 50%;
+      width: 100vw;
+      left: 0;
+      background: #CCC;
+    }
+
+    .pou-toolbar:hover {
+      opacity: 100%;
+    }
+
     .floating-top {
+      top: 0;
       position: fixed;
-      background:#CCC;
       z-index: 999999;
     }
     
@@ -58,7 +73,7 @@
     }
   </script>
   <div id="loading" class="loader">LOADING...</div>
-  <div id="top-menu" class="floating-top">
+  <div id="top-menu" class="pou-toolbar floating-top">
     <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
       &lt&gt
     </button>
@@ -66,7 +81,7 @@
   </div>
   <div id="host"></div>
   <div id="app"></div>
-  <div id="pou-app" style="padding-top:5vh">
+  <div id="pou-app">
     <div class="pou-wrapper" id="start">
         <div class="language-klipse" data-external-libs="
           https://bonuoq.github.io,
@@ -82,16 +97,18 @@
       </div>
     <div id="uis">
     </div>
-    <div class="pou-ui" id="base-control">
-      <button class="append-cljs" onclick="pou.core.aed();scrollDown('base')">+cljSnippet</button>
+    <div class="pou-toolbar" id="base-control">
+      <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('base');scrollDown('base')">
+        &lt&gt
+      </button>
+      baseUI&nbsp;
+      <button class="append-cljs" onclick="pou.core.aed('',cljs.core.keyword('on-ready'),function(){scrollDown('base')});">
+        +eval-clojure
+      </button>
       <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
         <option value="" disabled selected style="display:none;">Load UI</option>
         <option value="re-frame">POU Editor (re-frame)</option>
       </select>
-      <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('base');scrollDown('base')">
-        &lt&gt
-      </button>
-      baseUI
     </div>
   </div>
   
