@@ -47,32 +47,37 @@
 </head>
 
 <body>
-  
+  <script>
+    function scrollDown (id) {
+      window.scrollTo(0, document.getElementById(id).scrollHeight);
+    }
+  </script>
   <div id="loading" class="loader">LOADING...</div>
   <div id="host"></div>
   <div id="app"></div>
-  <button class="hide-ui" onclick="pou.core.toggle_hidden('pou-app')">&lt&gt</button>
+  <button class="hide-ui" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">&lt&gt</button>
   hide / show UI
   <div id="pou-app">
-    <div id="uis">
-      <div class="pou-wrapper" id="start">
+    <div class="pou-wrapper" id="start">
         <div class="language-klipse" data-external-libs="
           https://bonuoq.github.io,
           https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
           https://raw.githubusercontent.com/clojure/core.async/master/src/main/clojure">
 (ns pou.user
-(:require [goog.dom :as gdom]
-          [pou.core :as p]
-          [klipse.utils :as klu]
-          [klipse-clj.repl :refer [doc]]))
+  (:require [goog.dom :as gdom]
+            [pou.core :as p]
+            [klipse.utils :as klu]
+            [klipse-clj.repl :refer [doc]]))
+(p/init!)
         </div>
       </div>
-      <button class="append-cljs" onclick="pou.core.aed()">+cljSnippet</button>
+    <div id="uis">
+      <button class="append-cljs" onclick="pou.core.aed();scrollDown('base')">+cljSnippet</button>
       <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
         <option value="" disabled selected style="display:none;">Load UI</option>
         <option value="re-frame">POU Editor (re-frame)</option>
       </select>
-      <button class="hide-base" onclick="pou.core.toggle_hidden('base')">&lt&gt</button>
+      <button class="hide-base" onclick="pou.core.toggle_hidden('base');scrollDown('base')">&lt&gt</button>
       hide / show baseUI editors
     </div>
   </div>
