@@ -10,11 +10,9 @@
       background-image: url(pou.svg);
       background-repeat: repeat-y;
       background-position: center;
-      background-size: cover;
       position: absolute;
       top: 0px;
       right: 0px;
-      bottom: 0px;
       left: 0px;
       opacity: 0.2;
       z-index: -999999
@@ -24,10 +22,6 @@
       height: 100vh;
       animation: blinker 2s linear infinite;
       text-align: center;
-      top: 0px;
-      right: 0px;
-      bottom: 0px;
-      left: 0px;
       padding-top: 38vh; 
       font-size: x-large;
       font-family: monospace;
@@ -35,6 +29,11 @@
       background-repeat: no-repeat;
       background-position: center;
       background-size: cover;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      left: 0px;
+      bottom: 0px;
     }
     
     @keyframes blinker {
@@ -71,7 +70,7 @@
   </div>
   <div id="host"></div>
   <div id="app"></div>
-  <div id="pou-app" style="padding-top='10vh'">
+  <div id="pou-app" style="padding-top=5vh">
     <div class="pou-wrapper" id="start">
         <div class="language-klipse" data-external-libs="
           https://bonuoq.github.io,
