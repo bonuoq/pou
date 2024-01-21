@@ -36,7 +36,7 @@
 
 (rf/reg-sub
  :mode-options
- #(:mode-options @p/base))
+ #(:mode-options @p/pou))
 
 (rf/reg-sub
  :snapshot
@@ -107,8 +107,8 @@
     (when-not (= id uid) 
       (rf/dispatch [:new-uid uid]))))
 
-(p/reg-ui {:re-frame {:append-fn append-editor
-                      :klipsify? false}})
+(p/reg-ui :re-frame {:append-fn append-editor
+                     :klipsify? false}})
 
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
