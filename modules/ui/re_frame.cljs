@@ -154,29 +154,30 @@
         ext-libs (r/atom nil)]
     (fn []
       [:div.pou-re-frame-ui
-       (for [e @(rf/subscribe [:editors])]
-         ^{:key (key e)} [editor-comp (val e)])
-       [:button
-        {:on-click #(append [{}])}
+       [:div.pou-toolbar
+        (for [e @(rf/subscribe [:editors])]
+          ^{:key (key e)} [editor-comp (val e)])
+        [:button
+         {:on-click #(append [{}])}
          "+eval-clojure"] " | "
-       [:button
-        {:on-click (fn [_]
-                     (append [{:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
-                                 :external-libs @ext-libs
-                                 :attrs {:data-gist-id @from-gist}}])
-                     (reset! from-gist nil)
-                     (reset! ext-libs nil))}
-        "+"]
-       [select-comp sel-mode (rf/subscribe [:mode-options])] " "
-       [:label "from-gist: "
-        [:input {:type "text"
-                 :placeholder "user/id"
-                 :value @from-gist
-                 :on-change #(reset! from-gist (.. % -target -value))}]] " "
-       [:label "external-libs: "
-        [:input {:type "text"
-                 :value @ext-libs
-                 :on-change #(reset! ext-libs (.. % -target -value))}]]])))
+        [:button
+         {:on-click (fn [_]
+                      (append [{:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
+                                :external-libs @ext-libs
+                                :attrs {:data-gist-id @from-gist}}])
+                      (reset! from-gist nil)
+                      (reset! ext-libs nil))}
+         "+"]
+        [select-comp sel-mode (rf/subscribe [:mode-options])] " "
+        [:label "from-gist: "
+         [:input {:type "text"
+                  :placeholder "user/id"
+                  :value @from-gist
+                  :on-change #(reset! from-gist (.. % -target -value))}]] " "
+        [:label "external-libs: "
+         [:input {:type "text"
+                  :value @ext-libs
+                  :on-change #(reset! ext-libs (.. % -target -value))}]]]])))
 
 ; INITIALIZE
 
