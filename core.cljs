@@ -120,22 +120,21 @@
     rest
     (apply str)))
 
-(defn wait-for-eval [callback]
+(defn when-klipse-ready [callback]
   (let [observer (js/MutationObserver. 
                   (fn [mutations observer]
                     (doseq [m mutations
                             :let [nodes (.-addedNodes m)]]
                       (doseq [n nodes]
-                        (when (= (.-id node) "klipse-ready")
-                          (on-ready)
+                        (when (= (.-id n) "klipse-ready")
+                          (callback)
                           (.disconnect observer))))))]
     (. observer observe js/document.body #js {:childList true})))
 
 (defn klipsify! [on-ready]
   (go 
    (<! (klp/init-clj (:klipse-settings @base)))
-   (when on-ready (wait-for-eval on-ready))))
-     
+   (when on-ready (when-klipse-ready on-ready))))
                            
 (defn append [editors & {:keys [klipsify? on-mounted on-ready] 
                          :or {klipsify? (:auto-klipsify @base)}}]
@@ -202,7 +201,7 @@
 (defn load-module [module & {:keys on-ready}]
   (read-edn
    (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-   #(append [% :on-ready on-ready])))
+   #(append [%] :on-ready on-ready)))
 
 (defn load-modules-async [& modules]
   (go
