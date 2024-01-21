@@ -112,7 +112,7 @@
                                 text klipse)]
     (.appendChild base wrapper)))
 
-(reg-append-fn append-editor-base)
+(reg-append-fn {:base append-editor-base})
 
 (defn mode->class [mode]
   (->> (get (:mode-selectors @base) mode)
@@ -136,11 +136,12 @@
   (go 
    (<! (klp/init-clj (:klipse-settings @base)))))
                            
-(defn append [editors & {:keys [klipsify? on-mounted on-ready] 
-                         :or {klipsify? (:auto-klipsify @base)}}]
+(defn append [editors & {:keys [ui klipsify? on-mounted on-ready] 
+                         :or {ui :base klipsify? (:auto-klipsify @base)}}]
   (dotimes [n (count editors)]
-   (let [{:keys [id mode attrs external-libs]
-          :or {mode "eval-clojure" klipsify? true}
+   (let [scope-ui ui
+         {:keys [id mode attrs external-libs ui]
+          :or {mode "eval-clojure" ui scope-ui}}
           :as editor} (get editors n)
          kl (+ @klp/snippet-counter n)
          id (or id (:id attrs) (str "pou-" kl))
@@ -157,7 +158,7 @@
                                             (merge attrs {:id id :class (mode->class mode)
                                                           :data-external-libs data-external-libs}))})]
      (reg-editor new-editor)
-     ((:append-fn @base) new-editor)))
+     ((-> @base :append-fn ui) new-editor)))
   (when klipsify? 
     (go
      (<! (klipsify! on-ready))
