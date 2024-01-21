@@ -54,8 +54,8 @@
 (defn reg-ui [ui-keyword {:keys [append-fn klipsify?] :as ui}]
   (let [div-uis (gdom/getElement "uis")
         div-new-ui (gdom/createDom "div" (clj->js {:id ui-keyword}))]
-    (.appendChild div-uis div-new-ui))
-  (swap! pou assoc-in [:uis ui-keyword] ui))
+    (swap! pou assoc-in [:uis ui-keyword] ui)
+    (.appendChild div-uis div-new-ui)))
 
 ; EDITOR FUNCTIONS
 
@@ -126,7 +126,6 @@
 (defn when-klipse-ready [callback]
   (let [observer (js/MutationObserver. 
                   (fn [mutations o]
-                    (js/console.log mutations)
                     (let [id (-> mutations (aget 0) .-addedNodes (aget 0) .-id)]
                       (when (= id "klipse-ready")
                         (.disconnect o)
