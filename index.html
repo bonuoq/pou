@@ -42,6 +42,11 @@
     .CodeMirror {
       opacity: 0.9;
     }
+
+    .floating-top {
+      position: fixed;
+      background:#CCC;
+    }
     
   </style>
 </head>
@@ -55,8 +60,12 @@
   <div id="loading" class="loader">LOADING...</div>
   <div id="host"></div>
   <div id="app"></div>
-  <button class="hide-ui" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">&lt&gt</button>
-  hide / show UI
+  <div id="top-menu" class="floating-top">
+    <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
+      &lt&gt
+    </button>
+    UI
+  </div>
   <div id="pou-app">
     <div class="pou-wrapper" id="start">
         <div class="language-klipse" data-external-libs="
@@ -77,8 +86,10 @@
         <option value="" disabled selected style="display:none;">Load UI</option>
         <option value="re-frame">POU Editor (re-frame)</option>
       </select>
-      <button class="hide-base" onclick="pou.core.toggle_hidden('base');scrollDown('base')">&lt&gt</button>
-      hide / show baseUI editors
+      <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('base');scrollDown('base')">
+        &lt&gt
+      </button>
+      baseUI
     </div>
   </div>
   
