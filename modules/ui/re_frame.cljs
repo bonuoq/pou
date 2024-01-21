@@ -117,7 +117,7 @@
   (when discard-old? 
     (for [i @(rf/subscribe [:ids])]
       (rf/dispatch [:discard-editor i])))
-  (p/append snapshot :ui :re-frame))
+  (append snapshot))
 
 ; COMPONENTS
 
@@ -157,11 +157,11 @@
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:button
-        {:on-click #(p/append [{}])}
+        {:on-click #(append [{}])}
          "+eval-clojure"] " | "
        [:button
         {:on-click (fn [_]
-                     (p/append [{:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
+                     (append [{:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
                                  :external-libs @ext-libs
                                  :attrs {:data-gist-id @from-gist}}])
                      (reset! from-gist nil)
