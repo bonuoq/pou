@@ -107,8 +107,8 @@
     (when-not (= id uid) 
       (rf/dispatch [:new-uid uid]))))
 
-(p/reg-append-fn {:re-frame append-editor})
-(swap! p/base assoc :auto-klipsify false)
+(p/reg-ui {:re-frame {:append-fn append-editor
+                      :klipsify? false}})
 
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
