@@ -209,10 +209,15 @@
    (str "https://bonuoq.github.io/pou/modules/" module ".edn")
    #(append [%] :on-ready on-ready)))
 
-(defn load-modules-async [& modules]
+(defn load-module-chain [chain]
+  (load-module (first chain) :on-ready #(load-module-chain (rest chain))))
+
+(defn load-modules [& modules]
   (go
-   (doseq [m modules] 
-     (<p! (load-module m)))))
+   (doseq [m modules]
+     (if (coll? m)
+       (load-module-chain m)
+       (<p! (load-module m))))))
 
 (defn load-ui [ui]
   (loading!)
