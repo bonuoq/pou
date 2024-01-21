@@ -209,7 +209,7 @@
 
 (defn load-ui [ui]
   (loading!)
-  (load-module (str "ui/" ui) :on-ready loaded!))
+  (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
 ; INIT
         
