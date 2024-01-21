@@ -33,31 +33,30 @@
 
 ; BASE STATE
 
-(def base (atom {:editors {}
-                 :id-kls {}
-                 :mode-options (into (sorted-set) (keys @klreg/mode-options))
-                 :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
-                 :klipse-settings (js->clj js/klipse-settings)
-                 :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
-                 :append-fn #(str "Not defined, cannot append:" %)
-                 :auto-klipsify true}))
+(def pou (atom {:editors {}
+                :id-kls {}
+                :mode-options (into (sorted-set) (keys @klreg/mode-options))
+                :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
+                :klipse-settings (js->clj js/klipse-settings)
+                :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
+                :uis {}}))
 
 (add-watch klreg/mode-options :re-frame-reg-mode-options 
-           #(swap! base assoc :mode-options (keys %4)))
+           #(swap! pou assoc :mode-options (keys %4)))
 (add-watch klreg/selector->mode :re-frame-reg-mode-selectors 
-           #(swap! base assoc :mode-selectors (clojure.set/map-invert %4)))
+           #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
 
 
 (defn reg-editor [{:keys [id kl] :as editor}]
-  (swap! base assoc-in [:editors kl] editor)
-  (swap! base assoc-in [:id-kls id] kl))
+  (swap! pou assoc-in [:editors kl] editor)
+  (swap! pou assoc-in [:id-kls id] kl))
 
-(defn reg-append-fn [append-fn]
-  (swap! base assoc :append-fn append-fn))
+(defn reg-ui [ui-keyword {:keys [append-fn klipsify?] :as ui}]
+  (swap! pou assoc-in [:uis ui-keyword] ui))
 
 ; EDITOR FUNCTIONS
 
-(def get-kl #(if (number? %) % (-> @base :id-kls %)))
+(def get-kl #(if (number? %) % (-> @pou :id-kls %)))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply (@kleds/editors (get-kl k)) method (clj->js args)))
@@ -112,11 +111,12 @@
                                 text klipse)]
     (.appendChild base wrapper)))
 
-(reg-append-fn {:base append-editor-base})
+(reg-ui :base {:append-fn append-editor-base
+               :klipsify? true})
 
 (defn mode->class [mode]
-  (->> (get (:mode-selectors @base) mode)
-    (get (:klipse-settings @base))
+  (->> (get (:mode-selectors @pou) mode)
+    (get (:klipse-settings @pou))
     rest
     (apply str)))
 
@@ -134,19 +134,20 @@
   (when on-ready 
     (when-klipse-ready on-ready))
   (go 
-   (<! (klp/init-clj (:klipse-settings @base)))))
+   (<! (klp/init-clj (:klipse-settings @pou)))))
                            
 (defn append [editors & {:keys [ui klipsify? on-mounted on-ready] 
-                         :or {ui :base klipsify? (:auto-klipsify @base)}}]
+                         :or {ui :base 
+                              klipsify? (-> @pou :uis ui :klipsify?)}}]
   (dotimes [n (count editors)]
    (let [scope-ui ui
          {:keys [id mode attrs external-libs ui]
-          :or {mode "eval-clojure" ui scope-ui}}
+          :or {mode "eval-clojure" ui scope-ui}
           :as editor} (get editors n)
          kl (+ @klp/snippet-counter n)
          id (or id (:id attrs) (str "pou-" kl))
          data-external-libs (->> external-libs
-                              (into (-> @base :external-libs (get mode)))
+                              (into (-> @pou :external-libs (get mode)))
                               (cons (:data-external-libs attrs))
                               (filter some?)
                               distinct
@@ -158,7 +159,8 @@
                                             (merge attrs {:id id :class (mode->class mode)
                                                           :data-external-libs data-external-libs}))})]
      (reg-editor new-editor)
-     ((-> @base :append-fn ui) new-editor)))
+     (let [append-fn (-> @pou :uis ui :append-fn)]
+       (append-fn new-editor))))
   (when klipsify? 
     (go
      (<! (klipsify! on-ready))
@@ -186,7 +188,7 @@
   (fetch-gist id file #(append (cljs.reader/read-string (str %)))))
 
 (defn editors-array []
-  (let [array (-> @base :editors vals)]
+  (let [array (-> @pou :editors vals)]
     (->> array
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
