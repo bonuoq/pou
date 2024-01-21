@@ -132,8 +132,8 @@
 
 (defn klipsify! [on-ready]
   (go 
-   (<! (klp/init-clj (:klipse-settings @base)))
-   (when on-ready (when-klipse-ready on-ready))))
+   (when on-ready (when-klipse-ready on-ready))
+   (<! (klp/init-clj (:klipse-settings @base)))))
                            
 (defn append [editors & {:keys [klipsify? on-mounted on-ready] 
                          :or {klipsify? (:auto-klipsify @base)}}]
