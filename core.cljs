@@ -123,6 +123,7 @@
 (defn when-klipse-ready [callback]
   (let [observer (js/MutationObserver. 
                   (fn [mutations o]
+                    (js/console.log mutations)
                     (let [id (-> mutations (aget 0) .-addedNodes (aget 0) .-id)]
                       (when (= id "klipse-ready")
                         (.disconnect o)
