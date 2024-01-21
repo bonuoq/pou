@@ -120,11 +120,25 @@
     rest
     (apply str)))
 
-(defn klipsify! [] 
-  (go 
-   (<! (klp/init-clj (:klipse-settings @base)))))
+(defn wait-for-eval [callback]
+  (let [observer (js/MutationObserver. 
+                  (fn [mutations observer]
+                    (doseq [m mutations
+                            :let [nodes (.-addedNodes m)]]
+                      (doseq [n nodes]
+                        (when (= (.-id node) "klipse-ready")
+                          (on-ready)
+                          (.disconnect observer))))))]
+    (. observer observe js/document.body #js {:childList true})))
 
-(defn append [editors & {:keys [klipsify?] :or {klipsify? (:auto-klipsify @base)}}]
+(defn klipsify! [on-ready]
+  (go 
+   (<! (klp/init-clj (:klipse-settings @base)))
+   (when on-ready (wait-for-eval on-ready))))
+     
+                           
+(defn append [editors & {:keys [klipsify? on-mounted on-ready] 
+                         :or {klipsify? (:auto-klipsify @base)}}]
   (dotimes [n (count editors)]
    (let [{:keys [id mode attrs external-libs]
           :or {mode "eval-clojure" klipsify? true}
@@ -147,7 +161,8 @@
      ((:append-fn @base) new-editor)))
   (when klipsify? 
     (go
-     (<! (klipsify!))
+     (<! (klipsify! on-ready))
+     (when on-mounted (on-mounted))
      (call-in-editor (dec @klp/snippet-counter) :focus))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs] :as editor-settings}] 
@@ -184,10 +199,10 @@
          (fn [edn] 
            (callback (cljs.reader/read-string edn))))))))
 
-(defn load-module [module]
+(defn load-module [module & {:keys on-ready}]
   (read-edn
    (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-   #(append [%])))
+   #(append [% :on-ready on-ready])))
 
 (defn load-modules-async [& modules]
   (go
@@ -195,10 +210,8 @@
      (<p! (load-module m)))))
 
 (defn load-ui [ui]
-  (go
-   (loading!)
-   (<p! (load-module (str "ui/" ui)))
-   (loaded!)))
+  (loading!)
+  (load-module (str "ui/" ui) :on-ready loaded!))
 
 ; INIT
         
