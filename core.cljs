@@ -122,13 +122,11 @@
 
 (defn when-klipse-ready [callback]
   (let [observer (js/MutationObserver. 
-                  (fn [mutations observer]
-                    (doseq [m mutations
-                            :let [nodes (.-addedNodes m)]]
-                      (doseq [n nodes]
-                        (when (= (.-id n) "klipse-ready")
-                          (callback)
-                          (.disconnect observer))))))]
+                  (fn [mutations o]
+                    (let [id (-> mutations (aget 0) .-addedNodes (aget 0) .-id)]
+                      (when (= id "klipse-ready")
+                        (.disconnect o)
+                        (callback)))))]
     (. observer observe js/document.body #js {:childList true})))
 
 (defn klipsify! [on-ready]
