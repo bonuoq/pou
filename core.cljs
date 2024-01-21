@@ -131,8 +131,9 @@
     (. observer observe js/document.body #js {:childList true})))
 
 (defn klipsify! [on-ready]
+  (when on-ready 
+    (when-klipse-ready on-ready))
   (go 
-   (when on-ready (when-klipse-ready on-ready))
    (<! (klp/init-clj (:klipse-settings @base)))))
                            
 (defn append [editors & {:keys [klipsify? on-mounted on-ready] 
