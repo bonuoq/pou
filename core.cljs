@@ -224,10 +224,10 @@
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
 (defn init! []
-  (process-url-params :u #(load-ui %)
-                      :o #(append (parse64 %))
-                      :p #(aed (decode64 %))
-                      :d #(append [(parse64 %)])
-                      :n #(apply load-modules-async (flatten64 %)))
-  (when-not (:u url-params) (loaded!)))
+  (process-url-params :ui #(load-ui %)
+                      :editor-base #(append [(parse64 %)])
+                      :editors-base #(append (parse64 %))
+                      :cljsnippet #(aed (decode64 %))
+                      :modules #(apply load-modules (parse64 %)))
+  (when-not (:ui url-params) (loaded!)))
 
