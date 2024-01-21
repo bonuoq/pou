@@ -107,9 +107,6 @@
     (when-not (= id uid) 
       (rf/dispatch [:new-uid uid]))))
 
-(p/reg-ui :re-frame {:append-fn append-editor
-                     :klipsify? false})
-
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
 ;;;;; TODO : ASYNC
@@ -181,4 +178,6 @@
 ; INITIALIZE
 
 (rf/dispatch [:initialize])
-(rdom/render [pou-re-frame] (gdom/getElement "re-frame"))
+(let [ui-div (p/reg-ui :re-frame {:append-fn append-editor
+                                  :klipsify? false})]
+  (rdom/render [pou-re-frame] (gdom/getElement ui-div)))
