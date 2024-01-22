@@ -4,8 +4,10 @@
             [cljs-http.client :as http]
             [pou.core :refer [pou]]))
 
-(defn token [] 
+(defn token []
   (some-> @pou :github :access_token))
+
+(def loaded? #(some? (token)))
 
 (defn login! []
   (set! js/window.location "https://github.com/login/oauth/authorize?client_id=ecde871676236cae5c25"))
