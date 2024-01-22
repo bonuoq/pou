@@ -59,7 +59,9 @@
       opacity: 100%;
     }
 
-    .floating-top {
+    .pou-toolbar.floating-bottom {
+      opacity: 0;
+      bottom: 0;
       position: fixed;
       z-index: 999999;
     }
@@ -83,11 +85,11 @@
     }
   </script>
   <div id="loading" class="loader">LOADING...</div>
-  <div id="top-menu" class="pou-toolbar floating-top">
+  <div id="top-menu" class="pou-toolbar floating-bottom">
     <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
       &lt&gt
     </button>
-    UI
+    hide/show UI
   </div>
   <div id="host"></div>
   <div id="app"></div>
