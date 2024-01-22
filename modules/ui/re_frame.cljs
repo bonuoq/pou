@@ -154,9 +154,9 @@
         ext-libs (r/atom nil)]
     (fn []
       [:div.pou-re-frame-ui
+       (for [e @(rf/subscribe [:editors])]
+         ^{:key (key e)} [editor-comp (val e)])
        [:div.pou-toolbar
-        (for [e @(rf/subscribe [:editors])]
-          ^{:key (key e)} [editor-comp (val e)])
         [:button
          {:on-click #(append [{}])}
          "+eval-clojure"] " | "
