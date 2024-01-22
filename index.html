@@ -6,16 +6,17 @@
 
     body::before {
       content: "";
-      animation: blinker 3s linear infinite;
+      animation: zoomscale 60s linear infinite;
       background-image: url(pou.svg);
-      background-repeat: repeat-y;
+      background-repeat: repeat;
       background-position: center;
+      background-size: 120%;
       position: fixed;
       top: 0px;
       right: 0px;
       left: 0px;
       bottom: 0px;
-      opacity: 0.2;
+      opacity: 0.1;
       z-index: -999999
     }
     
@@ -38,12 +39,19 @@
       }
     }
 
+    @keyframes zoomscale {
+      50% {
+        background-size: 50%;
+      }
+    }
+
     #pou-app {
       padding-top: 2em;
+      padding-bottom: 2em;
     }
 
     .CodeMirror {
-      background: #fffc
+      background: #fffd
     }
 
     .CodeMirror-focused {
@@ -54,7 +62,7 @@
     .pou-toolbar {
       border: solid #ccc;
       padding: 0.3em;
-      opacity: 50%;
+      opacity: 0.5;
       width: 100vw;
       left: 0;
       background: #fff0;
@@ -64,13 +72,17 @@
       opacity: 0.9;
     }
 
-    .pou-toolbar.floating-bottom {
-      opacity: 0.1;
+    .floating-bottom {
+      opacity: 0;
       bottom: 0;
       position: fixed;
       z-index: 999999;
     }
 
+    .floating-bottom:hover {
+      opacity: 0.8;
+    }
+    
     .pou-intro {
       font-family: monospace;
     }
