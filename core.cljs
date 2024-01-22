@@ -232,7 +232,7 @@
   (go
    (let [{:keys [status body]}
          (<! (http/post (str ;"https://cors-anywhere.herokuapp.com/" ; for development purposes
-                             "https://github.com/login/oauth/access_token";)
+                             "https://github.com/login/oauth/access_token")
                         {:with-credentials? false
                          :headers {"Accept" "application/json"}
                          :json-params {:client_id "ecde871676236cae5c25"
