@@ -40,7 +40,8 @@
                 :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
                 :klipse-settings (js->clj js/klipse-settings)
                 :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
-                :uis {}}))
+                :uis {}
+                :modules []}))
 
 (add-watch klreg/mode-options :re-frame-reg-mode-options 
            #(swap! pou assoc :mode-options (keys %4)))
@@ -209,7 +210,13 @@
 (defn load-module [module & {:keys [on-ready]}]
   (read-edn
    (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-   #(append [%] :on-ready on-ready)))
+   #(when %
+      (append % :on-ready (fn []
+                            (swap! pou update-in [:modules] conj (str module))
+                            (when on-ready (on-ready)))))))
+
+(defn module-loaded? [module]
+  (-> @pou :modules (get (str module)) some?))
 
 (defn load-module-chain [chain]
   (load-module (first chain) :on-ready #(load-module-chain (rest chain))))
@@ -225,22 +232,10 @@
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
-(defn github-login! []
-  (set! js/window.location "https://github.com/login/oauth/authorize?client_id=ecde871676236cae5c25"))
-
 (defn github-auth [code]
-  (go
-   (let [{:keys [status body]}
-         (<! (http/post (str "https://cors-anywhere.herokuapp.com/" ; for development purposes
-                             "https://github.com/login/oauth/access_token")
-                        {:with-credentials? false
-                         :headers {"Accept" "application/json"}
-                         :json-params {:client_id "ecde871676236cae5c25"
-                                       :client_secret "38d46c164985bf82f9b617f7d0cd95633026ac48"
-                                       :code code
-                                       :redirect_uri "https://bonuoq.github.io/pou/"}}))]
-     (js/console.log (str "Github Login: " [status body]))
-     (swap! pou assoc :github (js->clj body :keywordize-keys true)))))
+  (if-let [auth (resolve 'pou.modules.github/auth)]
+    (auth code)
+    (load-module 'github :on-ready #(auth-github code))))
 
 (defn init! []
   (process-url-params :ui #(load-ui %)
@@ -248,6 +243,6 @@
                       :editors-base #(append (parse64 %))
                       :cljsnippet #(aed (decode64 %))
                       :modules #(apply load-modules (parse64 %))
-                      :code #(github-auth %))
+                      :code #(auth-github %)
   (when-not (:ui url-params) (loaded!)))
 
