@@ -211,9 +211,9 @@
   (read-edn
    (str "https://bonuoq.github.io/pou/modules/" module ".edn")
    #(when %
-      (append % :on-ready (fn []
-                            (swap! pou update-in [:modules] conj (str module))
-                            (when on-ready (on-ready)))))))
+      (append [%] :on-ready (fn []
+                              (swap! pou update-in [:modules] conj (str module))
+                              (when on-ready (on-ready)))))))
 
 (defn module-loaded? [module]
   (-> @pou :modules (get (str module)) some?))
