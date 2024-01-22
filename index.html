@@ -85,8 +85,14 @@
 
 <body>
   <script>
+    function cljKw (keyword) {
+      cljs.core.keyword(keyword);
+    }
     function scrollDown (id) {
       window.scrollTo(0, document.getElementById(id).scrollHeight);
+    }
+    function appendBase () {
+      pou.core.aed('',cljKw('mode'),document.getElementById('base-mode').textContent,cljKw('on-ready'),function(){scrollDown('base')});
     }
   </script>
   <div id="loading" class="loader">LOADING...</div>
@@ -118,8 +124,8 @@
         &lt&gt
       </button>
       baseUI&nbsp;
-      <button class="append-cljs" onclick="pou.core.aed('',cljs.core.keyword('on-ready'),function(){scrollDown('base')});">
-        +eval-clojure
+      <button class="append-base" onclick="appendBase()">
+        +<span class="pou-editable" id="base-mode">eval-clojure</span>
       </button>
       <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
         <option value="" disabled selected style="display:none;">Load UI</option>
