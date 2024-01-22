@@ -111,27 +111,34 @@
           https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
           https://raw.githubusercontent.com/clojure/core.async/master/src/main/clojure">
 (ns pou.user
-  (:require [goog.dom :as gdom]
-            [pou.core :as p]
-            [klipse.utils :as klu]
+  (:require [pou.core :as p :refer [pou aed load-module]]
             [klipse-clj.repl :refer [doc]]))
 (p/init!)
         </div>
       </div>
     <div id="uis">
       <div class="pou-toolbar" id="base-control">
-      <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('base');scrollDown('base')">
-        &lt&gt
-      </button>
-      baseUI&nbsp;
-      <button class="append-base" onclick="appendBase()">
-        +<span class="pou-editable" id="base-mode">eval-clojure</span>
-      </button>
-      <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
-        <option value="" disabled selected style="display:none;">Load UI</option>
-        <option value="re-frame">POU Editor (re-frame)</option>
-      </select>
-    </div>
+        <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('base');scrollDown('base')">
+          &lt&gt
+        </button>
+        baseUI&nbsp;
+        <button class="append-base" onclick="appendBase()">
+          +
+        </button>
+        <span class="pou-editable" id="base-mode">eval-clojure</span>
+        <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
+          <option value="" disabled selected>Load UI</option>
+          <option value="re-frame">POU Editor (re-frame)</option>
+        </select>
+        <select class="load-module" onchange="pou.core.load_module(event.target.value)">
+          <option value="" disabled selected>Load Module</option>
+          <option value="audio">audio</option>
+          <option value="faust">faust</option>
+          <option value="github">github</option>
+          <option value="guido">guido</option>
+          <option value="leipzig">leipzig</option>
+        </select>
+      </div>
     </div>
   </div>
   
