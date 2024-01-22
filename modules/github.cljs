@@ -2,6 +2,7 @@
   (:require [cljs.core.async :refer [<!] :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs-http.client :as http]
+            [goog.dom :as gdom]
             [pou.core :refer [pou]]))
 
 (defn token []
@@ -11,6 +12,8 @@
 
 (defn login! []
   (set! js/window.location "https://github.com/login/oauth/authorize?client_id=ecde871676236cae5c25"))
+
+(set! js/githubLogin login!)
 
 (defn auth [code]
   (go
@@ -24,3 +27,5 @@
                                        :code code
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (swap! pou assoc :github (js->clj body :keywordize-keys true)))))
+
+(-> "top-bar" gdom/getElement (set! .-innerHTML) "<button on-click='githubLogin()'>Github Login</button>")
