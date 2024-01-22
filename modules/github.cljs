@@ -28,4 +28,4 @@
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (swap! pou assoc :github (js->clj body :keywordize-keys true)))))
 
-(-> "top-bar" gdom/getElement (set! .-innerHTML) "<button on-click='githubLogin()'>Github Login</button>")
+(-> "top-bar" gdom/getElement .-innerHTML (set! "<button on-click='githubLogin()'>Github Login</button>"))
