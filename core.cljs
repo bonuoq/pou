@@ -233,6 +233,7 @@
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
 (defn github-auth [code]
+  
   (if-let [auth (resolve 'pou.modules.github/auth)]
     (auth code)
     (load-module 'github :on-ready #(github-auth code))))
@@ -241,7 +242,8 @@
   (process-url-params :ui #(load-ui %)
                       :editor-base #(append [(parse64 %)])
                       :editors-base #(append (parse64 %))
-                      :cljsnippet #(aed (decode64 %))
+                      :p #(aed (decode64 %))
+                      :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(github-auth %))
   (when-not (:ui url-params) (loaded!)))
