@@ -225,11 +225,14 @@
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
-(defn github-login [code]
+(defn github-login! []
+  (set! js/window.location "https://github.com/login/oauth/authorize?client_id=ecde871676236cae5c25"))
+
+(defn github-auth [code]
   (go
    (let [{:keys [status body]}
-         (<! (http/post (str "https://cors-anywhere.herokuapp.com/" ; for development purposes
-                             "https://github.com/login/oauth/access_token")
+         (<! (http/post (str ;"https://cors-anywhere.herokuapp.com/" ; for development purposes
+                             "https://github.com/login/oauth/access_token";)
                         {:with-credentials? false
                          :headers {"Accept" "application/json"}
                          :json-params {:client_id "ecde871676236cae5c25"
@@ -237,7 +240,7 @@
                                        :code code
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (js/console.log (str "Github Login: " [status body]))
-     (swap! pou :assoc :github (js->clj body :keywordize-keys true)))))
+     (swap! pou assoc :github (js->clj body :keywordize-keys true)))))
 
 (defn init! []
   (process-url-params :ui #(load-ui %)
@@ -245,6 +248,6 @@
                       :editors-base #(append (parse64 %))
                       :cljsnippet #(aed (decode64 %))
                       :modules #(apply load-modules (parse64 %))
-                      :code #(github-login %))
+                      :code #(github-auth %))
   (when-not (:ui url-params) (loaded!)))
 
