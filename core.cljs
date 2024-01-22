@@ -243,6 +243,5 @@
                       :editors-base #(append (parse64 %))
                       :cljsnippet #(aed (decode64 %))
                       :modules #(apply load-modules (parse64 %))
-                      :code #(auth-github %)
+                      :code #(auth-github %))
   (when-not (:ui url-params) (loaded!)))
-
