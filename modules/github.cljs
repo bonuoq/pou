@@ -4,7 +4,8 @@
             [cljs-http.client :as http]
             [pou.core :refer [pou]]))
 
-(defn token '(some-> @pou :github :access_token))
+(defn token [] 
+  (some-> @pou :github :access_token))
 
 (defn login! []
   (set! js/window.location "https://github.com/login/oauth/authorize?client_id=ecde871676236cae5c25"))
@@ -22,4 +23,4 @@
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (swap! pou assoc :github (js->clj body :keywordize-keys true)))))
 
-(when-not (eval token) (login!))
+(when-not (token) (login!))
