@@ -232,11 +232,10 @@
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
-(defn github-auth [code]
-  
+(defn github-auth [code]  
   (if-let [auth (resolve 'pou.modules.github/auth)]
     (auth code)
-    (load-module 'github :on-ready #(github-auth code))))
+    (load-module 'github :on-ready #((resolve 'pou.modules.github/auth) code))))
 
 (defn init! []
   (process-url-params :ui #(load-ui %)
