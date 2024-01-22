@@ -46,7 +46,6 @@
     }
 
     #pou-app {
-      padding-top: 2em;
       padding-bottom: 2em;
     }
 
@@ -69,6 +68,13 @@
 
     .pou-toolbar:hover {
       opacity: 0.9;
+    }
+
+    .floating-top {
+      top: 0;
+      position: fixed;
+      float: right;
+      z-index: 999999;
     }
 
     .floating-bottom {
@@ -107,15 +113,11 @@
     }
   </script>
   <div id="loading" class="loader">LOADING...</div>
-  <div id="top-menu" class="pou-toolbar floating-bottom">
-    <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
-      &lt&gt
-    </button>
-    hide/show UI
-  </div>
   <div id="host"></div>
   <div id="app"></div>
   <div id="pou-app">
+    <div id="top-bar" class="pou-toolbar floating-top">
+    </div>
     <div class="pou-wrapper" id="start">
         <div class="language-klipse" data-external-libs="
           https://bonuoq.github.io,
@@ -151,6 +153,12 @@
         </select>
       </div>
     </div>
+  </div>
+  <div id="bottom-bar" class="pou-toolbar floating-bottom">
+    <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
+      &lt&gt
+    </button>
+    hide/show UI
   </div>
   
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
