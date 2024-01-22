@@ -135,7 +135,7 @@
           [:button.toggle-min
            {:on-click #(rf/dispatch [:show-hide id])}
            (if hidden? "<" ">")] " "
-          [:span.pou-intro {:contentEditable true}
+          [:span.pou-intro.pou-editable {:contentEditable true}
            (or intro (str "id: " id ", mode: " mode))]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
