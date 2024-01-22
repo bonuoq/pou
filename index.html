@@ -49,12 +49,14 @@
       padding-bottom: 2em;
     }
 
-    .pou-wrapper .CodeMirror {
-      background: #fff8
-    }
-
-    .pou-wrapper .CodeMirror-focused {
-      background: #fffbfd;
+    .pou-wrapper {
+      
+      .CodeMirror {
+        background: #fff8
+      }
+      
+      .CodeMirror-focused {
+        background: #fffbfd;
     }
 
     .pou-toolbar {
@@ -73,8 +75,11 @@
     .floating-top {
       top: 0;
       position: fixed;
-      float: right;
       z-index: 999999;
+      
+      button {
+        float: right;
+      }
     }
 
     .floating-bottom {
