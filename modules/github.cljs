@@ -22,5 +22,3 @@
                                        :code code
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (swap! pou assoc :github (js->clj body :keywordize-keys true)))))
-
-(when-not (token) (login!))
