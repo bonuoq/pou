@@ -68,6 +68,10 @@
       width: 100vw;
       left: 0;
       background: #fff0;
+
+      .append {
+        border-radius: 50%;
+      }
     }
 
     .pou-toolbar:hover {
@@ -95,6 +99,10 @@
       bottom: 0;
       position: fixed;
       z-index: 999999;
+
+      .pou-toggle {
+        float: right;
+      }
     }
 
     .floating-bottom:hover {
@@ -158,7 +166,7 @@
           &lt&gt
         </button>
         baseUI&nbsp;
-        <button class="append-base" onclick="pouAppendMode(document.getElementById('base-mode').textContent)">
+        <button class="append" onclick="pouAppendMode(document.getElementById('base-mode').textContent)">
           +
         </button>
         <span class="pou-editable" id="base-mode" contenteditable="true">eval-clojure</span>
@@ -166,10 +174,11 @@
     </div>
   </div>
   <div id="bottom-bar" class="pou-toolbar floating-bottom">
-    <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
+    <span id="info">POU v0.1-alpha</span>
+    <button class="pou-toggle" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
       &lt&gt
     </button>
-    hide/show UI
+    UI
   </div>
   
   <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
