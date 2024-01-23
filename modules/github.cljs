@@ -10,8 +10,12 @@
 
 (def loaded? #(some? (token)))
 
-(defn login! []
-  (set! js/window.location "https://github.com/login/oauth/authorize?client_id=ecde871676236cae5c25"))
+(defn login! [& {:keys [client-id scope] 
+                 :or {client-id "ecde871676236cae5c25" scope "gist"}}]
+  (set! js/window.location 
+        (str "https://github.com/login/oauth/authorize?"
+             "client_id=" client-id "&"
+             "scope=" scope)))
 
 (set! js/githubLogin login!)
 
@@ -50,7 +54,7 @@
     (request "user" :callback update-user!)
     (update-gists!)))
 
-(defn auth [code]
+(defn- auth! [code]
   (.replaceState js/history {} "" "/pou")
   (go
    (let [{:keys [status body]}
@@ -71,4 +75,4 @@
 (-> "pou-extensions" gdom/getElement .-innerHTML 
   (set! "<div id='pou-github' class='pou-extension'><button class='gh-login' onclick='githubLogin()'>GitHub connect</button></div>"))
 
-(p/process-url-params :code #(auth %))
+(p/process-url-params :code #(auth! %))
