@@ -28,7 +28,7 @@
 
 (defn update-div [inner-html]
   (-> "pou-github" gdom/getElement .-innerHTML 
-    (set! inner-html))
+    (set! inner-html)))
 
 (defn auth [code]
   (.replaceState js/history {} "" "/pou")
