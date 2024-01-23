@@ -12,13 +12,6 @@
 
 ; UTILS
 
-(defonce url-params (or (klu/url-parameters) {}))
-
-(defn process-url-params [& param-procs]
-  (doseq [pp (partition 2 param-procs)]
-    (when-let [p (url-params (first pp))]
-      ((second pp) p))))
-
 (def decode64 #(js/atob %))
 (def parse64 #(read-string (decode64 %)))
 (def flatten64 #(flatten (into [] (parse64 %))))
@@ -42,6 +35,13 @@
                 :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
                 :uis {}
                 :modules []}))
+
+(defn url-params #((:url-params @pou)))
+
+(defn process-url-params [& param-procs]
+  (doseq [pp (partition 2 param-procs)]
+    (when-let [p ((url-params) (first pp))]
+      ((second pp) p))))
 
 (add-watch klreg/mode-options :re-frame-reg-mode-options 
            #(swap! pou assoc :mode-options (keys %4)))
@@ -243,4 +243,4 @@
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(load-module 'github))
-  (when-not (:ui url-params) (loaded!)))
+  (when-not (:ui (url-params)) (loaded!)))
