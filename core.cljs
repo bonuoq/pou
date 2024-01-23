@@ -134,7 +134,7 @@
                     (let [id (-> mutations (aget 0) .-addedNodes (aget 0) .-id)]
                       (when (= id "klipse-ready")
                         (.disconnect o)
-                        (callback)))))]
+                        (when callback (callback))))))]
     (. observer observe js/document.body #js {:childList true})))
 
 (defn cm-reg! [kl]
