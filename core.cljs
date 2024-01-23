@@ -176,6 +176,8 @@
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)] :on-mounted on-mounted :on-ready on-ready))
 
+(set! js/pouAppendMode (fn [mode] (aed "" :mode mode)))
+
 ; LOAD & EXPORT FNS
 
 (defn fetch-url [url callback]
