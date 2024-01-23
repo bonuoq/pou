@@ -38,7 +38,7 @@
   (update-div! (str "<span class='gh-login'><img class='gh-avatar' src='" avatar_url "'>" login "</span>"))
   (swap! pou update-in [:github] merge {:user login :avatar avatar_url}))
 
-(defn update-gists []
+(defn update-gists! []
   (request "gists" 
            :selected-keys [:id :description :files]
            :callback (fn [gists]
@@ -47,8 +47,8 @@
 (defn- logged! [auth-res]
   (when (:access_token auth-res)
     (swap! pou assoc :github auth-res)
-    (request "user" :callback udpate-user!)
-    (update-gists)))
+    (request "user" :callback update-user!)
+    (update-gists!)))
 
 (defn auth [code]
   (.replaceState js/history {} "" "/pou")
@@ -63,7 +63,7 @@
                                        :code code
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (if (= status 200)
-       (update-logged! body)
+       (logged! body)
        (println (str "Github API Authorization Error (status=" status "): " body))))))
 
 ; side-fx
