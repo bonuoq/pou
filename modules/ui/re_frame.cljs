@@ -100,7 +100,7 @@
 
 ; ACTIONS AND HELPER FNS
 
-(defn append-editor-re-frame [{:keys [id] :as editor}]
+(defn- append-editor-re-frame [{:keys [id] :as editor}]
   (let [uid @(rf/subscribe [:uid id])]
     (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
     (rf/dispatch [:new-uid id])
@@ -121,7 +121,7 @@
 
 ; COMPONENTS
 
-(defn editor-comp [{:keys [kl id intro mode attrs id snippet]}]
+(defn- editor-comp [{:keys [kl id intro mode attrs id snippet]}]
   (r/create-class
    {:component-did-mount 
     (fn [this]
@@ -141,7 +141,7 @@
           {:style {:display (if hidden? "none" "block")}}
           [:div.pou-klipse attrs (str snippet)]]]))}))
 
-(defn select-comp [value-atom options-atom]
+(defn- select-comp [value-atom options-atom]
   (fn []
     [:select
      {:on-change #(reset! value-atom (.. % -target -value))}
@@ -149,7 +149,7 @@
      (for [k @options-atom]
        ^{:key k} [:option {:value k} k])]))
 
-(defn pou-re-frame []
+(defn- pou-re-frame []
   (let [sel-mode (r/atom nil)
         from-gist (r/atom nil)
         ext-libs (r/atom nil)]
