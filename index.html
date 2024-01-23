@@ -116,9 +116,6 @@
     function scrollDown (id) {
       window.scrollTo(0, document.getElementById(id).scrollHeight);
     }
-    function appendBase () {
-      pou.core.aed('',cljKw('mode'),document.getElementById('base-mode').textContent,cljKw('on-ready'),function(){scrollDown('base')});
-    }
   </script>
   <div id="loading" class="loader">LOADING...</div>
   <div id="host"></div>
@@ -144,7 +141,7 @@
           &lt&gt
         </button>
         baseUI&nbsp;
-        <button class="append-base" onclick="appendBase()">
+        <button class="append-base" onclick="pouAppendMode(document.getElementById('base-mode').textContent)">
           +
         </button>
         <span class="pou-editable" id="base-mode" contenteditable="true">eval-clojure</span>
