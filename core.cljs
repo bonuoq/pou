@@ -12,7 +12,7 @@
 
 ; UTILS
 
-(defn url-params #(or (klu/url-parameters) {}))
+(def url-params #(or (klu/url-parameters) {}))
 
 (defn process-url-params [& param-procs]
   (let [params (url-params)]
