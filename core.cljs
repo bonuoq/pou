@@ -15,9 +15,10 @@
 (defn url-params #(or (klu/url-parameters) {}))
 
 (defn process-url-params [& param-procs]
-  (doseq [pp (partition 2 param-procs)]
-    (when-let [p ((url-params) (first pp))]
-      ((second pp) p))))
+  (let [params (url-params)]
+    (doseq [pp (partition 2 param-procs)]
+      (when-let [p (params (first pp))]
+        ((second pp) p)))))
 
 (def decode64 #(js/atob %))
 (def parse64 #(read-string (decode64 %)))
