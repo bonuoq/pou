@@ -149,7 +149,7 @@
     (when (= mode "eval-clojure")
       (. cm on "cursorActivity" 
          (fn []
-           (let [word-ange (.findWordAt cm (.getCursor cm))
+           (let [word-range (.findWordAt cm (.getCursor cm))
                  word (.getRange cm (.-anchor word-range) (.-head word-range))]
              (peval-str (str "(doc " word ")"))))))))                              
 
