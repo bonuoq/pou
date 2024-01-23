@@ -128,7 +128,7 @@
     rest
     (apply str)))
 
-(defn when-klipse-ready [callback]
+(defn- when-klipse-ready [callback]
   (let [observer (js/MutationObserver. 
                   (fn [mutations o]
                     (let [id (-> mutations (aget 0) .-addedNodes (aget 0) .-id)]
@@ -137,16 +137,19 @@
                         (callback)))))]
     (. observer observe js/document.body #js {:childList true})))
 
-(defn klipsify! [on-mounted on-ready]
-  (when on-ready 
-    (when-klipse-ready on-ready))
-  (go 
-   (<! (klp/init-clj (:klipse-settings @pou)))
-   (when on-mounted
-     (on-mounted))))
+(defn cm-reg! [kl]
+  (js/console.log (str "registered codemirror #" kl)))
 
-(defn cm-mounted! [kl]
-  (call-in-editor kl :focus)) ; TODO DOC
+(defn klipsify! [on-mounted on-ready] 
+  (when-klipse-ready on-ready)
+  (let [first-kl @klp/snippet-counter]
+    (go 
+     (<! (klp/init-clj (:klipse-settings @pou)))
+     (when on-mounted
+       (on-mounted))
+     (let [last-kl (dec @klp/snippet-counter)]
+       (map cm-reg! (range first-kl (inc last-kl)))
+       (call-in-editor last-kl :focus)))))
                            
 (defn append [editors & {:keys [ui klipsify? on-mounted on-ready] 
                          :or {ui :base 
@@ -174,10 +177,7 @@
      (reg-editor new-editor)
      (let [append-fn (-> @pou :uis ui :append-fn)]
        (append-fn new-editor))))
-  (when klipsify? 
-    (go
-     (<! (klipsify! on-mounted on-ready))
-     (cm-mounted! (dec @klp/snippet-counter)))))
+  (when klipsify? (klipsify! on-mounted on-ready)))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)] :on-mounted on-mounted :on-ready on-ready))
