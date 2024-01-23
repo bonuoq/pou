@@ -59,7 +59,7 @@
     (swap! pou assoc-in [:uis ui-keyword] ui)
     (if (= ui-keyword :base)
       (. div-uis prepend div-new-ui)
-      (. div-uis append div-new-ui))))
+      (. div-uis appendChild div-new-ui))))
 
 ; EDITOR FUNCTIONS
 
