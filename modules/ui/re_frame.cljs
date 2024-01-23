@@ -1,5 +1,6 @@
 (ns pou.modules.ui.re-frame
   (:require [goog.dom :as gdom]
+            [cljs.reader :refer [read-string]]
             [reagent.core :as r]
             [reagent.dom :as rdom]
             [re-frame.core :as rf]
@@ -164,21 +165,20 @@
         [:button
          {:on-click (fn [_]
                       (append [{:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
-                                :external-libs @ext-libs
+                                :external-libs (read-string (str "[" @ext-libs "]"))
                                 :attrs {:data-gist-id @from-gist}}])
                       (reset! from-gist nil)
                       (reset! ext-libs nil))}
          "+"]
         [select-comp sel-mode (rf/subscribe [:mode-options])] " "
-        [:label "from-gist: "
-         [:input {:type "text"
-                  :placeholder "user/id"
-                  :value @from-gist
-                  :on-change #(reset! from-gist (.. % -target -value))}]] " "
-        [:label "external-libs: "
-         [:input {:type "text"
-                  :value @ext-libs
-                  :on-change #(reset! ext-libs (.. % -target -value))}]]]])))
+        [:input {:type "text"
+                 :placeholder "user/id [gist]"
+                 :value @from-gist
+                 :on-change #(reset! from-gist (.. % -target -value))}] " "
+        [:input {:type "text"
+                 :placeholder "https://a.b https://... [ext-libs]"
+                 :value @ext-libs
+                 :on-change #(reset! ext-libs (.. % -target -value))}]]])))
 
 ; INITIALIZE
 
