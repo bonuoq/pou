@@ -131,9 +131,10 @@
 (defn- when-klipse-ready [callback]
   (let [observer (js/MutationObserver. 
                   (fn [mutations o]
-                    (let [id (-> mutations (aget 0) .-addedNodes (aget 0) .-id)]
-                      (when (= id "klipse-ready")
+                    (let [elm (-> mutations (aget 0) .-addedNodes (aget 0))]
+                      (when (= (. elm -id) "klipse-ready")
                         (.disconnect o)
+                        (.remove elm)
                         (when callback (callback))))))]
     (. observer observe js/document.body #js {:childList true})))
 
