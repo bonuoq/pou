@@ -26,7 +26,7 @@
            (mapv #(select-keys % opt-sel-keys) body)
            (select-keys body opt-sel-keys)
          body)
-       (println (str "Github API Request Error (status=" status "): " body))))))
+       (println (str "Github API Request Error (status=" status "): " body)))))))
 
 (defn update-div [inner-html]
   (-> "pou-github" gdom/getElement .-innerHTML 
@@ -45,7 +45,7 @@
                                        :code code
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (if (= status 200)
-       (when body
+       (when (:access_token body)
          (swap! pou assoc :github (js->clj body :keywordize-keys true))
          (let [{:keys [login avatar_url]}
                (<! (request "user" :login :avatar_url))]
