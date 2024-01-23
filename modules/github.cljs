@@ -5,7 +5,7 @@
             [goog.dom :as gdom]
             [pou.core :as p :refer [pou]]))
 
-(defn token []
+(defn- token []
   (some-> @pou :github :access_token))
 
 (def loaded? #(some? (token)))
@@ -15,22 +15,40 @@
 
 (set! js/githubLogin login!)
 
-(defn request [api-path & opt-sel-keys]
+(defn request [api-path & {:keys [callback selected-keys]}]
   (go
    (let [{:keys [status body]} (<! (http/get (str "https://api.github.com/" api-path)
                                              {:with-credentials? false
-                                              :oauth-token (token)}))]
-     (if (= status 200)
-       (if (not-empty opt-sel-keys)
-         (if (vector? body)
-           (mapv #(select-keys % opt-sel-keys) body)
-           (select-keys body opt-sel-keys)
-         body)
-       (println (str "Github API Request Error (status=" status "): " body)))))))
+                                              :oauth-token (token)}))
+         res (if (= status 200)
+               (if (not-empty selected-keys)
+                 (if (vector? body)
+                   (mapv #(select-keys % selected-keys) body)
+                   (select-keys body selected-keys))
+                 body)
+               {:error status :message (str "Github API Request Error (status=" status "): " body)})]
+     (when callback (callback res))
+     res)))
 
-(defn update-div [inner-html]
+(defn- update-div! [inner-html]
   (-> "pou-github" gdom/getElement .-innerHTML 
     (set! inner-html)))
+
+(defn- update-user! [{:keys [login avatar_url]}]
+  (update-div! (str "<span class='gh-login'><img class='gh-avatar' src='" avatar_url "'>" login "</span>"))
+  (swap! pou update-in [:github] merge {:user login :avatar avatar_url}))
+
+(defn update-gists []
+  (request "gists" 
+           :selected-keys [:id :description :files]
+           :callback (fn [gists]
+                       (swap! pou assoc-in [:github :gists] gists))))
+  
+(defn- logged! [auth-res]
+  (when (:access_token auth-res)
+    (swap! pou assoc :github auth-res)
+    (request "user" :callback udpate-user!)
+    (update-gists)))
 
 (defn auth [code]
   (.replaceState js/history {} "" "/pou")
@@ -45,14 +63,12 @@
                                        :code code
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
      (if (= status 200)
-       (when (:access_token body)
-         (swap! pou assoc :github (js->clj body :keywordize-keys true))
-         (let [{:keys [login avatar_url]}
-               (<! (request "user" :login :avatar_url))]
-           (update-div (str "<span class='gh-login'><img class='gh-avatar' src='" avatar_url "'>" login "</span>"))))
+       (update-logged! body)
        (println (str "Github API Authorization Error (status=" status "): " body))))))
 
+; side-fx
+
 (-> "pou-extensions" gdom/getElement .-innerHTML 
-  (set! "<div id='pou-github' class='pou-extension'><button class='gh-login' onclick='githubLogin()'>Github Login</button></div>"))
+  (set! "<div id='pou-github' class='pou-extension'><button class='gh-login' onclick='githubLogin()'>GitHub connect</button></div>"))
 
 (p/process-url-params :code #(auth %))
