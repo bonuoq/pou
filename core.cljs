@@ -8,7 +8,8 @@
             [klipse.common.registry :as klreg]
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]
-            [cljs.reader :refer [read-string]]))
+            [cljs.reader :refer [read-string]]
+            [klipse-clj.repl :refer [doc]]))
 
 ; UTILS
 
@@ -94,6 +95,10 @@
   (cb (get-result k))
   (on-res-change k cb))
 
+(res-watch 0 #(-> "info" gdom/getElement .-textContent (set! %)))
+
+(defn peval-str [s] (set-code 0 s))
+
 (defn res-reset! [k resp-atom]
   (res-watch k #(reset! resp-atom %)))
 
@@ -139,7 +144,15 @@
     (. observer observe js/document.body #js {:childList true})))
 
 (defn cm-reg! [kl]
-  (js/console.log (str "registered codemirror #" kl)))
+  (let [{:keys [mode]} (-> @pou :editors (get kl))
+        cm (@kleds/editors kl)]
+    (when (= mode "eval-clojure")
+      (. cm on "cursorActivity" 
+         (fn []
+           (let [cursor (.getCursor cm)
+                 word-range (.findWordAt (.-line cursor) (.-ch cursor))
+                 word (. cm getRange (.-anchor word-range) (.-head word-range))]
+             (peval-str (str "(doc " word ")"))))))))                              
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
