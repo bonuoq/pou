@@ -3,7 +3,7 @@
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs-http.client :as http]
             [goog.dom :as gdom]
-            [pou.core :refer [pou]]))
+            [pou.core :as p :refer [pou]]))
 
 (defn token []
   (some-> @pou :github :access_token))
@@ -49,3 +49,5 @@
 
 (-> "pou-extensions" gdom/getElement .-innerHTML 
   (set! "<div id='pou-github' class='pou-extension'><button class='gh-login' onclick='githubLogin()'>Github Login</button></div>"))
+
+(p/process-url-params :code #(auth %))
