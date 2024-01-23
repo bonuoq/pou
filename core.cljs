@@ -57,7 +57,9 @@
   (let [div-uis (gdom/getElement "uis")
         div-new-ui (gdom/createDom "div" (clj->js {:class "pou-ui" :id ui-keyword}))]
     (swap! pou assoc-in [:uis ui-keyword] ui)
-    (. div-uis appendChild div-new-ui)))
+    (if (= ui-keyword :base)
+      (. div-uis prepend div-new-ui)
+      (. div-uis append div-new-ui)))
 
 ; EDITOR FUNCTIONS
 
