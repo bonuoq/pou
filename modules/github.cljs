@@ -19,7 +19,7 @@
   (go
    (let [{:keys [status body]} (<! (http/get (str "https://api.github.com/" api-path)
                                              {:with-credentials? false
-                                              :oauth-token (github/token)}))]
+                                              :oauth-token (token)}))]
      (if (= status 200)
        (if (not-empty opt-sel-keys)
          (select-keys body opt-sel-keys)
