@@ -127,6 +127,18 @@
   <div id="app"></div>
   <div id="pou-app">
     <div id="top-bar" class="pou-toolbar floating-top">
+      <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
+        <option value="" disabled selected>Load UI</option>
+        <option value="re-frame">POU Editor (re-frame)</option>
+      </select>
+      <select class="load-module" onchange="pou.core.load_module(event.target.value)">
+        <option value="" disabled selected>Load Module</option>
+        <option value="audio">audio</option>
+        <option value="faust">faust</option>
+        <option value="github">github</option>
+        <option value="guido">guido</option>
+        <option value="leipzig">leipzig</option>
+      </select>
       <div id="pou-extensions"></div>
     </div>
     <div class="pou-wrapper" id="start">
@@ -150,18 +162,6 @@
           +
         </button>
         <span class="pou-editable" id="base-mode" contenteditable="true">eval-clojure</span>
-        <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
-          <option value="" disabled selected>Load UI</option>
-          <option value="re-frame">POU Editor (re-frame)</option>
-        </select>
-        <select class="load-module" onchange="pou.core.load_module(event.target.value)">
-          <option value="" disabled selected>Load Module</option>
-          <option value="audio">audio</option>
-          <option value="faust">faust</option>
-          <option value="github">github</option>
-          <option value="guido">guido</option>
-          <option value="leipzig">leipzig</option>
-        </select>
       </div>
     </div>
   </div>
