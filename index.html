@@ -151,8 +151,8 @@
     .slider:before {
       position: absolute;
       content: "";
-      height: 26px;
-      width: 26px;
+      height: 22px;
+      width: 22px;
       left: 4px;
       bottom: 4px;
       background-color: white;
@@ -193,6 +193,14 @@
     }
     function scrollDown (id) {
       window.scrollTo(0, document.getElementById(id).scrollHeight);
+    }
+    function dockBottom (b) {
+      let css = window.document.styleSheets[0];
+      if (b) {
+        window.dockBottomRule = css.insertRule('#bottom-bar { opacity: 1; }', css.rules.length);
+      } else {
+        css.removeRule(window.dockBottomRule);
+      }
     }
   </script>
   <div id="loading" class="loader">LOADING...</div>
@@ -240,7 +248,7 @@
   </div>
   <div id="bottom-bar" class="pou-toolbar floating-bottom">
     <label class="switch">
-      <input type="checkbox">
+      <input type="checkbox" onchange="dockBottom(event.target.checked)">
       <span class="slider round"></span>
     </label>
     <span id="info">POU v0.1-alpha</span>
