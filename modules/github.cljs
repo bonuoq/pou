@@ -15,6 +15,17 @@
 
 (set! js/githubLogin login!)
 
+(defn request [api-path & opt-sel-keys]
+  (go
+   (let [{:keys [status body]} (<! (http/get (str "https://api.github.com/" api-path)
+                                             {:with-credentials? false
+                                              :oauth-token (github/token)}))]
+     (if (= status 200)
+       (if (not-empty opt-sel-keys)
+         (select-keys body opt-sel-keys)
+         body)
+       (println (str "Github API Request Error (status=" status "): " body))))))
+
 (defn auth [code]
   (go
    (let [{:keys [status body]}
