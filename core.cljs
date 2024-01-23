@@ -137,11 +137,13 @@
                         (callback)))))]
     (. observer observe js/document.body #js {:childList true})))
 
-(defn klipsify! [on-ready]
+(defn klipsify! [on-mounted on-ready]
   (when on-ready 
     (when-klipse-ready on-ready))
   (go 
-   (<! (klp/init-clj (:klipse-settings @pou)))))
+   (<! (klp/init-clj (:klipse-settings @pou)))
+   (when on-mounted
+     (on-mounted))))
 
 (defn cm-mounted! [kl]
   (call-in-editor kl :focus)) ; TODO DOC
@@ -174,8 +176,7 @@
        (append-fn new-editor))))
   (when klipsify? 
     (go
-     (<! (klipsify! on-ready))
-     (when on-mounted (on-mounted))
+     (<! (klipsify! on-mounted on-ready))
      (cm-mounted! (dec @klp/snippet-counter)))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
