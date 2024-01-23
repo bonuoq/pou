@@ -22,7 +22,9 @@
                                               :oauth-token (token)}))]
      (if (= status 200)
        (if (not-empty opt-sel-keys)
-         (select-keys body opt-sel-keys)
+         (if (vector? body)
+           (mapv #(select-keys % opt-sel-keys) body)
+           (select-keys body opt-sel-keys)
          body)
        (println (str "Github API Request Error (status=" status "): " body))))))
 
@@ -42,10 +44,13 @@
                                        :client_secret "38d46c164985bf82f9b617f7d0cd95633026ac48"
                                        :code code
                                        :redirect_uri "https://bonuoq.github.io/pou/"}}))]
-     (swap! pou assoc :github (js->clj body :keywordize-keys true))
-     (let [{:keys [login avatar_url]}
-           (<! (request "user" :login :avatar_url))]
-       (update-div (str "<span class='gh-login'><img class='gh-avatar' src='" avatar_url "'>" login "</span>"))))))
+     (if (= status 200)
+       (when body
+         (swap! pou assoc :github (js->clj body :keywordize-keys true))
+         (let [{:keys [login avatar_url]}
+               (<! (request "user" :login :avatar_url))]
+           (update-div (str "<span class='gh-login'><img class='gh-avatar' src='" avatar_url "'>" login "</span>"))))
+       (println (str "Github API Authorization Error (status=" status "): " body))))))
 
 (-> "pou-extensions" gdom/getElement .-innerHTML 
   (set! "<div id='pou-github' class='pou-extension'><button class='gh-login' onclick='githubLogin()'>Github Login</button></div>"))
