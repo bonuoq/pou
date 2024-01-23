@@ -145,6 +145,7 @@
   (fn []
     [:select
      {:on-change #(reset! value-atom (.. % -target -value))}
+     [:option {:value nil :disabled true :selected true} "select mode"]
      (for [k @options-atom]
        ^{:key k} [:option {:value k} k])]))
 
