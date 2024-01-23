@@ -150,8 +150,8 @@
       (. cm on "cursorActivity" 
          (fn []
            (let [cursor (.getCursor cm)
-                 word-range (.findWordAt (.-line cursor) (.-ch cursor))
-                 word (. cm getRange (.-anchor word-range) (.-head word-range))]
+                 word-range (.findWordAt cm (.-line cursor) (.-ch cursor))
+                 word (.getRange cm (.-anchor word-range) (.-head word-range))]
              (peval-str (str "(doc " word ")"))))))))                              
 
 (defn klipsify! [on-mounted on-ready] 
