@@ -142,6 +142,9 @@
     (when-klipse-ready on-ready))
   (go 
    (<! (klp/init-clj (:klipse-settings @pou)))))
+
+(defn cm-mounted! [kl]
+  (call-in-editor kl :focus)) ; TODO DOC
                            
 (defn append [editors & {:keys [ui klipsify? on-mounted on-ready] 
                          :or {ui :base 
@@ -173,7 +176,7 @@
     (go
      (<! (klipsify! on-ready))
      (when on-mounted (on-mounted))
-     (call-in-editor (dec @klp/snippet-counter) :focus))))
+     (cm-mounted! (dec @klp/snippet-counter)))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)] :on-mounted on-mounted :on-ready on-ready))
