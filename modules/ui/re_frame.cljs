@@ -159,9 +159,9 @@
        (for [e @(rf/subscribe [:editors])]
          ^{:key (key e)} [editor-comp (val e)])
        [:div.pou-toolbar
-        [:button
+        [:button.append
          {:on-click #(append [{}])}
-         "+eval-clojure"] " | "
+         "+"] " | "
         [:button
          {:on-click (fn [_]
                       (append [{:mode (or @sel-mode (first @(rf/subscribe [:mode-options])))
