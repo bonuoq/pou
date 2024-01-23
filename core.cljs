@@ -148,7 +148,7 @@
      (when on-mounted
        (on-mounted))
      (let [last-kl (dec @klp/snippet-counter)]
-       (map cm-reg! (range first-kl (inc last-kl)))
+       (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
                            
 (defn append [editors & {:keys [ui klipsify? on-mounted on-ready] 
