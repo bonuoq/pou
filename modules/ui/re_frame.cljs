@@ -126,7 +126,7 @@
   (r/create-class
    {:component-did-mount 
     (fn [this]
-      (p/klipsify! #(rf/dispatch [:ready {id this}])))
+      (p/klipsify! nil #(rf/dispatch [:ready {id this}])))
     :reagent-render
     (fn []
       (let [hidden? @(rf/subscribe [:hidden? id])]
