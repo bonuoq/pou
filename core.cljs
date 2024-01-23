@@ -95,8 +95,6 @@
   (cb (get-result k))
   (on-res-change k cb))
 
-(res-watch 0 #(-> "info" gdom/getElement .-textContent (set! %)))
-
 (defn peval-str [s] (set-code 0 s))
 
 (defn res-reset! [k resp-atom]
@@ -261,4 +259,6 @@
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(load-module 'github))
+  (. (js/document.querySelector "#bottom-bar .pou-repl-wrapper")
+     appendChild (gdom/getElement "start"))
   (when-not (:ui (url-params)) (loaded!)))
