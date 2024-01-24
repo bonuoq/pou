@@ -172,13 +172,14 @@
          (fn []
            (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
              (show-completions! cm token-str hints? (not hints?)))))
-      (. cm on "keyHandled"
+      (. cm on "keyHandled" ; instead Handle extra keys merging (p/call-in-editor 1 :getOption "extraKeys")
          (fn [_ key-handled]
            (case key-handled ; alternative to Klipse CodeMirror autocompletion (includes 'namespace/')
              "Shift-Tab" (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-                           (show-completions! cm token-str true false))
-             "Cmd-." (peval-str (str "(doc " token-str ")"))
+                           (show-completions! cm token-str true false)) 
              (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))))))
+
+; DOC (peval-str (str "(doc " token-str ")"))
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
