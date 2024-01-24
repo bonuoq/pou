@@ -195,7 +195,7 @@
       element.hidden = !element.hidden;
     }
     function appendMode (mode) {
-      pou.core.peval_str(`(aed nil :mode "${document.getElementById('base-mode').textContent})"`);
+      pou.core.peval_str(`(aed nil :mode "${document.getElementById('base-mode').textContent}")`);
     }
     /*function dockBottom (b) {
       window.dockB = b;
@@ -255,8 +255,8 @@
       </div>
     </div>
   </div>
-  <div id="bottom-bar" class="pou-toolbar floating-bottom">
-    <!--onmouseleave="if (!window.dockB) pou.core.toggle_hidden(['pou-repl', true])"-->
+  <div id="bottom-bar" class="pou-toolbar floating-bottom"
+    onmouseleave="if (!window.dockB) { document.getElementById('pou-repl').style.display = 'none'; }">
     <label class="switch">
       <input type="checkbox" onchange="window.dockB = event.target.checked">
       <span class="slider round"></span>
@@ -267,8 +267,8 @@
       </div>
     </div>
     <button class="pou-toggle" 
-      onclick="toggleHidden('pou-app');scrollDown('pou-app')">
-      <!--onmouseenter="pou.core.toggle_hidden(['pou-repl', false])"-->
+      onclick="toggleHidden('pou-app');scrollDown('pou-app')"
+      onmouseenter="document.getElementById('pou-repl').style.display = 'block';">
       &lt&gt
     </button>
   </div>
