@@ -154,8 +154,8 @@
       (let [hint-fn (partial kl-ed/list-completions (or completions completions-no-pre-ns))]
         (js/setTimeout
          (fn []
-           (.showHint editor (clj->js {:hint hint-fn
-                                       :completeSingle true})))))
+           (.showHint cm (clj->js {:hint hint-fn
+                                   :completeSingle true})))))
       (-> "pou-info" gdom/getElement .-innerHTML 
         (set! (apply str (mapv #(str "<span 
                                      id='" % "'
