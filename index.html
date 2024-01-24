@@ -190,7 +190,7 @@
     function scrollDown (id) {
       window.scrollTo(0, document.getElementById(id).scrollHeight);
     }
-    function dockBottom (b) {
+    /*function dockBottom (b) {
       window.dockB = b;
       let css = window.document.styleSheets[0];
       if (window.dockBottomRule) css.removeRule(window.dockBottomRule);
@@ -199,7 +199,7 @@
       } else {
         window.dockBottomRule = css.insertRule('.floating-bottom { opacity: 0; }', css.rules.length);
       }
-    }
+    }*/
   </script>
   <div id="loading" class="loader">LOADING...</div>
   <div id="host"></div>
@@ -251,7 +251,7 @@
   <div id="bottom-bar" class="pou-toolbar floating-bottom"
     onmouseleave="if (!window.dockB) pou.core.toggle_hidden(['pou-repl', true])">
     <label class="switch">
-      <input type="checkbox" onchange="dockBottom(event.target.checked)">
+      <input type="checkbox" onchange="window.dockB = event.target.checked">
       <span class="slider round"></span>
     </label>
     <div id "pou-repl" class="pou-repl-wrapper">
