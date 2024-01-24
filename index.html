@@ -190,6 +190,10 @@
     function scrollDown (id) {
       window.scrollTo(0, document.getElementById(id).scrollHeight);
     }
+    function toggleHidden (id) {
+      let element = document.getElementById(id);
+      element.hidden = !element.hidden;
+    }
     /*function dockBottom (b) {
       window.dockB = b;
       let css = window.document.styleSheets[0];
@@ -248,8 +252,8 @@
       </div>
     </div>
   </div>
-  <div id="bottom-bar" class="pou-toolbar floating-bottom"
-    onmouseleave="if (!window.dockB) pou.core.toggle_hidden(['pou-repl', true])">
+  <div id="bottom-bar" class="pou-toolbar floating-bottom">
+    <!--onmouseleave="if (!window.dockB) pou.core.toggle_hidden(['pou-repl', true])"-->
     <label class="switch">
       <input type="checkbox" onchange="window.dockB = event.target.checked">
       <span class="slider round"></span>
@@ -260,8 +264,8 @@
       </div>
     </div>
     <button class="pou-toggle" 
-      onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')"
-      onmouseenter="pou.core.toggle_hidden(['pou-repl', false])">
+      onclick="toggleHidden('pou-app');scrollDown('pou-app')">
+      <!--onmouseenter="pou.core.toggle_hidden(['pou-repl', false])"-->
       &lt&gt
     </button>
   </div>
