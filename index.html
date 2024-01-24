@@ -234,17 +234,6 @@
       </select>
       <div id="pou-extensions"></div>
     </div>
-    <div class="pou-wrapper" id="start">
-        <div class="language-klipse" data-external-libs="
-          https://bonuoq.github.io,
-          https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
-          https://raw.githubusercontent.com/clojure/core.async/master/src/main/clojure">
-(ns pou.user
-  (:require [pou.core :as p :refer [pou aed load-module load-ui]]
-            [klipse-clj.repl :refer [doc]]))
-(p/init!)
-        </div>
-      </div>
     <div id="uis">
       <div class="pou-toolbar" id="base-control">
         <button class="pou-toggle-view" 
@@ -271,7 +260,17 @@
       &nbsp
       <span id="pou-info" class="pou-intro">POU v0.1-alpha (powered by <a href="https://github.com/viebel/klipse">klipse</a>)</span>
     </div>
-    <div id="pou-repl"></div>
+    <div class="pou-wrapper" id="pou-repl">
+      <div class="language-klipse" data-external-libs="
+        https://bonuoq.github.io,
+        https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
+        https://raw.githubusercontent.com/clojure/core.async/master/src/main/clojure">
+(ns pou.user
+(:require [pou.core :as p :refer [pou aed load-module load-ui]]
+          [klipse-clj.repl :refer [doc]]))
+(p/init!)
+      </div>
+    </div>
     <button class="pou-toggle" onclick="toggleHidden('pou-app');scrollDown('pou-app')">
       &lt&gt
     </button>
