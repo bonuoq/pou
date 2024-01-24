@@ -113,9 +113,9 @@
 
 ; BASE UI
 
-(defn append-editor-base [{:keys [id kl intro mode attrs snippet hidden?]
-                           :or {klipsettings {}}
-                           :as editor}]
+(defn- append-editor-base [{:keys [id kl intro mode attrs snippet hidden?]
+                            :or {klipsettings {}}
+                            :as editor}]
   (let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
         text (gdom/createDom "p" "pou-intro" (str "#" kl "> " (or 
@@ -149,9 +149,9 @@
 (defn show-completions! [cm token-str hint?]
   (let [pre-ns (re-find #".+?\/" token-str)
         completions-no-pre-ns (rest (kl-repl/get-completions token-str))
-        completions (when pre-ns (mapv (partial str pre-ns) completions-no-pre-ns))]
+        completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
     (if hint?
-      (let [hint-fn (partial kl-ed/list-completions (or completions completions-no-pre-ns))]
+      (let [hint-fn (partial kl-ed/list-completions completions)]
         (js/setTimeout
          (fn []
            (.showHint cm (clj->js {:hint hint-fn
@@ -174,7 +174,7 @@
              (peval-str (str "(doc " token-str ")")))))
       (. cm on "keyHandled"
          (fn [_ key-handled]
-           (when (= key-handled "Tab") ; override Klipse CodeMirror behaviour without loosing other ExtraKeys
+           (when (= key-handled "Shift-Tab") ; alternative to Klipse CodeMirror autocompletion (includes 'namespace/')
              (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
                (show-completions! cm token-str true))))))))            
 
