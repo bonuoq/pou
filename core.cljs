@@ -159,9 +159,8 @@
       (-> "pou-info" gdom/getElement .-innerHTML 
         (set! (apply str (mapv #(str "<span 
                                      id='" % "'
-                                     class='pou-completion' 
-                                     onclick='>" % "</span>&nbsp;") 
-                               completions)))))))
+                                     class='pou-completion'>" 
+                                     % "</span>&nbsp;") completions)))))))
   
 
 (defn- cm-reg! [kl]
@@ -176,7 +175,8 @@
       (. cm on "keyHandled"
          (fn [_ key-handled]
            (when (= key-handled "Tab") ; override Klipse CodeMirror behaviour without loosing other ExtraKeys
-             (show-completions! cm token-str true)))))))               
+             (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
+               (show-completions! cm token-str true))))))))            
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
