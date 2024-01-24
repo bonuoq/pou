@@ -9,8 +9,8 @@
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]
             [cljs.reader :refer [read-string]]
-            [klipse.ui.editors.editor :refer [list-completions]]
-            [klipse-clj.repl :refer [get-completions]]))
+            [klipse.ui.editors.editor :as kl-ed]
+            [klipse-clj.repl :as kl-repl]))
 
 ; UTILS
 
@@ -148,13 +148,14 @@
 
 (defn show-completions! [token-str]
   (let [pre-ns (re-find #".+?\/" token-str)
-        completions-no-pre-ns (get-completions token-str)
+        completions-no-pre-ns (kl-repl/get-completions token-str)
         completions (when pre-ns (mapv (partial str pre-ns) completions-no-pre-ns))
-        hint-fn (partial list-completions (or completions completions-no-pre-ns))]
+        hint-fn (partial kl-ed/list-completions (or completions completions-no-pre-ns))]
     (js/setTimeout
       (fn []
         (.showHint editor (clj->js {:hint hint-fn
                                     :completeSingle true})))))
+  ;show in info bar
   #_(-> "pou-info" gdom/getElement .-innerHTML 
                (set! (apply str (mapv #(str "<span 
                                             id='" % "' 
