@@ -146,16 +146,17 @@
                         (when callback (callback))))))]
     (. observer observe js/document.body #js {:childList true})))
 
-(defn show-completions! [cm token-str hint?]
+(defn show-completions! [cm token-str hint? info?]
   (let [pre-ns (re-find #".+?\/" token-str)
         completions-no-pre-ns (kl-repl/get-completions token-str)
         completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
-    (if hint?
+    (when hint?
       (let [hint-fn (partial kl-ed/list-completions completions)]
         (js/setTimeout
          (fn []
            (.showHint cm (clj->js {:hint hint-fn
-                                   :completeSingle true})))))
+                                   :completeSingle true}))))))
+    (when info?
       (-> "pou-info" gdom/getElement .-innerHTML 
         (set! (apply str (mapv #(str "<span 
                                      id='" % "'
@@ -164,19 +165,19 @@
   
 
 (defn- cm-reg! [kl]
-  (let [{:keys [mode]} (-> @pou :editors (get kl))
+  (let [{:keys [mode hints?]} (-> @pou :editors (get kl))
         cm (@kleds/editors kl)]
     (when (= mode "eval-clojure")
       (. cm on "cursorActivity" 
          (fn []
            (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-             (show-completions! cm token-str false)
+             (show-completions! cm token-str hints? (not hints?))
              (when-not (or js/unDockBttm (empty? token-str)) (peval-str (str "(doc " token-str ")"))))))
       (. cm on "keyHandled"
          (fn [_ key-handled]
            (when (= key-handled "Shift-Tab") ; alternative to Klipse CodeMirror autocompletion (includes 'namespace/')
              (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-               (show-completions! cm token-str true))))))))            
+               (show-completions! cm token-str true false))))))))            
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
