@@ -9,6 +9,7 @@
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]
             [cljs.reader :refer [read-string]]
+            [klipse.ui.editors.editor :refer [list-completions]]
             [klipse-clj.repl :refer [get-completions]]))
 
 ; UTILS
@@ -145,16 +146,31 @@
                         (when callback (callback))))))]
     (. observer observe js/document.body #js {:childList true})))
 
-(defn cm-reg! [kl]
+(defn show-completions! [token-str]
+  (let [pre-ns (re-find #".+?\/" token-str)
+        completions-no-pre-ns (get-completions token-str)
+        completions (when pre-ns (mapv (partial str pre-ns) completions-no-pre-ns))
+        hint-fn (partial list-completions (or completions completions-no-pre-ns))]
+    (js/setTimeout
+      (fn []
+        (.showHint editor (clj->js {:hint hint-fn
+                                    :completeSingle true})))))
+  #_(-> "pou-info" gdom/getElement .-innerHTML 
+               (set! (apply str (mapv #(str "<span 
+                                            id='" % "' 
+                                            class='pou-completion' 
+                                            onclick='>" % "</span>&nbsp;") 
+                                      (rest (get-completions token-str)))))))
+  
+
+(defn- cm-reg! [kl]
   (let [{:keys [mode]} (-> @pou :editors (get kl))
         cm (@kleds/editors kl)]
     (when (= mode "eval-clojure")
       (. cm on "cursorActivity" 
          (fn []
            (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-             (-> "pou-info" gdom/getElement .-innerHTML 
-               (set! (apply str (mapv #(str "<span>" % "</span>&nbsp;") 
-                                      (rest (get-completions token-str))))))
+             (show-completions! token-str)
              (peval-str (str "(doc " token-str ")"))))))))                              
 
 (defn klipsify! [on-mounted on-ready] 
