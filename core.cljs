@@ -31,8 +31,12 @@
   ([div-id hidden?] (th (gdom/getElement div-id) hidden?))
   ([div-id] (let [d (gdom/getElement div-id)] (th d (not (h? d))))))
 
-(defn loaded! [] (toggle-hidden "loading" true))
-(defn loading! [] (toggle-hidden "loading" false))
+(defn loaded! [] 
+  (toggle-hidden "pou-app" false)
+  (toggle-hidden "loading" true))
+(defn loading! [] 
+  (toggle-hidden "loading" false)
+  (toggle-hidden "pou-app" true))
 
 ; BASE STATE
 
