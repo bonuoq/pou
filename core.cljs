@@ -151,9 +151,8 @@
     (when (= mode "eval-clojure")
       (. cm on "cursorActivity" 
          (fn []
-           (let [word-range (.findWordAt cm (.getCursor cm))
-                 word (.getRange cm (.-anchor word-range) (.-head word-range))]
-             (peval-str (str "(doc " word ")"))))))))                              
+           (let [token (.getTokenAt cm (.getCursor cm))]
+             (peval-str (str "(doc " token ")"))))))))                              
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
