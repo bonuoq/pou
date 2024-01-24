@@ -51,7 +51,9 @@
     }
 
     .pou-wrapper {
-      
+      .klipse-result .Codemirror-scroll {
+        max-height: 10em;
+      }
       .CodeMirror {
         background: #fff8
       }
@@ -94,12 +96,20 @@
     }
 
     .floating-bottom {
-      display: inline-grid;
-      justify-items: stretch;
       width: -webkit-fill-available;
       bottom: 0;
       position: fixed;
       z-index: 999999;
+      padding-bottom: 1.5em;
+      max-height: 15em;
+
+      .pou-toggle {
+        position: fixed;
+        bottom: 0;
+        left: -1em;
+        right: -1em;
+        z-index: 999999;
+      }
     }
     
     .pou-intro {
@@ -251,19 +261,18 @@
     </div>
   </div>
   <div id="bottom-bar" class="pou-toolbar floating-bottom"
-    onmouseleave="if (window.unDockBtm) { document.getElementById('pou-repl').style.display = 'none'; }">
-    <label class="switch">
-      <input type="checkbox" checked onchange="window.unDockBtm = !event.target.checked">
-      <span class="slider round"></span>
-    </label>
-    <div id="pou-repl" class="pou-repl-wrapper">
-      <div class="pou-intro">
-        POU v0.1-alpha (powered by <a href="https://github.com/viebel/klipse">klipse</a>)
-      </div>
+    onmouseenter="document.getElementById('pou-repl').style.display = 'block';"
+    onmouseleave="if (window.unDockBttm) { document.getElementById('pou-repl').style.display = 'none'; }">
+    <div id="pou-pilot">
+      <label id="docker" class="switch">
+        <input type="checkbox" checked onchange="window.unDockBttm = !event.target.checked">
+        <span class="slider round"></span>
+      </label>
+      &nbsp
+      <span id="pou-info" class="pou-intro">POU v0.1-alpha (powered by <a href="https://github.com/viebel/klipse">klipse</a>)</span>
     </div>
-    <button class="pou-toggle" 
-      onclick="toggleHidden('pou-app');scrollDown('pou-app')"
-      onmouseenter="document.getElementById('pou-repl').style.display = 'block';">
+    <div id="pou-repl"></div>
+    <button class="pou-toggle" onclick="toggleHidden('pou-app');scrollDown('pou-app')">
       &lt&gt
     </button>
   </div>
