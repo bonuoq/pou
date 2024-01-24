@@ -152,7 +152,7 @@
       (. cm on "cursorActivity" 
          (fn []
            (let [token (.getTokenAt cm (.getCursor cm))]
-             (peval-str (str "(doc " token ")"))))))))                              
+             (peval-str (str "(doc " (aget token "string")")"))))))))                              
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
