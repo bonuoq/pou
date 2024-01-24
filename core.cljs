@@ -148,7 +148,7 @@
 
 (defn show-completions! [cm token-str hint?]
   (let [pre-ns (re-find #".+?\/" token-str)
-        completions-no-pre-ns (rest (kl-repl/get-completions token-str))
+        completions-no-pre-ns (kl-repl/get-completions token-str))
         completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
     (if hint?
       (let [hint-fn (partial kl-ed/list-completions completions)]
@@ -160,7 +160,7 @@
         (set! (apply str (mapv #(str "<span 
                                      id='" % "'
                                      class='pou-completion'>" 
-                                     % "</span>&nbsp;") completions)))))))
+                                     % "</span>&nbsp;") (rest completions)))))))
   
 
 (defn- cm-reg! [kl]
