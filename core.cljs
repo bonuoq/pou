@@ -9,7 +9,7 @@
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]
             [cljs.reader :refer [read-string]]
-            [klipse-clj.repl :refer [doc]]))
+            [klipse-clj.repl :refer [get-completions]]))
 
 ; UTILS
 
@@ -151,8 +151,11 @@
     (when (= mode "eval-clojure")
       (. cm on "cursorActivity" 
          (fn []
-           (let [token (.getTokenAt cm (.getCursor cm))]
-             (peval-str (str "(doc " (aget token "string")")"))))))))                              
+           (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
+             (-> "pou-info" gdom/getElement .-innerHTML 
+               (set! (apply str (mapv #(str "<span>" % "</span>&nbsp;") 
+                                      (rest (get-completions token-str))))))
+             (peval-str (str "(doc " token-str ")"))))))))                              
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
