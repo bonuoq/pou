@@ -94,19 +94,13 @@
     }
 
     .floating-bottom {
+      display: inline-grid;
+      justify-items: stretch;
+      width: -webkit-fill-available;
       opacity: 0.2;
       bottom: 0;
       position: fixed;
       z-index: 999999;
-
-      .pou-toggle {
-        float: right;
-        margin: 0 1em;
-      }
-
-      .pou-repl-wrapper {
-        display: inline-block;
-      }
     }
 
     .floating-bottom:hover {
@@ -121,7 +115,6 @@
       background: #fcfcfd;
       border: 1px solid #9ab7fa;
     }
-
     
     /* The switch - the box around the slider */
     .switch {
@@ -203,7 +196,7 @@
       if (b) {
         window.dockBottomRule = css.insertRule('#bottom-bar { opacity: 1; }', css.rules.length);
       } else {
-        window.dockBottomRule = css.insertRule('.floating-bottom { opacity: 0; }');
+        window.dockBottomRule = css.insertRule('.floating-bottom { opacity: 0; }', css.rules.length);
       }
     }
   </script>
@@ -261,7 +254,7 @@
       </div>
     </div>
     <button class="pou-toggle" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
-      &lt&gt
+      &l&gt
     </button>
   </div>
   
