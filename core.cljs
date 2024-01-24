@@ -146,22 +146,22 @@
                         (when callback (callback))))))]
     (. observer observe js/document.body #js {:childList true})))
 
-(defn show-completions! [token-str]
+(defn show-completions! [cm token-str hint?]
   (let [pre-ns (re-find #".+?\/" token-str)
-        completions-no-pre-ns (kl-repl/get-completions token-str)
-        completions (when pre-ns (mapv (partial str pre-ns) completions-no-pre-ns))
-        hint-fn (partial kl-ed/list-completions (or completions completions-no-pre-ns))]
-    (js/setTimeout
-      (fn []
-        (.showHint editor (clj->js {:hint hint-fn
-                                    :completeSingle true})))))
-  ;show in info bar
-  #_(-> "pou-info" gdom/getElement .-innerHTML 
-               (set! (apply str (mapv #(str "<span 
-                                            id='" % "' 
-                                            class='pou-completion' 
-                                            onclick='>" % "</span>&nbsp;") 
-                                      (rest (get-completions token-str)))))))
+        completions-no-pre-ns (rest (kl-repl/get-completions token-str))
+        completions (when pre-ns (mapv (partial str pre-ns) completions-no-pre-ns))]
+    (if hint?
+      (let [hint-fn (partial kl-ed/list-completions (or completions completions-no-pre-ns))]
+        (js/setTimeout
+         (fn []
+           (.showHint editor (clj->js {:hint hint-fn
+                                       :completeSingle true})))))
+      (-> "pou-info" gdom/getElement .-innerHTML 
+        (set! (apply str (mapv #(str "<span 
+                                     id='" % "'
+                                     class='pou-completion' 
+                                     onclick='>" % "</span>&nbsp;") 
+                               completions)))))))
   
 
 (defn- cm-reg! [kl]
@@ -171,8 +171,12 @@
       (. cm on "cursorActivity" 
          (fn []
            (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-             (show-completions! token-str)
-             (peval-str (str "(doc " token-str ")"))))))))                              
+             (show-completions! cm token-str false)
+             (peval-str (str "(doc " token-str ")")))))
+      (. cm on "keyHandled"
+         (fn [_ key-handled]
+           (when (= key-handled "Tab") ; override Klipse CodeMirror behaviour without loosing other ExtraKeys
+             (show-completions! cm token-str true)))))))               
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
