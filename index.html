@@ -251,9 +251,9 @@
     </div>
   </div>
   <div id="bottom-bar" class="pou-toolbar floating-bottom"
-    onmouseleave="if (!window.dockB) { document.getElementById('pou-repl').style.display = 'none'; }">
+    onmouseleave="if (window.unDockBtm) { document.getElementById('pou-repl').style.display = 'none'; }">
     <label class="switch">
-      <input type="checkbox" onchange="window.dockB = event.target.checked">
+      <input type="checkbox" checked onchange="window.unDockBtm = !event.target.checked">
       <span class="slider round"></span>
     </label>
     <div id="pou-repl" class="pou-repl-wrapper">
