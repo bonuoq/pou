@@ -205,11 +205,13 @@
   <div id="app"></div>
   <div id="pou-app">
     <div id="top-bar" class="pou-toolbar floating-top">
-      <select class="load-ui" onchange="pou.core.load_ui(event.target.value)">
+      <select class="load-ui" 
+        onchange="pou.core.peval_str(`(load-ui '${event.target.value})`)">
         <option value="" disabled selected>Load UI</option>
         <option value="re-frame">POU Editor (re-frame)</option>
       </select>
-      <select class="load-module" onchange="pou.core.load_module(event.target.value)">
+      <select class="load-module" 
+        onchange="pou.core.peval_str(`(load-module '${event.target.value})`)">
         <option value="" disabled selected>Load Module</option>
         <option value="audio">audio</option>
         <option value="faust">faust</option>
@@ -225,36 +227,41 @@
           https://raw.githubusercontent.com/applied-science/js-interop/v0.1.20/src/main,
           https://raw.githubusercontent.com/clojure/core.async/master/src/main/clojure">
 (ns pou.user
-  (:require [pou.core :as p :refer [pou aed load-module]]
+  (:require [pou.core :as p :refer [pou aed load-module load-ui]]
             [klipse-clj.repl :refer [doc]]))
 (p/init!)
         </div>
       </div>
     <div id="uis">
       <div class="pou-toolbar" id="base-control">
-        <button class="pou-toggle-view" onclick="pou.core.toggle_hidden('base');scrollDown('base')">
+        <button class="pou-toggle-view" 
+          onclick="pou.core.toggle_hidden('base');scrollDown('base')">
           &lt&gt
         </button>
         baseUI&nbsp;
-        <button class="append" onclick="pouAppendMode(document.getElementById('base-mode').textContent)">
+        <button class="append" 
+          onclick="pou.core.peval_str(`(aed nil :mode ${document.getElementById('base-mode').textContent})`)">
           +
         </button>
         <span class="pou-editable" id="base-mode" contenteditable="true">eval-clojure</span>
       </div>
     </div>
   </div>
-  <div id="bottom-bar" class="pou-toolbar floating-bottom">
+  <div id="bottom-bar" class="pou-toolbar floating-bottom"
+    onmouseleave="pou.core.toggle_hidden('pou-repl', true)">
     <label class="switch">
       <input type="checkbox" onchange="dockBottom(event.target.checked)">
       <span class="slider round"></span>
     </label>
-    <div class="pou-repl-wrapper">
+    <div id "pou-repl" class="pou-repl-wrapper">
       <div class="pou-intro">
         POU v0.1-alpha (powered by <a href="https://github.com/viebel/klipse">klipse</a>)
       </div>
     </div>
-    <button class="pou-toggle" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
-      &l&gt
+    <button class="pou-toggle" 
+      onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')"
+      onmouseenter="pou.core.toggle_hidden('pou-repl', false)">
+      &lt&gt
     </button>
   </div>
   
