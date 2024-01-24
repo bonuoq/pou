@@ -259,6 +259,4 @@
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(load-module 'github))
-  (. (js/document.querySelector "#bottom-bar .pou-repl-wrapper")
-     appendChild (gdom/getElement "start"))
   (when-not (:ui (url-params)) (loaded!)))
