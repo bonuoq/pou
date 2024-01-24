@@ -194,6 +194,9 @@
       let element = document.getElementById(id);
       element.hidden = !element.hidden;
     }
+    function appendMode (mode) {
+      pou.core.peval_str(`(aed nil :mode "${document.getElementById('base-mode').textContent})"`);
+    }
     /*function dockBottom (b) {
       window.dockB = b;
       let css = window.document.styleSheets[0];
@@ -245,7 +248,7 @@
         </button>
         baseUI&nbsp;
         <button class="append" 
-          onclick='pou.core.peval_str(`(aed nil :mode "${document.getElementById('base-mode').textContent})"`)'>
+          onclick="appendMode(document.getElementById('base-mode').textContent)">
           +
         </button>
         <span class="pou-editable" id="base-mode" contenteditable="true">eval-clojure</span>
