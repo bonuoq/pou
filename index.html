@@ -191,6 +191,7 @@
       window.scrollTo(0, document.getElementById(id).scrollHeight);
     }
     function dockBottom (b) {
+      window.dockB = b;
       let css = window.document.styleSheets[0];
       if (window.dockBottomRule) css.removeRule(window.dockBottomRule);
       if (b) {
@@ -240,7 +241,7 @@
         </button>
         baseUI&nbsp;
         <button class="append" 
-          onclick="pou.core.peval_str(`(aed nil :mode ${document.getElementById('base-mode').textContent})`)">
+          onclick='pou.core.peval_str(`(aed nil :mode "${document.getElementById('base-mode').textContent})"`)'>
           +
         </button>
         <span class="pou-editable" id="base-mode" contenteditable="true">eval-clojure</span>
@@ -248,7 +249,7 @@
     </div>
   </div>
   <div id="bottom-bar" class="pou-toolbar floating-bottom"
-    onmouseleave="pou.core.toggle_hidden('pou-repl', true)">
+    onmouseleave="if (!window.dockB) pou.core.toggle_hidden('pou-repl', true)">
     <label class="switch">
       <input type="checkbox" onchange="dockBottom(event.target.checked)">
       <span class="slider round"></span>
