@@ -171,13 +171,14 @@
       (. cm on "cursorActivity" 
          (fn []
            (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-             (show-completions! cm token-str hints? (not hints?))
-             (when-not (or js/unDockBttm (empty? token-str)) (peval-str (str "(doc " token-str ")"))))))
+             (show-completions! cm token-str hints? (not hints?)))))
       (. cm on "keyHandled"
          (fn [_ key-handled]
-           (when (= key-handled "Shift-Tab") ; alternative to Klipse CodeMirror autocompletion (includes 'namespace/')
-             (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-               (show-completions! cm token-str true false))))))))            
+           (case key-handled ; alternative to Klipse CodeMirror autocompletion (includes 'namespace/')
+             "Shift-Tab" (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
+                           (show-completions! cm token-str true false))
+             "Cmd-." (peval-str (str "(doc " token-str ")"))
+             (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))))))
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
