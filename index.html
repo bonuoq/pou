@@ -94,7 +94,7 @@
     }
 
     .floating-bottom {
-      opacity: 0;
+      opacity: 0.2;
       bottom: 0;
       position: fixed;
       z-index: 999999;
@@ -199,10 +199,11 @@
     }
     function dockBottom (b) {
       let css = window.document.styleSheets[0];
+      if (window.dockBottomRule) css.removeRule(window.dockBottomRule);
       if (b) {
         window.dockBottomRule = css.insertRule('#bottom-bar { opacity: 1; }', css.rules.length);
       } else {
-        css.removeRule(window.dockBottomRule);
+        window.dockBottomRule = css.insertRule('.floating-bottom { opacity: 0; }');
       }
     }
   </script>
@@ -254,7 +255,11 @@
       <input type="checkbox" onchange="dockBottom(event.target.checked)">
       <span class="slider round"></span>
     </label>
-    <div class="pou-repl-wrapper">POU v0.1-alpha</div>
+    <div class="pou-repl-wrapper">
+      <div class="pou-intro">
+        POU v0.1-alpha (powered by <a href="https://github.com/viebel/klipse">klipse</a>)
+      </div>
+    </div>
     <button class="pou-toggle" onclick="pou.core.toggle_hidden('pou-app');scrollDown('pou-app')">
       &lt&gt
     </button>
