@@ -171,7 +171,7 @@
          (fn []
            (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
              (show-completions! cm token-str false)
-             (peval-str (str "(doc " token-str ")")))))
+             (when-not (or js/unDockBttm (empty? token-str)) (peval-str (str "(doc " token-str ")"))))))
       (. cm on "keyHandled"
          (fn [_ key-handled]
            (when (= key-handled "Shift-Tab") ; alternative to Klipse CodeMirror autocompletion (includes 'namespace/')
