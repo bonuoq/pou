@@ -50,9 +50,9 @@
                 :uis {}
                 :modules []}))
 
-(add-watch klreg/mode-options :re-frame-reg-mode-options 
+(add-watch klreg/mode-options :reg-mode-options 
            #(swap! pou assoc :mode-options (keys %4)))
-(add-watch klreg/selector->mode :re-frame-reg-mode-selectors 
+(add-watch klreg/selector->mode :reg-mode-selectors
            #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
 
 
@@ -118,9 +118,9 @@
                             :as editor}]
   (let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
-        text (gdom/createDom "p" "pou-intro" (str "#" kl "> " (or 
-                                                               intro
-                                                               (str "id: " id ", mode: " mode))))
+        text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
+                                                           intro
+                                                           (str "#" id ", mode: " mode))))
         wrapper (gdom/createDom "div" (clj->js {:id id
                                                 :class "pou-wrapper" 
                                                 :style {:display (if hidden? "none" "block")}})
