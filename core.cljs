@@ -146,11 +146,12 @@
                         (when callback (callback))))))]
     (. observer observe js/document.body #js {:childList true})))
 
-(defn- show-hint! [cm cm-hint-opts]
+(defn- show-hint! [cm completions]
   (let [hint-fn (partial kl-ed/list-completions completions)]
         (js/setTimeout
          (fn []
-           (.showHint cm (clj->js cm-hint-opts))))))
+           (.showHint cm (clj->js {:hint (partial kl-ed/list-completions completions)
+                                   :completeSingle true}))))))
 
 (defn set-info! [inner-html]
   (-> "pou-info" gdom/getElement .-innerHTML (set! inner-html)))
@@ -165,8 +166,7 @@
                                              "&" (get-code kl)
                                              "$" (get-result kl))}))
                          #(select-keys % [:kl :id]) (-> @pou :editors vals))]
-    (show-hint! cm {:hint (partial kl-ed/list-completions completions)
-                    :completeSingle true})))
+    (show-hint! cm completions)))
 
 (defn show-completions! [cm hint? info?]
   (let [token-str (get-token-str cm)
@@ -174,8 +174,7 @@
         completions-no-pre-ns (kl-repl/get-completions token-str)
         completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
     (when hint? 
-      (show-hint! cm {:hint (partial kl-ed/list-completions completions)
-                      :completeSingle true}))
+      (show-hint! cm completions))
     (when info? 
       (set-info! (apply str (mapv #(str "<span 
                                         id='" % "'
@@ -201,9 +200,9 @@
         cm (@kleds/editors kl)]
     (when (= mode "eval-clojure")
       (over-cm-extra-keys!
-       :Tab #(show-completions! cm (get-token-str cm) true false)
-       :Alt-Space #(peval-str (str "(doc " (get-token-str cm) ")"))
-       :Cmd-. #(autocomp-refer!))
+       {:Tab #(show-completions! % true false)
+        :Alt-Space #(peval-str (str "(doc " (get-token-str %) ")"))
+        :Cmd-. #(autocomp-refer! %)})
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
       (. cm on "keyHandled" ; instead Handle extra keys merging (p/call-in-editor 1 :getOption "extraKeys")
          (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled)))))))
