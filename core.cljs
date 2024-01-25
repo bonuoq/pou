@@ -100,6 +100,8 @@
   (cb (get-result k))
   (on-res-change k cb))
 
+(defn res-unwatch [k handler] (off-res-change k handler))
+
 (defn peval-str [s] (set-code 0 s))
 
 (defn res-reset! [k resp-atom]
@@ -108,8 +110,20 @@
 (defn res-swap! [k resp-atom f & args] 
   (res-watch k #(reset! resp-atom (apply f % args))))
 
-(defn trigger-eval [k] 
-  (set-code k (call-in-editor k :getValue)))
+(defn eval-fn [k] (partial (aget (call-in-editor (get-kl k) :getOption "extraKeys") "Cmd-Enter")))
+
+(defn eval-editor [k] ((eval-fn k)))
+
+(defn set-code-eval [k code]
+  (do
+    (set-code k code)
+    (eval-editor k)))
+
+(defn eval-callback [k code callback] 
+  (do
+    (res-watch k callback)
+    (set-code k code)
+    (eval-editor k)))
 
 ; BASE UI
 
@@ -158,8 +172,6 @@
 
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
-(defn eval-fn [k] (partial (aget (call-in-editor (get-kl k) :getOption "extraKeys") "Cmd-Enter")))
-
 (defn- autocomp-refer! [cm]
   (let [token-str (get-token-str cm)
         completions 
@@ -168,11 +180,13 @@
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
                                     :text (case (first token-str)
-                                            "%" (do                                                  
-                                                  ((eval-fn kl))
-                                                  (eval (read-string (get-code kl))))
+                                            "·" (str kl)
+                                            "#" (str "#" id)
+                                            "$" (do                                                  
+                                                  (eval-editor kl)
+                                                  (get-result kl))
                                             "&" (get-code kl)
-                                            "$" (get-result kl))}))
+                                            "%" (get-result kl))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
