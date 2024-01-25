@@ -71,12 +71,21 @@
 ; EDITOR FUNCTIONS
 
 (def get-kl #(if (number? %) % (-> @pou :id-kls %)))
+
+(defn get-cm [id & {:keys [n] :or {n 0}}]
+  (-> (str "#" id " .CodeMirror") js/document.querySelectorAll (aget n) .-CodeMirror))
                                                             
 (defn call-in-editor [k method & args]
-  (j/apply (@kleds/editors (get-kl k)) method (clj->js args)))
+  (j/apply 
+   (or (@kleds/editors (get-kl k))
+       (get-cm (@pou :editors (get kl) :id)))
+   method (clj->js args)))
 
 (defn call-in-result [k method & args]
-  (j/apply (@kleds/result-elements (get-kl k)) method (clj->js args)))
+  (j/apply 
+   (or (@kleds/result-elements (get-kl k))
+       (get-cm (@pou :editors (get kl) :id)) 1)
+   method (clj->js args)))
 
 (defn set-code [k value] (call-in-editor k :setValue value))
 
@@ -217,8 +226,8 @@
   (.replaceRange cm code from to)))
   
 (defn- cm-reg! [kl]
-  (let [{:keys [mode hints?]} (-> @pou :editors (get kl))
-        cm (@kleds/editors kl)]
+  (let [{:keys [id mode hints?]} (-> @pou :editors (get kl))
+        cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! (. cm getOption "extraKeys")
               :Cmd-. #(autocomp-refer! %))
     (. cm on "keyHandled"
