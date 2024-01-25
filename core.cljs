@@ -158,7 +158,7 @@
 
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
-(defn eval-fn [k] (aget (p/call-in-editor (get-kl k) :getOption "extraKeys") "Cmd-Enter"))
+(defn eval-fn [k] (aget (call-in-editor (get-kl k) :getOption "extraKeys") "Cmd-Enter"))
 
 (defn- autocomp-refer! [cm]
   (let [token-str (get-token-str cm)
