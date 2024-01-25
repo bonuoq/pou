@@ -188,7 +188,7 @@
                                                           (eval-editor kl)
                                                           (get-result kl))
                                                      \& (get-code kl)
-                                                     \% (get-result kl))})))
+                                                     \% (get-result kl)))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
