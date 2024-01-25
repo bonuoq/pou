@@ -196,10 +196,10 @@
   (let [{:keys [mode hints?]} (-> @pou :editors (get kl))
         cm (@kleds/editors kl)]
     (when (= mode "eval-clojure")
-      (apply j/assoc! (. cm getOption "extraKeys")
-             {:Tab #(show-completions! % true false)
-              :Alt-Space #(peval-str (str "(doc " (get-token-str %) ")"))
-              :Cmd-. #(autocomp-refer! %)})
+      (j/assoc! (. cm getOption "extraKeys")
+                :Tab #(show-completions! % true false)
+                :Alt-Space #(peval-str (str "(doc " (get-token-str %) ")"))
+                :Cmd-. #(autocomp-refer! %))
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
       (. cm on "keyHandled"
          (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled)))))))
