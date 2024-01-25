@@ -146,40 +146,68 @@
                         (when callback (callback))))))]
     (. observer observe js/document.body #js {:childList true})))
 
-(defn show-completions! [cm token-str hint? info?]
-  (let [pre-ns (re-find #".+?\/" token-str)
-        completions-no-pre-ns (kl-repl/get-completions token-str)
-        completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
-    (when hint?
-      (let [hint-fn (partial kl-ed/list-completions completions)]
+(defn- show-hint! [cm cm-hint-opts]
+  (let [hint-fn (partial kl-ed/list-completions completions)]
         (js/setTimeout
          (fn []
-           (.showHint cm (clj->js {:hint hint-fn
-                                   :completeSingle true}))))))
-    (when info?
-      (-> "pou-info" gdom/getElement .-innerHTML 
-        (set! (apply str (mapv #(str "<span 
-                                     id='" % "'
-                                     class='pou-completion'>" 
-                                     % "</span>&nbsp;") (rest completions))))))))
-  
+           (.showHint cm (clj->js cm-hint-opts))))))
 
+(defn set-info! [inner-html]
+  (-> "pou-info" gdom/getElement .-innerHTML (set! inner-html)))
+
+(defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
+
+(defn- autocomp-refer! [cm]
+  (let [token-str (get-token-str cm)
+        completions (map (fn [{:keys [kl id]}]
+                           (clj->js {:displayText (str kl " #" id)
+                                     :text (case (first token-str)
+                                             "&" (get-code kl)
+                                             "$" (get-result kl))}))
+                         #(select-keys % [:kl :id]) (-> @pou :editors vals))]
+    (show-hint! cm {:hint (partial kl-ed/list-completions completions)
+                    :completeSingle true})))
+
+(defn show-completions! [cm hint? info?]
+  (let [token-str (get-token-str cm)
+        pre-ns (re-find #".+?\/" token-str)
+        completions-no-pre-ns (kl-repl/get-completions token-str)
+        completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
+    (when hint? 
+      (show-hint! cm {:hint (partial kl-ed/list-completions completions)
+                      :completeSingle true}))
+    (when info? 
+      (set-info! (apply str (mapv #(str "<span 
+                                        id='" % "'
+                                        class='pou-completion'>" 
+                                        % "</span>&nbsp;") (rest completions)))))))
+
+(defn- over-cm-extra-keys! [cm key-map] ; override Klipse's and set POU specific  
+  (apply j/assoc! (. cm getOptions "extraKeys") key-map))
+
+(defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
+  (let [cm (@kleds/editors (get-kl k))
+        cursor (.getCursor cm)
+        from (or from (if (< 0 rel-cursor) 
+                        (j/update-in! cursor [:ch] + rel-cursor) 
+                        cursor))
+        to (or to (if (> 0 rel-cursor) 
+                    (j/update-in! cursor [:ch] + rel-cursor) 
+                    cursor))]
+  (.replaceRange cm code from to)))
+  
 (defn- cm-reg! [kl]
   (let [{:keys [mode hints?]} (-> @pou :editors (get kl))
         cm (@kleds/editors kl)]
     (when (= mode "eval-clojure")
-      (. cm on "cursorActivity" 
-         (fn []
-           (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-             (show-completions! cm token-str hints? (not hints?)))))
+      (over-cm-extra-keys!
+       :Tab #(show-completions! cm (get-token-str cm) true false)
+       :Alt-Space #(peval-str (str "(doc " (get-token-str cm) ")"))
+       :Cmd-. #(autocomp-refer!))
+       
+      (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
       (. cm on "keyHandled" ; instead Handle extra keys merging (p/call-in-editor 1 :getOption "extraKeys")
-         (fn [_ key-handled]
-           (case key-handled ; alternative to Klipse CodeMirror autocompletion (includes 'namespace/')
-             "Shift-Tab" (let [token-str (-> cm (.getTokenAt (.getCursor cm)) (aget "string"))]
-                           (show-completions! cm token-str true false)) 
-             (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))))))
-
-; DOC (peval-str (str "(doc " token-str ")"))
+         (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled)))))))
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
