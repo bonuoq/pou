@@ -174,12 +174,13 @@
 
 (defn- autocomp-refer! [cm]
   (let [token-str (get-token-str cm)
+        token (if (= "\"" (first token-str)) (rest token-str) token-str) 
         completions 
         (clj->js (into [nil]
                        (mapv
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
-                                    :text (case (first token-str)
+                                    :text (case (first token)
                                             "·" (str kl)
                                             "#" (str "#" id)
                                             "$" (do                                                  
