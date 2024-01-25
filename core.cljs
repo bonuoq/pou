@@ -183,7 +183,7 @@
                                         % "</span>&nbsp;") (rest completions)))))))
 
 (defn- over-cm-extra-keys! [cm key-map] ; override Klipse's and set POU specific  
-  (apply j/assoc! (. cm getOptions "extraKeys") key-map))
+  (apply j/assoc! (. cm getOption "extraKeys") key-map))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
@@ -204,7 +204,6 @@
        :Tab #(show-completions! cm (get-token-str cm) true false)
        :Alt-Space #(peval-str (str "(doc " (get-token-str cm) ")"))
        :Cmd-. #(autocomp-refer!))
-       
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
       (. cm on "keyHandled" ; instead Handle extra keys merging (p/call-in-editor 1 :getOption "extraKeys")
          (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled)))))))
