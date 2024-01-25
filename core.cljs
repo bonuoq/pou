@@ -27,8 +27,10 @@
 (def flatten64 #(flatten (into [] (parse64 %))))
 
 (defn toggle-hidden 
-  ([query-selector hidden?] (j/assoc! (js/document.querySelector selector) :hidden hidden?))
-  ([query-selector] (j/update! (js/document.querySelector selector) :hidden not)))
+  ([query-selector hidden?] 
+   (j/assoc! (js/document.querySelector query-selector) :hidden hidden?))
+  ([query-selector] 
+   (j/update! (js/document.querySelector query-selector) :hidden not)))
 
 (defn loaded! [] 
   (toggle-hidden "#pou-app" false)
