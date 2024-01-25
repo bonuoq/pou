@@ -72,19 +72,21 @@
 
 (def get-kl #(if (number? %) % (-> @pou :id-kls %)))
 
+(def get-id #(if (number? %) (-> @pou :editors (get %) :id) %))
+
 (defn get-cm [id & {:keys [n] :or {n 0}}]
   (-> (str "#" id " .CodeMirror") js/document.querySelectorAll (aget n) .-CodeMirror))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply 
    (or (@kleds/editors (get-kl k))
-       (get-cm (-> @pou :editors (get (get-kl k)) :id))) ; NEED REVISION ID KL
+       (get-cm (get-id k)))
    method (clj->js args)))
 
 (defn call-in-result [k method & args]
   (j/apply 
    (or (@kleds/result-elements (get-kl k))
-       (get-cm (-> @pou :editors (get (get-kl k)) :id)) 1) ; NEED REVISION ID KL
+       (get-cm (get-id k) 1))
    method (clj->js args)))
 
 (defn set-code [k value] (call-in-editor k :setValue value))
