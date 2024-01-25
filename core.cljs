@@ -158,7 +158,7 @@
 
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
-(defn eval-fn [k] (aget (call-in-editor (get-kl k) :getOption "extraKeys") "Cmd-Enter"))
+(defn eval-fn [k] (partial (aget (call-in-editor (get-kl k) :getOption "extraKeys") "Cmd-Enter")))
 
 (defn- autocomp-refer! [cm]
   (let [token-str (get-token-str cm)
@@ -170,7 +170,7 @@
                                     :text (case (first token-str)
                                             "%" (do
                                                   (eval (read-string (get-code kl)))
-                                                  ((@pou :editors kl :eval-fn)))
+                                                  ((eval-fn kl)))
                                             "&" (get-code kl)
                                             "$" (get-result kl))}))
                         (-> @pou :editors vals))))]
@@ -245,7 +245,6 @@
                               (apply str)
                               not-empty)
          new-editor (merge editor {:id id :kl kl :mode mode
-                                   :eval-fn (eval-fn kl)
                                    :attrs (merge attrs 
                                                  {:id id :class (mode->class mode)}
                                                  (when data-external-libs 
