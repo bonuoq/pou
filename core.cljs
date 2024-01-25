@@ -160,13 +160,15 @@
 
 (defn- autocomp-refer! [cm]
   (let [token-str (get-token-str cm)
-        completions (clj->js (mapv ; TODO match kl or id
-                              (fn [{:keys [kl id]}]
-                                (clj->js {:displayText (str kl " #" id)
-                                          :text (case (first token-str)
-                                                  "&" (get-code kl)
-                                                  "$" (get-result kl))}))
-                              (-> @pou :editors vals)))]
+        completions 
+        (clj->js (into [nil]
+                       (mapv
+                        (fn [{:keys [kl id]}]
+                          (clj->js {:displayText (str kl " #" id)
+                                    :text (case (first token-str)
+                                            "&" (get-code kl)
+                                            "$" (get-result kl))}))
+                        (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
 (defn show-completions! [cm hint? info?]
