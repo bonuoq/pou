@@ -158,6 +158,8 @@
 
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
+(defn eval-fn [k] (aget (p/call-in-editor (get-kl k) :getOption "extraKeys") "Cmd-Enter"))
+
 (defn- autocomp-refer! [cm]
   (let [token-str (get-token-str cm)
         completions 
@@ -166,7 +168,9 @@
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
                                     :text (case (first token-str)
-                                            "%" (eval (read-string (get-code kl)))
+                                            "%" (do
+                                                  (eval (read-string (get-code kl)))
+                                                  ((@pou :editors kl :eval-fn)))
                                             "&" (get-code kl)
                                             "$" (get-result kl))}))
                         (-> @pou :editors vals))))]
@@ -199,13 +203,15 @@
 (defn- cm-reg! [kl]
   (let [{:keys [mode hints?]} (-> @pou :editors (get kl))
         cm (@kleds/editors kl)]
+    (j/assoc! (. cm getOption "extraKeys")
+              :Cmd-. #(autocomp-refer! %))
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
                 :Alt-Space (fn [cm]
                              (peval-str (str "(doc " (get-token-str cm) ")"))
-                             js/CodeMirror.Pass)
-                :Cmd-. #(autocomp-refer! %))
+                             js/CodeMirror.Pass))
+      (. cm
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
       (. cm on "keyHandled"
          (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled)))))))
@@ -240,6 +246,7 @@
                               (apply str)
                               not-empty)
          new-editor (merge editor {:id id :kl kl :mode mode
+                                   :eval-fn (eval-fn kl)
                                    :attrs (merge attrs 
                                                  {:id id :class (mode->class mode)}
                                                  (when data-external-libs 
