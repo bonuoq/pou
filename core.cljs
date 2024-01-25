@@ -168,9 +168,9 @@
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
                                     :text (case (first token-str)
-                                            "%" (do
-                                                  (eval (read-string (get-code kl)))
-                                                  ((eval-fn kl)))
+                                            "%" (do                                                  
+                                                  ((eval-fn kl))
+                                                  (eval (read-string (get-code kl))))
                                             "&" (get-code kl)
                                             "$" (get-result kl))}))
                         (-> @pou :editors vals))))]
