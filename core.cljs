@@ -205,16 +205,15 @@
         cm (@kleds/editors kl)]
     (j/assoc! (. cm getOption "extraKeys")
               :Cmd-. #(autocomp-refer! %))
+    (. cm on "keyHandled"
+       (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
                 :Alt-Space (fn [cm]
                              (peval-str (str "(doc " (get-token-str cm) ")"))
                              js/CodeMirror.Pass))
-      (. cm
-      (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
-      (. cm on "keyHandled"
-         (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled)))))))
+      (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?))))))
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
