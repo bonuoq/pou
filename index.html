@@ -206,8 +206,8 @@
       let element = document.getElementById(id);
       element.hidden = !element.hidden;
     }
-    function appendMode (mode) {
-      pou.core.peval_str(`(aed nil :mode "${document.getElementById('base-mode').textContent}")`);
+    function appendEditor (settings) {
+      pou.core.peval_str(`(aed nil ${settings})`);
     }
     /*function dockBottom (b) {
       window.dockB = b;
@@ -244,15 +244,17 @@
     <div id="uis">
       <div class="pou-toolbar" id="base-control">
         <button class="pou-toggle-view" 
-          onclick="pou.core.toggle_hidden('base');scrollDown('base')">
+          onclick="toggleHidden('base');scrollDown('base')">
           &lt&gt
         </button>
         baseUI&nbsp;
         <button class="append" 
-          onclick="appendMode(document.getElementById('base-mode').textContent)">
+          onclick="appendMode(document.getElementById('append-settings').textContent)">
           +
         </button>
-        <span class="pou-editable" id="base-mode" contenteditable="true">eval-clojure</span>
+        {
+        <span class="pou-editable" id="append-settings" contenteditable="true">eval-clojure</span>
+        }
       </div>
     </div>
   </div>
