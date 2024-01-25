@@ -201,7 +201,9 @@
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
-                :Alt-Space #(peval-str (str "(doc " (get-token-str %) ")"))
+                :Alt-Space (fn [cm]
+                             (peval-str (str "(doc " (get-token-str cm) ")"))
+                             js/CodeMirror.Pass)
                 :Cmd-. #(autocomp-refer! %))
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
       (. cm on "keyHandled"
