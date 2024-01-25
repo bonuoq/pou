@@ -26,18 +26,16 @@
 (def parse64 #(read-string (decode64 %)))
 (def flatten64 #(flatten (into [] (parse64 %))))
 
-(defn- h? [d] (.-hidden d))
-(defn- th [d h?] (-> d .-hidden (set! h?)))
 (defn toggle-hidden 
-  ([div-id hidden?] (th (gdom/getElement div-id) hidden?))
-  ([div-id] (let [d (gdom/getElement div-id)] (th d (not (h? d))))))
+  ([query-selector hidden?] (j/assoc! (js/document.querySelector selector) :hidden hidden?))
+  ([query-selector] (j/update! (js/document.querySelector selector) :hidden not)))
 
 (defn loaded! [] 
-  (toggle-hidden "pou-app" false)
-  (toggle-hidden "loading" true))
+  (toggle-hidden "#pou-app" false)
+  (toggle-hidden "#loading" true))
 (defn loading! [] 
-  (toggle-hidden "loading" false)
-  (toggle-hidden "pou-app" true))
+  (toggle-hidden "#loading" false)
+  (toggle-hidden "#pou-app" true))
 
 ; BASE STATE
 
@@ -211,10 +209,10 @@
     (when hint? 
       (show-hint! cm completions))
     (when info? 
-      (set-info! (apply str (mapv #(str "<span 
+      (set-info! (apply str (map #(str "<span 
                                         id='" % "'
                                         class='pou-completion'>" 
-                                        % "</span>&nbsp;") (rest completions)))))))
+                                        % "</span>&nbsp;") (take 20 (rest completions))))))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
