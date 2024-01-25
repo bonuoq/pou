@@ -181,9 +181,6 @@
                                         class='pou-completion'>" 
                                         % "</span>&nbsp;") (rest completions)))))))
 
-(defn- over-cm-extra-keys! [cm key-map] ; override Klipse's and set POU specific  
-  (apply j/assoc! (. cm getOption "extraKeys") key-map))
-
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
         cursor (.getCursor cm)
@@ -199,12 +196,12 @@
   (let [{:keys [mode hints?]} (-> @pou :editors (get kl))
         cm (@kleds/editors kl)]
     (when (= mode "eval-clojure")
-      (over-cm-extra-keys!
-       {:Tab #(show-completions! % true false)
-        :Alt-Space #(peval-str (str "(doc " (get-token-str %) ")"))
-        :Cmd-. #(autocomp-refer! %)})
+      (apply j/assoc! (. cm getOption "extraKeys")
+             {:Tab #(show-completions! % true false)
+              :Alt-Space #(peval-str (str "(doc " (get-token-str %) ")"))
+              :Cmd-. #(autocomp-refer! %)})
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?)))
-      (. cm on "keyHandled" ; instead Handle extra keys merging (p/call-in-editor 1 :getOption "extraKeys")
+      (. cm on "keyHandled"
          (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled)))))))
 
 (defn klipsify! [on-mounted on-ready] 
