@@ -78,13 +78,13 @@
 (defn call-in-editor [k method & args]
   (j/apply 
    (or (@kleds/editors (get-kl k))
-       (get-cm (@pou :editors (get kl) :id)))
+       (get-cm (-> @pou :editors (get (get-kl k)) :id))) ; NEED REVISION ID KL
    method (clj->js args)))
 
 (defn call-in-result [k method & args]
   (j/apply 
    (or (@kleds/result-elements (get-kl k))
-       (get-cm (@pou :editors (get kl) :id)) 1)
+       (get-cm (-> @pou :editors (get (get-kl k)) :id)) 1) ; NEED REVISION ID KL
    method (clj->js args)))
 
 (defn set-code [k value] (call-in-editor k :setValue value))
