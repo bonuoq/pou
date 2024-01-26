@@ -261,8 +261,10 @@
                                           (some-> @pou :uis ui :klipsify?))}}]
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
+          a (js/console.log (clj->js specific))
           {:keys [ui mode attrs kl-attrs external-libs eval-time loop? preamble editor-type]
            :as editor} (merge default-keys provide specific override)
+          b (js/console.log (clj->js editor))
           kl (+ @klp/snippet-counter n)
           id (or id (:id attrs) (str "pou-" kl))
           data-external-libs (->> external-libs
