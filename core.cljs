@@ -138,9 +138,7 @@
 
 ; BASE UI
 
-(defn- append-editor-base [{:keys [id kl intro mode attrs kl-attrs snippet]
-                            :or {klipsettings {}}
-                            :as editor}]
+(defn- append-editor-base [{:keys [id kl intro mode attrs kl-attrs snippet] :as editor}]
   (let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js kl-attrs) (str snippet))
         text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
@@ -231,8 +229,7 @@
   (let [{:keys [id mode hints?]} (-> @pou :editors (get kl))
         cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! (. cm getOption "extraKeys")
-              "Cmd-" #(autocomp-refer! %)
-              "Cmd-" #(autocomp-query-selector! %))
+              :Cmd-. #(autocomp-refer! %))
     (. cm on "keyHandled"
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
