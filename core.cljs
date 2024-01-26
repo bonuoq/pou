@@ -259,7 +259,7 @@
   {:ui :base
    :mode "eval-clojure"
    :eval-time 2147483647
-   :attrs {:class "pou-wrapper"})
+   :attrs {:class "pou-wrapper"}})
                            
 (defn append [editors & {:keys [ui mode attrs external-libs from-gist eval-time eval-loop 
                                 preamble editor-type klipsify? on-mounted on-ready]
