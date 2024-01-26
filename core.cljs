@@ -258,38 +258,39 @@
    :eval-time 2147483647
    :attrs {:class "pou-wrapper"}})
                            
-(defn append [editors & {:keys [ui mode attrs external-libs eval-time eval-loop preamble editor-type klipsify? on-mounted on-ready]
+(defn append [editors & {:keys [ui mode attrs external-libs eval-time loop? preamble editor-type klipsify? on-mounted on-ready]
+                         :or {ui :base}
                          :as settings}]
   (let [general (merge base-settings (assoc settings :klipsify? (some-> @pou :uis ui :klipsify?)))]
     (dotimes [n (count editors)]
-     (let [{:keys [id from-gist] :as specific} (get editors n)
+     (let [{:keys [id attrs from-gist] :as specific} (get editors n)
            editor (merge general specific)
            kl (+ @klp/snippet-counter n)
            id (or id (:id attrs) (str "pou-" kl))
+           {:keys [ui kl-attrs mode external-libs eval-time loop? preamble editor-type]} editor
            data-external-libs (->> external-libs
-                                (into (-> @pou :external-libs (get (editor :mode))))
-                                (cons (:data-external-libs (editor :kl-attrs)))
+                                (into (-> @pou :external-libs (get mode)))
+                                (cons (:data-external-libs kl-attrs))
                                 (filter some?)
                                 distinct
                                 (interpose ",")
                                 (apply str)
                                 not-empty)
-           new-editor (assoc editor 
-                             :kl-attrs (merge (editor :kl-attrs) 
-                                              {:class (mode->class mode)}
-                                              (when data-external-libs 
-                                                {:data-external-libs data-external-libs})
-                                              (when from-gist
-                                                {:data-gist-id from-gist})
-                                              (when (editor :eval-time)
-                                                (if (editor :loop?)
-                                                  {:data-loop-msec eval-time}
-                                                  {:data-eval-idle-msec eval-time}))
-                                              (when (editor :preamble)
-                                                {:data-preamble preamble})
-                                              (when (editor :editor-type)
-                                                {:data-editor-type editor-type})))]
-       (reg-editor new-editor)
+           new-editor (assoc editor :kl-attrs 
+                             (merge kl-attrs
+                                    {:class (mode->class mode)}
+                                    (when data-external-libs 
+                                      {:data-external-libs data-external-libs})
+                                    (when from-gist
+                                      {:data-gist-id from-gist})
+                                    (when eval-time
+                                      (if loop?
+                                        {:data-loop-msec eval-time}
+                                        {:data-eval-idle-msec eval-time}))
+                                    (when preamble
+                                      {:data-preamble preamble})
+                                    (when editor-type
+                                      {:data-editor-type editor-type})))]
        (let [append-fn (-> @pou :uis ui :append-fn)]
          (append-fn new-editor))))
     (when klipsify? (klipsify! on-mounted on-ready))))
