@@ -231,8 +231,8 @@
   (let [{:keys [id mode hints?]} (-> @pou :editors (get kl))
         cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! (. cm getOption "extraKeys")
-              :Cmd-. #(autocomp-refer! %)
-              :Cmd-: #(autocomp-query-selector! %))
+              "Cmd-" #(autocomp-refer! %)
+              "Cmd-" #(autocomp-query-selector! %))
     (. cm on "keyHandled"
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
