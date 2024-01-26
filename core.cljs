@@ -257,7 +257,7 @@
    :attrs {:class "pou-wrapper"}})
 
 (defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]
-                         :or {klipsify? (let [ui (or (provide :ui) (default-keys :ui))]
+                         :or {klipsify? (let [ui (some :ui '(provide default-keys))]
                                           (some-> @pou :uis ui :klipsify?))}}]
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
