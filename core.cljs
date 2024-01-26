@@ -259,7 +259,7 @@
 (defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]}]
                          ;:or {klipsify? (let [ui (some :ui '(provide default-keys))]
                                           ;(some-> @pou :uis ui :klipsify?))}}]
-  #_(dotimes [n (count editors)]
+  (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
           a (js/console.log (clj->js specific))
           {:keys [ui mode attrs kl-attrs external-libs eval-time loop? preamble editor-type]
@@ -296,7 +296,9 @@
       (let [append-fn (-> @pou :uis ui :append-fn)]
         (js/console.log append-fn)
         (append-fn new-editor))))
-  (when klipsify? (klipsify! on-mounted on-ready)))
+  (let [ui (some :ui [provide default-keys])
+        klipsify? (some-> @pou :uis ui :klipsify?)]
+    (when klipsify? (klipsify! on-mounted on-ready))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)] :on-mounted on-mounted :on-ready on-ready))
