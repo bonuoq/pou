@@ -259,7 +259,7 @@
    :attrs {:class "pou-wrapper"}})
                            
 (defn append [editors & {:keys [ui mode attrs external-libs from-gist eval-time eval-loop preamble editor-type klipsify? on-mounted on-ready]
-                         :or {ui :base klipsify? (or (some-> @pou :uis ui :klipsify?) true)}
+                         :or {klipsify? (some-> @pou :uis ui :klipsify?)}
                          :as settings}]
   (let [general (merge base-settings (assoc settings :klipsify? klipsify?))]
     (dotimes [n (count editors)]
