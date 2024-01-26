@@ -257,8 +257,6 @@
    :attrs {:class "pou-wrapper"}})
 
 (defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]}]
-                         ;:or {klipsify? (let [ui (some :ui '(provide default-keys))]
-                                          ;(some-> @pou :uis ui :klipsify?))}}]
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
           a (js/console.log (clj->js specific))
@@ -294,7 +292,6 @@
       (js/console.log #js["New POU Editor" (clj->js new-editor)])
       (reg-editor new-editor)
       (let [append-fn (-> @pou :uis ui :append-fn)]
-        (js/console.log append-fn)
         (append-fn new-editor))))
   (let [ui (some :ui [provide default-keys])
         klipsify? (some-> @pou :uis ui :klipsify?)]
@@ -359,6 +356,28 @@
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
+(defn request [path & {:keys [callback selected-keys pre-path]}]
+  (go
+   (let [{:keys [status body]} (<! (http/get (str pre-path path)
+                                             {:with-credentials? false
+                                              :oauth-token (token)}))
+         res (if (= status 200)
+               (if (not-empty selected-keys)
+                 (if (vector? body)
+                   (mapv #(select-keys % selected-keys) body)
+                   (select-keys body selected-keys))
+                 body)
+               {:error status :msg body})]
+     (when callback (callback res))
+     res)))
+
+(defn populate-select-files [files & {:keys [parent-selector file-extension]
+                                      :or {file-extension "edn"}}]
+  (doseq [f files]
+    (when-let [filename (last (re-find (re-pattern (str "^(.*)." file-extension f))))]
+      (.appendChild (js/document.querySelector (str "select" parent-selector))
+                    (gdom/createDom "option" #js{:value filename} filename)))))
+
 (defn init! []
   (process-url-params :ui #(load-ui %)
                       :editor-base #(append [(parse64 %)])
@@ -367,4 +386,10 @@
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(load-module 'github))
+  (request "https://api.github.com/repos/bonuoq/pou/contents/modules" 
+           :selected-keys [:name]
+           :callback #(populate-select-files % :parent-selector ".load-module"))
+  (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
+           :selected-keys [:name]
+           :callback #(populate-select-files % :parent-selector ".load-ui"))
   (when-not (:ui (url-params)) (loaded!)))
