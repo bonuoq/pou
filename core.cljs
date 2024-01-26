@@ -259,9 +259,8 @@
    :attrs {:class "pou-wrapper"}})
                            
 (defn append [editors & {:keys [ui mode attrs external-libs from-gist eval-time eval-loop preamble editor-type klipsify? on-mounted on-ready]
-                         :or {klipsify? (some-> @pou :uis ui :klipsify?)}
                          :as settings}]
-  (let [general (merge base-settings (assoc settings :klipsify? klipsify?))]
+  (let [general (merge base-settings (assoc settings :klipsify? (some-> @pou :uis ui :klipsify?)))]
     (dotimes [n (count editors)]
      (let [{:keys [ui id mode attrs kl-attrs external-libs from-gist eval-time loop? preamble editor-type]
             :as specific} (get editors n)
@@ -278,20 +277,20 @@
                                 not-empty)
            new-editor (assoc editor 
                              :id id :kl kl :mode mode :ui ui
-                             :attrs (merge kl-attrs 
-                                           {:class (mode->class mode)}
-                                           (when data-external-libs 
-                                             {:data-external-libs data-external-libs})
-                                           (when from-gist
-                                             {:data-gist-id from-gist})
-                                           (when eval-time
-                                             (if loop?
-                                               {:data-loop-msec eval-time}
-                                               {:data-eval-idle-msec eval-time}))
-                                           (when preamble
-                                             {:data-preamble preamble})
-                                           (when editor-type
-                                             {:data-editor-type editor-type})))]
+                             :kl-attrs (merge kl-attrs 
+                                             {:class (mode->class mode)}
+                                             (when data-external-libs 
+                                               {:data-external-libs data-external-libs})
+                                             (when from-gist
+                                               {:data-gist-id from-gist})
+                                             (when eval-time
+                                               (if loop?
+                                                 {:data-loop-msec eval-time}
+                                                 {:data-eval-idle-msec eval-time}))
+                                             (when preamble
+                                               {:data-preamble preamble})
+                                             (when editor-type
+                                               {:data-editor-type editor-type})))]
        (reg-editor new-editor)
        (let [append-fn (-> @pou :uis ui :append-fn)]
          (append-fn new-editor))))
