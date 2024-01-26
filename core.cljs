@@ -244,7 +244,7 @@
         text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
                                                            intro
                                                            (str "#" id ", mode: " mode))))
-        wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl))
+        wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl :data-pou editor))
                                 text klipse)]
     (.appendChild base wrapper)))
 
@@ -289,8 +289,11 @@
                                               {:data-preamble preamble})
                                             (when editor-type
                                               {:data-editor-type editor-type})))]
-          (reg-editor new-editor)
-       ((-> @pou :uis ui :append-fn) new-editor)))
+      (js/console.log #js["New POU Editor" (clj->js new-editor)])
+      (reg-editor new-editor)
+      (let [append-fn (-> @pou :uis ui :append-fn)]
+        (js/console.log append-fn)
+        (append-fn new-editor))))
   (when klipsify? (klipsify! on-mounted on-ready)))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
