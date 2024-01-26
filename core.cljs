@@ -302,11 +302,24 @@
 
 ; LOAD & EXPORT FNS
 
-(defn fetch-url [url callback]
+(defn request [path & {:keys [callback selected-keys pre-path]}] ; return channel?
+  (go
+   (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))
+         res (if (= status 200)
+               (if (not-empty selected-keys)
+                 (if (vector? body)
+                   (mapv #(select-keys % selected-keys) body)
+                   (select-keys body selected-keys))
+                 body)
+               {:error status :msg body})]
+     (when callback (callback res))
+     res)))
+
+#_(defn fetch-url [url callback]
   (-> (str url) js/fetch
     (.then #(callback %))))
     
-(defn fetch-gist [id file callback]
+#_(defn fetch-gist [id file callback]
   (-> (str "https://api.github.com/gists/" id)
     (fetch-url 
      #(-> (.json %)
@@ -314,7 +327,7 @@
           (fn [json]
             (callback (-> (js->clj json :keywordize-keys true) :files ((keyword file)) :content))))))))
 
-(defn append-gist [{:keys [id file]}]
+#_(defn append-gist [{:keys [id file]}]
   (fetch-gist id file #(append (read-string (str %)))))
 
 (defn editors-array []
@@ -323,7 +336,7 @@
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
 
-(defn read-edn [url callback]
+#_(defn read-edn [url callback]
   (-> (str url)
     (fetch-url
      #(-> (.text %)
@@ -331,13 +344,14 @@
          (fn [edn] 
            (callback (read-string edn))))))))
 
-(defn load-module [module & {:keys [on-ready]}]
-  (read-edn
-   (str "https://bonuoq.github.io/pou/modules/" module ".edn")
-   #(when %
-      (append [%] :on-ready (fn []
-                              (swap! pou update-in [:modules] conj (str module))
-                              (when on-ready (on-ready)))))))
+(defn load-module [module & {:keys [on-ready pre-path]}]
+  (request (str pre-path module ".edn")
+           :callback 
+           #(append [%] 
+                    :on-ready
+                    (fn []
+                      (swap! pou update-in [:modules] conj (str module))
+                      (when on-ready (on-ready))))))
 
 (defn module-loaded? [module]
   (-> @pou :modules (get (str module)) some?))
@@ -350,24 +364,11 @@
    (doseq [m modules]
      (if (coll? m)
        (load-module-chain m)
-       (<p! (load-module m))))))
+       (<! (load-module m))))))
 
 (defn load-ui [ui]
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
-
-(defn request [path & {:keys [callback selected-keys pre-path]}] ; todo return channel
-  (go
-   (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))
-         res (if (= status 200)
-               (if (not-empty selected-keys)
-                 (if (vector? body)
-                   (mapv #(select-keys % selected-keys) body)
-                   (select-keys body selected-keys))
-                 body)
-               {:error status :msg body})]
-     (when callback (callback res))
-     res)))
 
 (defn populate-select-files [files & {:keys [parent-selector file-extension]
                                       :or {file-extension "edn"}}]
@@ -386,8 +387,8 @@
                       :code #(load-module 'github))
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules" 
            :selected-keys [:name]
-           :callback #(populate-select-files % :parent-selector ".load-module"))
+           :callback #(populate-select-files (map :name %) :parent-selector ".load-module"))
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
            :selected-keys [:name]
-           :callback #(populate-select-files % :parent-selector ".load-ui"))
+           :callback #(populate-select-files (map :name %) :parent-selector ".load-ui"))
   (when-not (:ui (url-params)) (loaded!)))
