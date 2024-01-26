@@ -138,19 +138,6 @@
 
 ; BASE UI
 
-(defn- append-editor-base [{:keys [id kl intro mode attrs kl-attrs snippet] :as editor}]
-  (let [base (gdom/getElement "base")
-        klipse (gdom/createDom "div" (clj->js kl-attrs) (str snippet))
-        text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
-                                                           intro
-                                                           (str "#" id ", mode: " mode))))
-        wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl))
-                                text klipse)]
-    (.appendChild base wrapper)))
-
-(reg-ui :base {:append-fn append-editor-base
-               :klipsify? true})
-
 (defn mode->class [mode]
   (->> (get (:mode-selectors @pou) mode)
     (get (:klipse-settings @pou))
@@ -252,48 +239,59 @@
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
-(def base-settings 
+(defn- append-editor-base [{:keys [id kl intro mode attrs kl-attrs snippet] :as editor}]
+  (let [base (gdom/getElement "base")
+        klipse (gdom/createDom "div" (clj->js kl-attrs) (str snippet))
+        text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
+                                                           intro
+                                                           (str "#" id ", mode: " mode))))
+        wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl))
+                                text klipse)]
+    (.appendChild base wrapper)))
+
+(reg-ui :base {:append-fn append-editor-base
+               :klipsify? true})
+
+(def default-keys 
   {:ui :base
    :mode "eval-clojure"
-   :eval-time 2147483647
    :attrs {:class "pou-wrapper"}})
-                           
-(defn append [editors & {:keys [ui mode attrs external-libs eval-time loop? preamble editor-type klipsify? on-mounted on-ready]
-                         :or {ui :base}
-                         :as settings}]
-  (let [general (merge base-settings (assoc settings :klipsify? (some-> @pou :uis ui :klipsify?)))]
-    (dotimes [n (count editors)]
-     (let [{:keys [id from-gist] :as specific} (get editors n)
-           {:keys [ui attrs kl-attrs mode external-libs eval-time loop? preamble editor-type]
-            :as editor} (merge general specific)
-           kl (+ @klp/snippet-counter n)
-           id (or id (:id attrs) (str "pou-" kl))
-           data-external-libs (->> external-libs
-                                (into (-> @pou :external-libs (get mode)))
-                                (cons (:data-external-libs kl-attrs))
-                                (filter some?)
-                                distinct
-                                (interpose ",")
-                                (apply str)
-                                not-empty)
-           new-editor (assoc editor 
-                             :kl kl :id id 
-                             :kl-attrs (merge kl-attrs
-                                              {:class (mode->class mode)}
-                                              (when data-external-libs 
-                                                {:data-external-libs data-external-libs})
-                                              (when from-gist
-                                                {:data-gist-id from-gist})
-                                              (when eval-time
-                                                (if loop?
-                                                  {:data-loop-msec eval-time}
-                                                  {:data-eval-idle-msec eval-time}))
-                                              (when preamble
-                                                {:data-preamble preamble})
-                                              (when editor-type
-                                                {:data-editor-type editor-type})))]
-       (reg-editor new-editor)
-       ((-> @pou :uis ui :append-fn) new-editor))))
+
+(defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]
+                         :or {klipsify? (let [ui (or (provide :ui) (default-keys :ui))]
+                                          (some-> @pou :uis ui :klipsify?))}}]
+  (dotimes [n (count editors)]
+    (let [{:keys [id from-gist] :as specific} (get editors n)
+          {:keys [ui mode attrs kl-attrs external-libs eval-time loop? preamble editor-type]
+           :as editor (merge default-keys provide specific override)}
+          kl (+ @klp/snippet-counter n)
+          id (or id (:id attrs) (str "pou-" kl))
+          data-external-libs (->> external-libs
+                              (into (-> @pou :external-libs (get mode)))
+                              (cons (:data-external-libs kl-attrs))
+                              (filter some?)
+                              distinct
+                              (interpose ",")
+                              (apply str)
+                              not-empty)
+          new-editor (assoc editor 
+                           :kl kl :id id 
+                           :kl-attrs (merge kl-attrs
+                                            {:class (mode->class mode)}
+                                            (when data-external-libs 
+                                              {:data-external-libs data-external-libs})
+                                            (when from-gist
+                                              {:data-gist-id from-gist})
+                                            (when eval-time
+                                              (if loop?
+                                                {:data-loop-msec eval-time}
+                                                {:data-eval-idle-msec eval-time}))
+                                            (when preamble
+                                              {:data-preamble preamble})
+                                            (when editor-type
+                                              {:data-editor-type editor-type})))]
+          (reg-editor new-editor)
+       ((-> @pou :uis ui :append-fn) new-editor)))
   (when klipsify? (klipsify! on-mounted on-ready)))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
