@@ -138,17 +138,15 @@
 
 ; BASE UI
 
-(defn- append-editor-base [{:keys [id kl intro mode attrs snippet hidden?]
+(defn- append-editor-base [{:keys [id kl intro mode attrs kl-attrs snippet]
                             :or {klipsettings {}}
                             :as editor}]
   (let [base (gdom/getElement "base")
-        klipse (gdom/createDom "div" (clj->js attrs) (str snippet))
+        klipse (gdom/createDom "div" (clj->js kl-attrs) (str snippet))
         text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
                                                            intro
                                                            (str "#" id ", mode: " mode))))
-        wrapper (gdom/createDom "div" (clj->js {:id id
-                                                :class "pou-wrapper" 
-                                                :style {:display (if hidden? "none" "block")}})
+        wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl))
                                 text klipse)]
     (.appendChild base wrapper)))
 
@@ -226,20 +224,24 @@
                     (j/update-in! cursor [:ch] + rel-cursor) 
                     cursor))]
   (.replaceRange cm code from to)))
+
+(defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
   
 (defn- cm-reg! [kl]
   (let [{:keys [id mode hints?]} (-> @pou :editors (get kl))
         cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! (. cm getOption "extraKeys")
-              :Cmd-. #(autocomp-refer! %))
+              :Cmd-. #(autocomp-refer! %)
+              :Cmd-: #(autocomp-query-selector! %))
     (. cm on "keyHandled"
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
                 :Alt-Space (fn [cm]
-                             (peval-str (str "(doc " (get-token-str cm) ")"))
-                             js/CodeMirror.Pass))
+                             (token-doc cm)
+                             js/CodeMirror.Pass)
+                :Alt-LeftClick #(token-doc cm))
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?))))))
 
 (defn klipsify! [on-mounted on-ready] 
@@ -252,39 +254,55 @@
      (let [last-kl (dec @klp/snippet-counter)]
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
+
+(def base-settings 
+  {:ui :base
+   :mode "eval-clojure"
+   :eval-time 2147483647
+   :attrs {:class "pou-wrapper"})
                            
-(defn append [editors & {:keys [ui klipsify? on-mounted on-ready] 
-                         :or {ui :base 
-                              klipsify? (-> @pou :uis ui :klipsify?)}}]
-  (dotimes [n (count editors)]
-   (let [scope-ui ui
-         {:keys [id mode attrs external-libs ui]
-          :or {mode "eval-clojure" ui scope-ui}
-          :as editor} (get editors n)
-         kl (+ @klp/snippet-counter n)
-         id (or id (:id attrs) (str "pou-" kl))
-         data-external-libs (->> external-libs
-                              (into (-> @pou :external-libs (get mode)))
-                              (cons (:data-external-libs attrs))
-                              (filter some?)
-                              distinct
-                              (interpose ",")
-                              (apply str)
-                              not-empty)
-         new-editor (merge editor {:id id :kl kl :mode mode
-                                   :attrs (merge attrs 
-                                                 {:id id :class (mode->class mode)}
-                                                 (when data-external-libs 
-                                                   {:data-external-libs data-external-libs}))})]
-     (reg-editor new-editor)
-     (let [append-fn (-> @pou :uis ui :append-fn)]
-       (append-fn new-editor))))
-  (when klipsify? (klipsify! on-mounted on-ready)))
+(defn append [editors & {:keys [ui mode attrs external-libs from-gist eval-time eval-loop 
+                                preamble editor-type klipsify? on-mounted on-ready]
+                         :or {ui :base klipsify? (or (some-> @pou :uis ui :klipsify?) true)}
+                         :as settings}]
+  (let [general (merge base-settings (assoc settings :klipsify? klipsify?))]
+    (dotimes [n (count editors)]
+     (let [{:keys [ui id mode attrs kl-attrs external-libs from-gist eval-time loop? preamble editor-type]
+            :as specific} (get editors n)
+           editor (merge general specific)
+           kl (+ @klp/snippet-counter n)
+           id (or id (:id attrs) (str "pou-" kl))
+           data-external-libs (->> external-libs
+                                (into (-> @pou :external-libs (get mode)))
+                                (cons (:data-external-libs kl-attrs))
+                                (filter some?)
+                                distinct
+                                (interpose ",")
+                                (apply str)
+                                not-empty)
+           new-editor (assoc editor 
+                             :id id :kl kl :mode mode :ui ui
+                             :attrs (merge kl-attrs 
+                                           {:class (mode->class mode)}
+                                           (when data-external-libs 
+                                             {:data-external-libs data-external-libs})
+                                           (when from-gist
+                                             {:data-gist-id from-gist})
+                                           (when eval-time
+                                             (if loop?
+                                               {:data-loop-msec eval-time}
+                                               {:data-eval-idle-msec eval-time}))
+                                           (when preamble
+                                             {:data-preamble preamble})
+                                           (when editor-type
+                                             {:data-editor-type editor-type})))]
+       (reg-editor new-editor)
+       (let [append-fn (-> @pou :uis ui :append-fn)]
+         (append-fn new-editor))))
+    (when klipsify? (klipsify! on-mounted on-ready))))
 
 (defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [(assoc editor-settings :snippet snippet)] :on-mounted on-mounted :on-ready on-ready))
-
-(set! js/pouAppendMode (fn [mode] (aed "" :mode mode)))
 
 ; LOAD & EXPORT FNS
 
