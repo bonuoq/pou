@@ -1,2 +1,3 @@
-{:external-libs ["https://bonuoq.github.io"]
+{:description "POU editor mode (re-frame)"
+ :external-libs ["https://bonuoq.github.io"]
  :snippet "(require '[pou.modules.ui.re-frame :as pui])"}
