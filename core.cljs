@@ -275,7 +275,7 @@
                                 (apply str)
                                 not-empty)
            new-editor (assoc editor 
-                             :kl-attrs (merge kl-attrs 
+                             :kl-attrs (merge (editor :kl-attrs) 
                                               {:class (mode->class mode)}
                                               (when data-external-libs 
                                                 {:data-external-libs data-external-libs})
