@@ -113,8 +113,6 @@
 
 (defn res-unwatch [k handler] (off-res-change k handler))
 
-(defn peval-str [s] (set-code 0 s))
-
 (defn res-reset! [k resp-atom]
   (res-watch k #(reset! resp-atom %)))
 
@@ -133,8 +131,9 @@
 (defn eval-callback [k code callback] 
   (do
     (res-watch k callback)
-    (set-code k code)
-    (eval-editor k)))
+    (set-code-eval k code)))
+
+(defn peval-str [s] (set-code-eval 0 s))
 
 ; BASE UI
 
