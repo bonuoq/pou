@@ -358,7 +358,7 @@
 
 (defn request [path & {:keys [callback selected-keys pre-path]}] ; todo return channel
   (go
-   (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))]
+   (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))
          res (if (= status 200)
                (if (not-empty selected-keys)
                  (if (vector? body)
