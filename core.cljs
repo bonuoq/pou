@@ -356,7 +356,7 @@
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
-(defn request [path & {:keys [callback selected-keys pre-path]}]
+(defn request [path & {:keys [callback selected-keys pre-path]}] ; todo return channel
   (go
    (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))]
          res (if (= status 200)
@@ -372,7 +372,7 @@
 (defn populate-select-files [files & {:keys [parent-selector file-extension]
                                       :or {file-extension "edn"}}]
   (doseq [f files]
-    (when-let [filename (last (re-find (re-pattern (str "^(.*)." file-extension f))))]
+    (when-let [filename (last (re-find (re-pattern (str "^(.*)." file-extension)) f))]
       (.appendChild (js/document.querySelector (str "select" parent-selector))
                     (gdom/createDom "option" #js{:value filename} filename)))))
 
