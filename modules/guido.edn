@@ -1,2 +1,3 @@
-{:external-libs ["https://bonuoq.github.io"]
+{:desciption "guido GMN (mode: guido-svg)" 
+ :external-libs ["https://bonuoq.github.io"]
  :snippet "(require '[pou.modules.guido :as guido])"}
