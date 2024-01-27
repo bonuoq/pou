@@ -345,8 +345,8 @@
          (fn [edn] 
            (callback (read-string edn))))))))
 
-(defn load-module [module & {:keys [on-ready pre-path]}]
-  (request (str pre-path module ".edn") :read? true
+(defn load-module [module & {:keys [on-ready pre-path post-path]}]
+  (request (str pre-path module post-path) :read? true
            :callback 
            #(append [%] 
                     :on-ready
@@ -367,19 +367,23 @@
        (load-module-chain m)
        (<! (load-module m))))))
 
-(defn load-ui [ui & {:keys [on-ready pre-path]}]
+(defn load-ui [ui & {:keys [on-ready pre-path post-path] :as opts}]
   (loading!)
-  (load-module ui :on-ready (fn [] (on-ready) (loaded!))))
+  (load-module ui (opts :on-ready (fn [] (on-ready) (loaded!))))
 
 (defn filext-filter [file-extension files & {:keys [file-key] 
                                              :or {file-key identity}}]
   (filter #(re-find (re-pattern (str "^(.*)." file-extension)) (file-key %)) files))
        
-(defn populate-dom [entries & {:keys [parent-selector child-tag value-attr]
-                               :or {child-tag "option" value-attr :value}}]
+(defn populate-dom [entries & {:keys [parent-element parent-selector child-tag attrs val-attr]
+                               :or {parent-element js/klipse-container child-tag "div"}}]
   (doseq [e entries]
-    (.appendChild (js/document.querySelector parent-selector)
-                  (gdom/createDom child-tag (clj->js {value-attr (last e)}) (first e)))))
+    (.appendChild (if parent-selector 
+                    (js/document.querySelector parent-selector) 
+                    parent-element)
+                  (gdom/createDom child-tag 
+                                  (clj->js (merge attrs (when val-attr {val-attr (second e)}))) 
+                                  (first e)))))
 
 (defn init! []
   (process-url-params :ui #(load-ui %)
@@ -396,7 +400,7 @@
                        (let [files (filext-filter ".edn" entries :file-key :name)]
                          (populate-dom 
                           (map #(cons (:name %) (:download_url %)) files) 
-                          :parent-selector "select.load-module"))))
+                          :parent-selector "select.load-module" :child-tag "option" :val-attr :value))))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
            :selected-keys [:name :download_url]
@@ -405,6 +409,6 @@
                          (request url :read? true :selected-keys [:description]
                                   :callback #(populate-dom 
                                               [(list (:description %) url)]
-                                              :parent-selector "select.load-ui")))))
+                                              :parent-selector "select.load-ui" :child-tag "option" :val-attr :value)))))
   
   (when-not (:ui (url-params)) (loaded!)))
