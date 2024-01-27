@@ -346,7 +346,7 @@
            (callback (read-string edn))))))))
 
 (defn load-module [module & {:keys [on-ready pre-path]}]
-  (request (str pre-path module ".edn")
+  (request (str pre-path module ".edn") :read? true
            :callback 
            #(append [%] 
                     :on-ready
@@ -367,9 +367,9 @@
        (load-module-chain m)
        (<! (load-module m))))))
 
-(defn load-ui [ui]
+(defn load-ui [ui & {:keys [on-ready pre-path]}]
   (loading!)
-  (load-module (str "ui/" ui) :on-ready #(loaded!)))
+  (load-module ui :on-ready (fn [] (on-ready) (loaded!))))
 
 (defn filext-filter [file-extension files & {:keys [file-key] 
                                              :or {file-key identity}}]
