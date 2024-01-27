@@ -357,14 +357,15 @@
 (defn module-loaded? [module]
   (-> @pou :modules (get (str module)) some?))
 
-(defn load-module-chain [chain]
-  (load-module (first chain) :on-ready #(load-module-chain (rest chain))))
+(defn load-module-chain [chain & {:keys [pre-path post-path]}] ; add last on-ready
+  (load-module (first chain) :pre-path pre-path :post-path post-path
+               :on-ready #(load-module-chain (rest chain))))
 
-(defn load-modules [& modules]
+(defn load-modules [& modules & {:keys [pre-path post-path]}] ; add last on-ready
   (go
    (doseq [m modules]
      (if (coll? m)
-       (load-module-chain m)
+       (load-module-chain m :pre-path pre-path :post-path post-path)
        (<! (load-module m))))))
 
 (defn load-ui [ui & {:keys [on-ready pre-path post-path] :as opts}]
@@ -398,11 +399,12 @@
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules" 
            :selected-keys [:name :download_url]
-           :callback (fn [entries]
-                       (let [files (filext-filter ".edn" entries :file-key :name)]
-                         (populate-dom 
-                          (map #(cons (:name %) (:download_url %)) files) 
-                          :parent-selector "select.load-module" :child-tag "option" :val-attr :value))))
+           :callback (fn [entries] 
+                       (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
+                         (request url :read? true :selected-keys [:description]
+                                  :callback #(populate-dom 
+                                              [(list (:description %) url)]
+                                              :parent-selector "select.load-module" :child-tag "option" :val-attr :value)))))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
            :selected-keys [:name :download_url]
