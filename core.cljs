@@ -369,7 +369,9 @@
 
 (defn load-ui [ui & {:keys [on-ready pre-path post-path] :as opts}]
   (loading!)
-  (load-module ui (opts :on-ready (fn [] (on-ready) (loaded!))))
+  (load-module ui (flatten 
+                   (seq 
+                    (assoc opts :on-ready (fn [] (on-ready) (loaded!)))))))
 
 (defn filext-filter [file-extension files & {:keys [file-key] 
                                              :or {file-key identity}}]
