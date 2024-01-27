@@ -1,4 +1,5 @@
-{:external-libs ["https://bonuoq.github.io"
+{:description "audio (cljs-bach Web Audio)"
+ :external-libs ["https://bonuoq.github.io"
                  "https://raw.githubusercontent.com/JulianBirch/cljs-ajax/master/src"
                  "https://raw.githubusercontent.com/ctford/cljs-bach/master/src"]
  :snippet "(require '[pou.modules.audio :as audio])"}
