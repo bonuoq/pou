@@ -2,6 +2,12 @@
 <html>
 
 <head>
+  <!-- `sizes="any"` is to fix Chrome bug -->
+  <link rel="icon" href="/favicons/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicons/manifest.webmanifest" />
+  
   <style>
 
     body::before {
@@ -209,16 +215,6 @@
     function appendEditor (settings) {
       pou.core.peval_str(`(aed nil ${settings})`);
     }
-    /*function dockBottom (b) {
-      window.dockB = b;
-      let css = window.document.styleSheets[0];
-      if (window.dockBottomRule) css.removeRule(window.dockBottomRule);
-      if (b) {
-        window.dockBottomRule = css.insertRule('#bottom-bar { opacity: 1; }', css.rules.length);
-      } else {
-        window.dockBottomRule = css.insertRule('.floating-bottom { opacity: 0; }', css.rules.length);
-      }
-    }*/
   </script>
   <div id="loading" class="loader">LOADING...</div>
   <div id="host"></div>
