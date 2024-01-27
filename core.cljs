@@ -371,8 +371,6 @@
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
-(defn 
-
 (defn filext-filter [file-extension files & {:keys [file-key] 
                                              :or {file-key identity}}]
   (filter #(re-find (re-pattern (str "^(.*)." file-extension)) (file-key %)) files))
