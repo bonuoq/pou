@@ -356,7 +356,7 @@
   (filter #(re-find (re-pattern (str "^(.*)." file-extension)) (file-key %)) files))
        
 (defn populate-dom [entries & {:keys [parent-element parent-selector child-tag attrs val-attr]
-                               :or {parent-element js/klipse-container child-tag "div"}}]
+                               :or {parent-element js/klipse-container attrs {} child-tag "div"}}]
   (doseq [e entries]
     (.appendChild (if parent-selector 
                     (js/document.querySelector parent-selector) 
