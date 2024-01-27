@@ -226,18 +226,12 @@
   <div id="pou-app" hidden>
     <div id="top-bar" class="pou-toolbar floating-top">
       <select class="load-ui" 
-        onchange='pou.core.peval_str(`(load-ui "${event.target.value}")`)'>
+        onchange='pou.core.peval_str(`(load-ui "${event.target.value}")`);event.target.selectedIndex=0'>
         <option value="" disabled selected>Load UI</option>
-        <!--option value="re-frame">POU Editor (re-frame)</option-->
       </select>
       <select class="load-module" 
-        onchange='pou.core.peval_str(`(load-module "${event.target.value}")`)'>
+        onchange='pou.core.peval_str(`(load-module "${event.target.value}")`);event.target.selectedIndex=0'>
         <option value="" disabled selected>Load Module</option>
-        <!--option value="audio">audio</option>
-        <option value="faust">faust</option>
-        <option value="github">github</option>
-        <option value="guido">guido</option>
-        <option value="leipzig">leipzig</option-->
       </select>
       <div id="pou-extensions"></div>
     </div>
