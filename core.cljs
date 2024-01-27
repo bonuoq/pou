@@ -238,11 +238,11 @@
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
-(defn- append-editor-base [{:keys [id kl intro mode attrs kl-attrs snippet] :as editor}]
+(defn- append-editor-base [{:keys [id kl description mode attrs kl-attrs snippet] :as editor}]
   (let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js kl-attrs) (str snippet))
         text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
-                                                           intro
+                                                           description
                                                            (str "#" id ", mode: " mode))))
         wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl :data-pou editor))
                                 text klipse)]
