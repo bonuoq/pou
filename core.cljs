@@ -302,15 +302,16 @@
 
 ; LOAD & EXPORT FNS
 
-(defn request [path & {:keys [callback selected-keys pre-path]}] ; return channel?
+(defn request [path & {:keys [callback selected-keys read? pre-path]}] ; return channel?
   (go
    (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))
+         content (if read? (read-string body) body)
          res (if (= status 200)
                (if (not-empty selected-keys)
-                 (if (vector? body)
-                   (mapv #(select-keys % selected-keys) body)
-                   (select-keys body selected-keys))
-                 body)
+                 (if (vector? content)
+                   (mapv #(select-keys % selected-keys) content)
+                   (select-keys content selected-keys))
+                 content)
                {:error status :msg body})]
      (when callback (callback res))
      res)))
@@ -370,12 +371,17 @@
   (loading!)
   (load-module (str "ui/" ui) :on-ready #(loaded!)))
 
-(defn populate-select-files [files & {:keys [parent-selector file-extension]
-                                      :or {file-extension "edn"}}]
-  (doseq [f files]
-    (when-let [filename (last (re-find (re-pattern (str "^(.*)." file-extension)) f))]
-      (.appendChild (js/document.querySelector (str "select" parent-selector))
-                    (gdom/createDom "option" #js{:value filename} filename)))))
+(defn 
+
+(defn filext-filter [file-extension files & {:keys [file-key] 
+                                             :or {file-key identity}}]
+  (filter #(re-find (re-pattern (str "^(.*)." file-extension)) (file-key %)) files))
+       
+(defn populate-dom [entries & {:keys [parent-selector child-tag value-attr]
+                               :or {child-tag "option" value-attr :value}}]
+  (doseq [e entries]
+    (.appendChild (js/document.querySelector parent-selector))
+    (gdom/createDom child-tag #js{value-attr (last e)} (first e))))
 
 (defn init! []
   (process-url-params :ui #(load-ui %)
@@ -385,10 +391,22 @@
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(load-module 'github))
+  
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules" 
-           :selected-keys [:name]
-           :callback #(populate-select-files (map :name %) :parent-selector ".load-module"))
+           :selected-keys [:name :download_url]
+           :callback (fn [entries]
+                       (let [files (filext-filter ".edn" entries :file-key :name)]
+                         (populate-dom 
+                          (map #(cons (:name %) (:download_url %)) files) 
+                          :parent-selector "select.load-module"))))
+  
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
-           :selected-keys [:name]
-           :callback #(populate-select-files (map :name %) :parent-selector ".load-ui"))
+           :selected-keys [:name :download_url]
+           :callback (fn [entries] 
+                       (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
+                         (request url :read? true :selected-keys [:description]
+                                  :callback #(populate-dom 
+                                              [(list (val %) url)]
+                                              :parent-selector "select.load-ui")))))
+  
   (when-not (:ui (url-params)) (loaded!)))
