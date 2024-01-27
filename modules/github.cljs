@@ -10,12 +10,15 @@
 
 (def loaded? #(some? (token)))
 
-(defn login! [& {:keys [client-id scope] 
+(defn login! [& {:keys [client-id scope redirect-param-str] 
                  :or {client-id "ecde871676236cae5c25" scope "gist"}}]
   (set! js/window.location 
         (str "https://github.com/login/oauth/authorize?"
              "client_id=" client-id "&"
-             "scope=" scope)))
+             "scope=" scope
+             (when redirect-param-str
+               (str "&redirect_uri="
+                    "https://bonuoq.github.io/pou?" redirect-param-str)))))
 
 (set! js/githubLogin login!)
 
