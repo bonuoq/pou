@@ -374,7 +374,7 @@
                       :p #(aed (decode64 %))
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
-                      :code #(load-module "modules/github"))
+                      :code #(load-module "modules/github.edn"))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules" 
            :selected-keys [:name :download_url]
