@@ -378,8 +378,8 @@
 (defn populate-dom [entries & {:keys [parent-selector child-tag value-attr]
                                :or {child-tag "option" value-attr :value}}]
   (doseq [e entries]
-    (.appendChild (js/document.querySelector parent-selector))
-    (gdom/createDom child-tag (clj->js {value-attr (last e)}) (first e))))
+    (.appendChild (js/document.querySelector parent-selector)
+                  (gdom/createDom child-tag (clj->js {value-attr (last e)}) (first e)))))
 
 (defn init! []
   (process-url-params :ui #(load-ui %)
@@ -404,7 +404,7 @@
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
                                   :callback #(populate-dom 
-                                              [(list (val %) url)]
+                                              [(list (:description %) url)]
                                               :parent-selector "select.load-ui")))))
   
   (when-not (:ui (url-params)) (loaded!)))
