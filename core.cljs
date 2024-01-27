@@ -316,34 +316,11 @@
      (when callback (callback res))
      res)))
 
-#_(defn fetch-url [url callback]
-  (-> (str url) js/fetch
-    (.then #(callback %))))
-    
-#_(defn fetch-gist [id file callback]
-  (-> (str "https://api.github.com/gists/" id)
-    (fetch-url 
-     #(-> (.json %)
-        (.then
-          (fn [json]
-            (callback (-> (js->clj json :keywordize-keys true) :files ((keyword file)) :content))))))))
-
-#_(defn append-gist [{:keys [id file]}]
-  (fetch-gist id file #(append (read-string (str %)))))
-
 (defn editors-array []
   (let [array (-> @pou :editors vals)]
     (->> array
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
-
-#_(defn read-edn [url callback]
-  (-> (str url)
-    (fetch-url
-     #(-> (.text %)
-        (.then 
-         (fn [edn] 
-           (callback (read-string edn))))))))
 
 (defn load-module [module & {:keys [on-ready pre-path post-path]}]
   (request (str pre-path module post-path) :read? true
@@ -388,6 +365,8 @@
                                   (clj->js (merge attrs (when val-attr {val-attr (second e)}))) 
                                   (first e)))))
 
+; INITIALIZATION
+
 (defn init! []
   (process-url-params :ui #(load-ui %)
                       :editor-base #(append [(parse64 %)])
@@ -395,7 +374,7 @@
                       :p #(aed (decode64 %))
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
-                      :code #(load-module 'github))
+                      :code #(load-module "modules/github"))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules" 
            :selected-keys [:name :download_url]
