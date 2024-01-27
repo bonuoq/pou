@@ -381,7 +381,7 @@
                                :or {child-tag "option" value-attr :value}}]
   (doseq [e entries]
     (.appendChild (js/document.querySelector parent-selector))
-    (gdom/createDom child-tag #js{value-attr (last e)} (first e))))
+    (gdom/createDom child-tag (clj->js {value-attr (last e)}) (first e))))
 
 (defn init! []
   (process-url-params :ui #(load-ui %)
