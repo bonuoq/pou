@@ -157,7 +157,7 @@
     (clojure.string/replace (subs class-find 1) "." " ")))
 
 (defn dom [selector & {:keys [attrs parent children map-siblings replace? separator]}]
-  (let [p (or (sel-parent selector) (element parent))
+  (let [p (element (or (sel-parent selector) parent))
         tag (child-tag selector)
         as (merge {:id (child-id selector) :class (child-class selector)} attrs)
         sibling-fn #(apply gdom/createDom tag (clj->js (merge as (second %))) 
@@ -246,13 +246,12 @@
     (when hint? 
       (show-hint! cm completions))
     (when info?
-      (dom "a.pou-completion"
+      (dom "#pou-info a.pou-completion"
            :map-siblings 
            (map
             (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
             (take 20 (rest completions)))
-           :empty! true :parent "#pou-info"
-           :attrs {:href "#"}))))
+           :replace? true :attrs {:href "#"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
