@@ -222,9 +222,8 @@
     (when hint? 
       (show-hint! cm completions))
     (when info?
-      (populate-dom 
-       (apply merge (map 
-                     (fn [c] {(str c " ") {:onclick #(peval-str (str "(doc " c ")"))}}) 
+      (populate-dom (map
+                     (fn [c] [(str c " ") {:onclick #(peval-str (str "(doc " c ")"))}])
                      (take 20 (rest completions))))
        :empty! true :parent-selector "#pou-info" :child-tag "a" 
        :attrs {:class "pou-completion" :href "#"} :separator " "))))
