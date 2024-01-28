@@ -27,21 +27,21 @@
     }
     
     .loader {
-      height: 100vh;
-      animation: blinker 2s linear infinite;
+      animation: blinker 60s ease infinite;
       text-align: center;
-      padding-top: 50vh; 
+      padding-top: 0vh;
       font-size: x-large;
       font-family: monospace;
       background-image: url(pou.svg);
       background-repeat: no-repeat;
-      background-position: center;
       background-size: cover;
+      opacity: 0.3;
     }
     
     @keyframes blinker {
       50% {
-        opacity: 0.3;
+        opacity: 1;
+        padding: 30vh;
       }
     }
 
@@ -84,16 +84,72 @@
       .append {
         border-radius: 50%;
       }
-    }
 
-    .pou-toolbar:hover {
-      opacity: 1;
+      :hover {
+        opacity: 1;
+      }
     }
 
     .floating-top {
       top: 0;
       position: fixed;
       z-index: 999999;
+      display: inline-flex;
+      max-height: 1.5em;
+
+      ul.pou-menu {
+        margin-top: 0;
+        margin-right: 1em;
+        width: 6em;
+        padding: 0.5ch;
+
+        li {
+          display: block;
+        }
+
+        li.pou-menu-item {
+          background: #fff;
+          padding: 5px;
+          border-width: 0 1px 1px 1px;
+          border-style: groove;
+          overflow: scroll;
+        }
+      }
+
+      ul.pou-menu:hover {
+        
+        li.pou-menu-item {
+          display: block;
+        }
+      }
+      
+      li.pou-menu-item:hover {
+
+        li.pou-menu-sub {
+          display: block;
+        }
+      }
+
+      li.pou-menu-sub:hover {
+
+        li.pou-menu-subb {
+          display: block;
+        }
+      }
+
+      li.pou-menu-subb:hover {
+
+        li.pou-menu-subbb {
+          display: block;
+        }
+      }
+
+      li.pou-menu-subbb:hover {
+
+        li.pou-menu-subbbb {
+          display: block;
+        }
+      }
       
       div#pou-extensions {
         float: right;
@@ -232,6 +288,16 @@
   <div id="app"></div>
   <div id="pou-app" hidden>
     <div id="top-bar" class="pou-toolbar floating-top">
+      <ul id="@pou" class="pou-menu">
+        @<img src="pou.svg" style="height: 1em;">
+        <li id="loading" class="pou-menu-item">loading...
+          <li id="nested" class="pou-menu-sub">nested!
+            <li id="nestedd" class="pou-menu-subb">nestedd!
+              <li id="nesteddd" class="pou-menu-subbb">nesteddd!</li>
+            </li>
+          </li>
+        </li>
+      </ul>
       <select class="load-ui" 
         onchange='pou.core.peval_str(`(load-ui "${event.target.value}")`);event.target.selectedIndex=0'>
         <option value="" disabled selected>Load UI</option>
