@@ -224,10 +224,10 @@
     (when info?
       (populate-dom 
        (map
-        (fn [c] [(str c " ") {:onclick #(peval-str (str "(doc " c ")"))}])
+        (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
         (take 20 (rest completions)))
        :empty! true :parent-selector "#pou-info" :child-tag "a" 
-       :attrs {:class "pou-completion" :href "#"} :separator " "))))
+       :attrs {:class "pou-completion" :href "#"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
