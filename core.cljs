@@ -176,20 +176,6 @@
         (j/apply p :append (clj->js elms)))
       elms)))
 
-#_(defn populate-dom [map-entries & {:keys [parent-element parent-selector child-tag attrs empty! separator]
-                                   :or {parent-element js/klipse-container attrs {} child-tag "div"}}]
-  (let [p (if parent-selector 
-                    (js/document.querySelector parent-selector) 
-                    parent-element)
-        create-fn #(dom child-tag (merge attrs (second %)) (first %))
-        children (->> map-entries
-                   (map create-fn)
-                   ((if separator 
-                      (partial interpose separator)
-                      identity)))]
-    (when empty! (-> parent .-innerHTML (set! "")))
-    (j/apply parent :append (clj->js children))))
-
 ; (defn fn-apply [function & {:keys [parent-element parent-selector child-tag attrs]})
 
 (defn request [path & {:keys [callback selected-keys read? pre-path]}] ; return channel?
@@ -261,7 +247,7 @@
     (when hint? 
       (show-hint! cm completions))
     (when info?
-      (populate-dom "a.pou-completion"
+      (dom "a.pou-completion"
        (map
         (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
         (take 20 (rest completions)))
