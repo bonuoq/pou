@@ -169,7 +169,6 @@
                     (partial interpose separator)
                     identity)))
                [(apply gdom/createDom tag (clj->js as) (clj->js children))])]
-    (js/console.log #js[p as tag sibling-fn elms])
     (if p
       (do
         (when empty! (-> p .-innerHTML (set! "")))
@@ -272,7 +271,7 @@
         cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! (. cm getOption "extraKeys")
               :Cmd-. #(autocomp-refer! %))
-    (. cm on "keyHandled"
+    #_(. cm on "keyHandled"
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
@@ -312,10 +311,8 @@
 (defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]}]
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
-          a (js/console.log (clj->js specific))
           {:keys [ui mode attrs kl-attrs external-libs eval-time loop? preamble editor-type]
            :as editor} (merge default-keys provide specific override)
-          b (js/console.log (clj->js editor))
           kl (+ @klp/snippet-counter n)
           id (or id (:id attrs) (str "pou-" kl))
           data-external-libs (->> external-libs
