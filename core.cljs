@@ -89,7 +89,7 @@
        (get-cm (get-id k) 1))
    method (clj->js args)))
 
-(defn set-code [k value] (call-in-editor k :setValue value))
+(defn set-code [k value] (call-in-editor k :setValue (str value)))
 
 (defn get-code [k] (call-in-editor k :getValue))
 
@@ -135,6 +135,32 @@
 
 (defn peval-str [s] (set-code-eval 0 s))
 
+; DOM & AJAX HELPERS
+
+(defn populate-dom [map-entries & {:keys [parent-element parent-selector child-tag attrs]
+                                   :or {parent-element js/klipse-container attrs {} child-tag "div"}}]
+  (doseq [e map-entries]
+    (.appendChild (if parent-selector 
+                    (js/document.querySelector parent-selector) 
+                    parent-element)
+                  (gdom/createDom child-tag 
+                                  (clj->js (merge attrs (second e))) 
+                                  (first e)))))
+
+(defn request [path & {:keys [callback selected-keys read? pre-path]}] ; return channel?
+  (go
+   (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))
+         content (if read? (read-string body) body)
+         res (if (= status 200)
+               (if (not-empty selected-keys)
+                 (if (vector? content)
+                   (mapv #(select-keys % selected-keys) content)
+                   (select-keys content selected-keys))
+                 content)
+               {:error status :msg body})]
+     (when callback (callback res))
+     res)))
+
 ; BASE UI
 
 (defn mode->class [mode]
@@ -159,9 +185,6 @@
          (fn []
            (.showHint cm (clj->js {:hint (partial kl-ed/list-completions completions)
                                    :completeSingle true}))))))
-
-(defn set-info! [inner-html]
-  (-> "pou-info" gdom/getElement .-innerHTML (set! inner-html)))
 
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
@@ -193,11 +216,9 @@
     (when hint? 
       (show-hint! cm completions))
     (when info? 
-      (set-info! (apply str (map #(str "<a 
-                                        id='" % "'
-                                        class='pou-completion'
-                                        onclick=pou.core.peval-str('(doc " % ")')>" 
-                                        % "</a>&nbsp;") (take 20 (rest completions))))))))
+      (populate-dom 
+       (map (fn [c] {c {:onclick #(peval-str '(doc c))}}) completions)
+       :parent-selector "#pou-info" :child-tag "a" :attrs {:class "pou-completion"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
@@ -300,20 +321,6 @@
 
 ; LOAD & EXPORT FNS
 
-(defn request [path & {:keys [callback selected-keys read? pre-path]}] ; return channel?
-  (go
-   (let [{:keys [status body]} (<! (http/get (str pre-path path) {:with-credentials? false}))
-         content (if read? (read-string body) body)
-         res (if (= status 200)
-               (if (not-empty selected-keys)
-                 (if (vector? content)
-                   (mapv #(select-keys % selected-keys) content)
-                   (select-keys content selected-keys))
-                 content)
-               {:error status :msg body})]
-     (when callback (callback res))
-     res)))
-
 (defn editors-array []
   (let [array (-> @pou :editors vals)]
     (->> array
@@ -353,16 +360,6 @@
                                              :or {file-key identity}}]
   (filter #(re-find (re-pattern (str "^(.*)." file-extension)) (file-key %)) files))
        
-(defn populate-dom [entries & {:keys [parent-element parent-selector child-tag attrs val-attr]
-                               :or {parent-element js/klipse-container attrs {} child-tag "div"}}]
-  (doseq [e entries]
-    (.appendChild (if parent-selector 
-                    (js/document.querySelector parent-selector) 
-                    parent-element)
-                  (gdom/createDom child-tag 
-                                  (clj->js (merge attrs (when val-attr {val-attr (second e)}))) 
-                                  (first e)))))
-
 ; INITIALIZATION
 
 (defn init! []
@@ -380,8 +377,8 @@
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
                                   :callback #(populate-dom 
-                                              [(list (:description %) url)]
-                                              :parent-selector "select.load-module" :child-tag "option" :val-attr :value)))))
+                                              {(:description %) {:value url}}
+                                              :parent-selector "select.load-module" :child-tag "option")))))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
            :selected-keys [:name :download_url]
@@ -389,7 +386,7 @@
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
                                   :callback #(populate-dom 
-                                              [(list (:description %) url)]
-                                              :parent-selector "select.load-ui" :child-tag "option" :val-attr :value)))))
+                                              {(:description %) {:value url}}
+                                              :parent-selector "select.load-ui" :child-tag "option")))))
   
   (when-not (:ui (url-params)) (loaded!)))
