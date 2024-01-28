@@ -157,7 +157,7 @@
     (clojure.string/replace (subs class-find 1) "." " ")))
 
 (defn dom [selector & {:keys [attrs parent children map-siblings empty! separator]}]
-  (let [p (element parent)
+  (let [p (or (parent selector) (element parent))
         tag (child-tag selector)
         as (merge {:id (child-id selector) :class (child-class selector)} attrs)
         sibling-fn #(apply gdom/createDom tag (clj->js (merge as (second %))) 
