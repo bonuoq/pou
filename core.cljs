@@ -161,7 +161,7 @@
         tag (child-tag selector)
         as (merge {:id (child-id selector) :class (child-class selector)} attrs)
         sibling-fn #(apply gdom/createDom tag (clj->js (merge as (second %))) 
-                           (first %) (clj->js children))
+                           (into (first %) (clj->js children)))
         elms (if map-siblings
                (->> map-siblings
                  (map sibling-fn)
