@@ -137,14 +137,15 @@
 
 ; DOM & AJAX HELPERS
 
+(defn dom [tag & {:keys [attrs parent-element parent-selector children] :or {attrs {}}}]
+  (apply gdom/createDom tag (clj->js attrs) children)) ;TODO regex SELECTOR
+
 (defn populate-dom [map-entries & {:keys [parent-element parent-selector child-tag attrs empty! separator]
                                    :or {parent-element js/klipse-container attrs {} child-tag "div"}}]
   (let [parent (if parent-selector 
                     (js/document.querySelector parent-selector) 
                     parent-element)
-        create-fn #(gdom/createDom child-tag 
-                                   (clj->js (merge attrs (second %))) 
-                                   (first %))
+        create-fn #(dom child-tag (merge attrs (second %)) (first %))
         children (->> map-entries
                    (map create-fn)
                    ((if separator 
@@ -152,6 +153,8 @@
                       identity)))]
     (when empty! (-> parent .-innerHTML (set! "")))
     (j/apply parent :append (clj->js children))))
+
+; (defn fn-apply [function & {:keys [parent-element parent-selector child-tag attrs]})
 
 (defn request [path & {:keys [callback selected-keys read? pre-path]}] ; return channel?
   (go
@@ -335,6 +338,9 @@
     (->> array
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
+
+(defn save-snapshot! [filename]
+  (
 
 (defn load-module [module & {:keys [on-ready pre-path post-path]}]
   (request (str pre-path module post-path) :read? true
