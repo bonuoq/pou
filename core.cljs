@@ -222,7 +222,7 @@
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
-                :Alt-Space #(token-doc %)
+                :Alt-Space #(token-doc %))
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?))))))
 
 (defn klipsify! [on-mounted on-ready] 
