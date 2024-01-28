@@ -108,7 +108,7 @@
       }
     }
 
-    ul.pou-menu {
+    .pou-menu {
       margin-top: 0;
       margin-right: 1em;
       width: 6em;
@@ -124,11 +124,11 @@
       }
     }
 
-    ul.pou-menu:hover > .pou-menu-sub {
+    .pou-menu:hover > .pou-menu-sub {
       display: block;
     }
 
-    ul.pou-menu-sub:hover > .pou-menu-sub {
+    .pou-menu-sub:hover > .pou-menu-sub {
         display: block;
     }
 
@@ -260,19 +260,16 @@
     <div id="top-bar" class="pou-toolbar floating-top">
       <ul id="@pou" class="pou-menu">
         @<img src="pou.svg" style="height: 1em;">
-        <li id="loading" class="pou-menu-sub">loading...
-          <ul class="pou-menu-sub">
-            <li id="nested!" class="pou-menu-sub">nested!
-              <ul class="pou-menu-sub">
-                <li id="nestedd!" class="pou-menu-sub">nestedd!
-                  <ul class="pou-menu-sub">
-                    <li id="nesteddd!" class="pou-menu-sub">nesteddd!</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
+        <li class="pou-menu-sub">loading...
+        <ul class="pou-menu-sub">sub->
+          <li class="pou-menu-sub">nested1!</li>
+          <ul class="pou-menu-sub">nested2!->
+            <li class="pou-menu-sub">nestedd1!</li>
+            <ul class="pou-menu-sub">nestedd2!->
+              <li class="pou-menu-sub">nesteddd!</li>
+            </ul>
           </ul>
-        </li>
+        </ul>
       </ul>
       <select class="load-ui" 
         onchange='pou.core.peval_str(`(load-ui "${event.target.value}")`);event.target.selectedIndex=0'>
