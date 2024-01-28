@@ -96,57 +96,6 @@
       z-index: 999999;
       display: inline-flex;
       max-height: 1.5em;
-
-      ul.pou-menu {
-        margin-top: 0;
-        margin-right: 1em;
-        width: 6em;
-        padding: 0.5ch;
-
-        li {
-          display: none;
-          background: #fff;
-          padding: 5px;
-          border-width: 0 1px 1px 1px;
-          border-style: groove;
-          overflow: scroll;
-        }
-      }
-
-      ul.pou-menu:hover {
-        
-        li.pou-menu-sub {
-          display: block;
-        }
-      }
-      
-      li.pou-menu-item:hover {
-
-        li.pou-menu-sub {
-          display: block;
-        }
-      }
-
-      li.pou-menu-sub:hover {
-
-        li.pou-menu-subb {
-          display: block;
-        }
-      }
-
-      li.pou-menu-subb:hover {
-
-        li.pou-menu-subbb {
-          display: block;
-        }
-      }
-
-      li.pou-menu-subbb:hover {
-
-        li.pou-menu-subbbb {
-          display: block;
-        }
-      }
       
       div#pou-extensions {
         float: right;
@@ -156,6 +105,32 @@
           width: 1em;
           border-radius: 50%;
         }
+      }
+    }
+
+    ul.pou-menu {
+      margin-top: 0;
+      margin-right: 1em;
+      width: 6em;
+      padding: 0.5ch;
+
+      .pou-menu-sub {
+        display: none;
+        background: #fff;
+        padding: 5px;
+        border-width: 0 1px 1px 1px;
+        border-style: groove;
+        overflow: scroll;
+      }
+    }
+
+    ul.pou-menu:hover > .pou-menu-sub {
+        display: block;
+      }
+    }
+
+    ul.pou-menu-sub:hover > .pou-menu-sub {
+        display: block;
       }
     }
 
@@ -288,11 +263,17 @@
       <ul id="@pou" class="pou-menu">
         @<img src="pou.svg" style="height: 1em;">
         <li id="loading" class="pou-menu-sub">loading...
-          <li id="nested!" class="pou-menu-subb">nested!
-            <li id="nestedd!" class="pou-menu-subbb">nestedd!
-              <li id="nesteddd!" class="pou-menu-subbbb">nesteddd!</li>
+          <ul>
+            <li id="nested!" class="pou-menu-sub">nested!
+              <ul>
+                <li id="nestedd!" class="pou-menu-sub">nestedd!
+                  <ul>
+                    <li id="nesteddd!" class="pou-menu-sub">nesteddd!</li>
+                  </ul>
+                </li>
+              </ul>
             </li>
-          </li>
+          </ul>
         </li>
       </ul>
       <select class="load-ui" 
