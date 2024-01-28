@@ -216,8 +216,8 @@
       (show-hint! cm completions))
     (when info?
       (populate-dom 
-       (apply merge (map (fn [c] {(str c) {:onclick #(peval-str '(doc c))}}) (take 20 (rest completions))))
-       :empty! true :parent-selector "#pou-info" :child-tag "a" :attrs {:class "pou-completion" :href "#"}))))
+       (apply merge (map (fn [c] {(str c "&nbsp;") {:onclick #(peval-str `(doc ~c))}}) (take 20 (rest completions))))
+       :empty! true :parent-selector "#pou-info" :child-tag "span" :attrs {:class "pou-completion"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
