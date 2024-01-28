@@ -144,10 +144,7 @@
                     parent-element)]
     (when empty! (-> parent .-innerHTML (set! "")))
     (doseq [e map-entries]
-      (.appendChild 
-                    (gdom/createDom child-tag 
-                                    (clj->js (merge attrs (second e))) 
-                                    (first e))))))
+      (.appendChild parent (gdom/createDom child-tag (clj->js (merge attrs (second e))) (first e))))))
 
 (defn request [path & {:keys [callback selected-keys read? pre-path]}] ; return channel?
   (go
