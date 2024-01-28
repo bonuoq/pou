@@ -137,12 +137,48 @@
 
 ; DOM & AJAX HELPERS
 
-(defn dom [tag & {:keys [attrs parent-element parent-selector children] :or {attrs {}}}]
-  (apply gdom/createDom tag (clj->js attrs) children)) ;TODO regex SELECTOR
+(defn element [selector-or-element]
+  (if (string? selector-or-element)
+    (js/document.querySelector selector-or-element)
+    selector-or-element))
+(defn elements [selector]
+  (js/document.querySelectorAll selector))
+(defn parent [selector] 
+  (last (re-find #"(.*) " selector)))
+(defn child [selector] 
+  (or (last (re-find #" (.*)" selector)) selector))
+(defn child-tag [selector] 
+  (not-empty (re-find #"[^\.#]*" (child selector))))
+(defn child-id [selector]
+  (when-let [id-find (re-find #"#[^\.]*" (child selector))]
+    (subs id-find 1)))
+(defn child-class [selector]
+  (when-let [class-find (re-find #"\.[^#]*" (child selector))]
+    (clojure.string/replace (subs class-find 1) "." " ")))
 
-(defn populate-dom [map-entries & {:keys [parent-element parent-selector child-tag attrs empty! separator]
+(defn dom [selector & {:keys [attrs parent children map-siblings empty! separator]}]
+  (let [p (element parent)
+        tag (child-tag selector)
+        as (merge {:id (child-id selector) :class (child-class selector)} attrs)
+        sibling-fn #(apply gdom/createDom tag (clj->js (merge as (second %))) 
+                           (first %) (clj->js children))
+        elms (if map-siblings
+               (->> map-siblings
+                 (map sibling-fn)
+                 ((if separator 
+                    (partial interpose separator)
+                    identity)))
+               [(apply gdom/createDom tag (clj->js as) (clj->js children))])]
+    (js/console.log #js[p as tag sibling-fn elms])
+    (if p
+      (do
+        (when empty! (-> p .-innerHTML (set! "")))
+        (j/apply p :append (clj->js elms)))
+      elms)))
+
+#_(defn populate-dom [map-entries & {:keys [parent-element parent-selector child-tag attrs empty! separator]
                                    :or {parent-element js/klipse-container attrs {} child-tag "div"}}]
-  (let [parent (if parent-selector 
+  (let [p (if parent-selector 
                     (js/document.querySelector parent-selector) 
                     parent-element)
         create-fn #(dom child-tag (merge attrs (second %)) (first %))
@@ -225,12 +261,12 @@
     (when hint? 
       (show-hint! cm completions))
     (when info?
-      (populate-dom 
+      (populate-dom "a.pou-completion"
        (map
         (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
         (take 20 (rest completions)))
-       :empty! true :parent-selector "#pou-info" :child-tag "a" 
-       :attrs {:class "pou-completion" :href "#"}))))
+       :empty! true :parent "#pou-info"
+       :attrs {:href "#"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
@@ -339,8 +375,7 @@
       (map #(assoc % :snippet (get-code (:kl %))))
       (map #(dissoc % :kl)))))
 
-(defn save-snapshot! [filename]
-  (
+; defn snapshot!
 
 (defn load-module [module & {:keys [on-ready pre-path post-path]}]
   (request (str pre-path module post-path) :read? true
@@ -391,17 +426,17 @@
            :callback (fn [entries] 
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
-                                  :callback #(populate-dom 
-                                              {(:description %) {:value url}}
-                                              :parent-selector "select.load-module" :child-tag "option")))))
+                                  :callback #(dom "option"
+                                              :map-siblings {(:description %) {:value url}}
+                                              :parent "select.load-module")))))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
            :selected-keys [:name :download_url]
            :callback (fn [entries] 
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
-                                  :callback #(populate-dom 
-                                              {(:description %) {:value url}}
-                                              :parent-selector "select.load-ui" :child-tag "option")))))
+                                  :callback #(dom "option"
+                                              :map-siblings {(:description %) {:value url}}
+                                              :parent "select.load-ui")))))
   
   (when-not (:ui (url-params)) (loaded!)))
