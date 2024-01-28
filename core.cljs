@@ -143,21 +143,21 @@
     selector-or-element))
 (defn elements [selector]
   (js/document.querySelectorAll selector))
-(defn parent [selector] 
+(defn sel-parent [selector] 
   (last (re-find #"(.*) " selector)))
-(defn child [selector] 
+(defn sel-child [selector] 
   (or (last (re-find #" (.*)" selector)) selector))
 (defn child-tag [selector] 
-  (not-empty (re-find #"[^\.#]*" (child selector))))
+  (not-empty (re-find #"[^\.#]*" (sel-child selector))))
 (defn child-id [selector]
-  (when-let [id-find (re-find #"#[^\.]*" (child selector))]
+  (when-let [id-find (re-find #"#[^\.]*" (sel-child selector))]
     (subs id-find 1)))
 (defn child-class [selector]
-  (when-let [class-find (re-find #"\.[^#]*" (child selector))]
+  (when-let [class-find (re-find #"\.[^#]*" (sel-child selector))]
     (clojure.string/replace (subs class-find 1) "." " ")))
 
 (defn dom [selector & {:keys [attrs parent children map-siblings empty! separator]}]
-  (let [p (or (parent selector) (element parent))
+  (let [p (or (sel-parent selector) (element parent))
         tag (child-tag selector)
         as (merge {:id (child-id selector) :class (child-class selector)} attrs)
         sibling-fn #(apply gdom/createDom tag (clj->js (merge as (second %))) 
