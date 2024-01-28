@@ -142,11 +142,14 @@
   (let [parent (if parent-selector 
                     (js/document.querySelector parent-selector) 
                     parent-element)
-        children (->> map-entries                   
-                   (mapv #(gdom/createDom child-tag 
-                                          (clj->js (merge attrs (second %))) 
-                                          (first %)))
-                   (if separator (interpose separator) identity))]
+        create-fn #(gdom/createDom child-tag 
+                                   (clj->js (merge attrs (second %))) 
+                                   (first %))
+        children (->> map-entries
+                   (map create-fn)
+                   ((if separator 
+                      (partial interpose separator)
+                      identity)))]
     (when empty! (-> parent .-innerHTML (set! "")))
     (j/apply parent :append (clj->js children))))
 
