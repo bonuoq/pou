@@ -193,10 +193,11 @@
     (when hint? 
       (show-hint! cm completions))
     (when info? 
-      (set-info! (apply str (map #(str "<span 
+      (set-info! (apply str (map #(str "<a 
                                         id='" % "'
-                                        class='pou-completion'>" 
-                                        % "</span>&nbsp;") (take 20 (rest completions))))))))
+                                        class='pou-completion'
+                                        onclick=pou.core.peval-str('(doc " % ")')>" 
+                                        % "</a>&nbsp;") (take 20 (rest completions))))))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
@@ -221,10 +222,7 @@
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
-                :Alt-Space (fn [cm]
-                             (token-doc cm)
-                             js/CodeMirror.Pass)
-                :Alt-LeftClick #(token-doc cm))
+                :Alt-Space #(token-doc %)
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?))))))
 
 (defn klipsify! [on-mounted on-ready] 
