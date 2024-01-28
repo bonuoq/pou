@@ -156,7 +156,7 @@
   (when-let [class-find (re-find #"\.[^#]*" (sel-child selector))]
     (clojure.string/replace (subs class-find 1) "." " ")))
 
-(defn dom [selector & {:keys [attrs parent children map-siblings empty! separator]}]
+(defn dom [selector & {:keys [attrs parent children map-siblings replace? separator]}]
   (let [p (or (sel-parent selector) (element parent))
         tag (child-tag selector)
         as (merge {:id (child-id selector) :class (child-class selector)} attrs)
@@ -170,8 +170,8 @@
                     identity)))
                [(apply gdom/createDom tag (clj->js as) (clj->js children))])]
     (if p
-      (do
-        (when empty! (-> p .-innerHTML (set! "")))
+      (if replace?
+        (j/apply p :replaceChildren (clj->js elms))
         (j/apply p :append (clj->js elms)))
       elms)))
 
