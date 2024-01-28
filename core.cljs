@@ -137,15 +137,17 @@
 
 ; DOM & AJAX HELPERS
 
-(defn populate-dom [map-entries & {:keys [parent-element parent-selector child-tag attrs]
+(defn populate-dom [map-entries & {:keys [parent-element parent-selector child-tag attrs empty!]
                                    :or {parent-element js/klipse-container attrs {} child-tag "div"}}]
-  (doseq [e map-entries]
-    (.appendChild (if parent-selector 
+  (let [parent (if parent-selector 
                     (js/document.querySelector parent-selector) 
-                    parent-element)
-                  (gdom/createDom child-tag 
-                                  (clj->js (merge attrs (second e))) 
-                                  (first e)))))
+                    parent-element)]
+    (when empty! (-> parent .-innerHTML (set! "")))
+    (doseq [e map-entries]
+      (.appendChild 
+                    (gdom/createDom child-tag 
+                                    (clj->js (merge attrs (second e))) 
+                                    (first e))))))
 
 (defn request [path & {:keys [callback selected-keys read? pre-path]}] ; return channel?
   (go
@@ -215,10 +217,10 @@
         completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
     (when hint? 
       (show-hint! cm completions))
-    (when info? 
+    (when info?
       (populate-dom 
-       (map (fn [c] {c {:onclick #(peval-str '(doc c))}}) completions)
-       :parent-selector "#pou-info" :child-tag "a" :attrs {:class "pou-completion"}))))
+       (apply merge (map (fn [c] {c {:onclick #(peval-str '(doc c))}}) (take 20 completions)))
+       :empty! true :parent-selector "#pou-info" :child-tag "a" :attrs {:class "pou-completion"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
