@@ -247,11 +247,12 @@
       (show-hint! cm completions))
     (when info?
       (dom "a.pou-completion"
-       (map
-        (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
-        (take 20 (rest completions)))
-       :empty! true :parent "#pou-info"
-       :attrs {:href "#"}))))
+           :map-siblings 
+           (map
+            (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
+            (take 20 (rest completions)))
+           :empty! true :parent "#pou-info"
+           :attrs {:href "#"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
