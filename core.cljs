@@ -219,7 +219,7 @@
       (show-hint! cm completions))
     (when info?
       (populate-dom 
-       (apply merge (map (fn [c] {c {:onclick #(peval-str '(doc c))}}) (take 20 completions)))
+       (apply merge (map (fn [c] {c {:onclick #(peval-str '(doc c))}}) (take 20 (rest completions))))
        :empty! true :parent-selector "#pou-info" :child-tag "a" :attrs {:class "pou-completion"}))))
 
 (defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
