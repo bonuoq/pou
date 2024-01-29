@@ -137,12 +137,6 @@
 
 ; DOM & AJAX HELPERS
 
-(defn dom-element [selector-or-element]
-  (if (string? selector-or-element)
-    (js/document.querySelector selector-or-element)
-    selector-or-element))
-(defn dom-elements [selector]
-  (js/document.querySelectorAll selector))
 (defn sel-parent [selector] 
   (last (re-find #"(.*) " selector)))
 (defn sel-child [selector] 
@@ -156,19 +150,29 @@
   (when-let [class-find (re-find #"\.[^#]*" (sel-child selector))]
     (clojure.string/replace (subs class-find 1) "." " ")))
 
-(defn dom-create [selector {:as attrs} content 
-                  & {:keys [content-type] 
-                     :or {content-type :mixed}}]
+(defn dom-select [selector-or-element]
+  (if (string? selector-or-element)
+    (js/document.querySelector selector-or-element)
+    selector-or-element))
+(defn dom-all [selector]
+  (js/document.querySelectorAll selector))
+
+(defn dom-string [s]
+  (.createContextualFragment (js/document.createRange) s))
+(defn dom-any [any]
+  (condp apply [any]
+    string? (dom-string any)    
+    vector? (str "parse-hiccup! " any)
+    any))
+
+(defn dom-create [selector {:as attrs} content]
   (let [tag (sel-child-tag selector)
         as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
-        children (case content-type
-                   :mixed content ;(do-something-please content)
-                   :node content
-                   "ERROR in dom-create @ pou.core: unknown content-type")]
+        children (map dom-any content)]
     (apply gdom/createDom tag (clj->js as) (clj->js children))))
 
 (defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
-  (let [p (dom-element (or (sel-parent selector) parent))
+  (let [p (dom-select (or (sel-parent selector) parent))
         sibling-fn #(dom-create selector (merge attrs (second %)) (into (first %) content))
         elms (if map-siblings
                (->> map-siblings
