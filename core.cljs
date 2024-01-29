@@ -165,7 +165,7 @@
                    :mixed children ;(do-something-please children)
                    :node children
                    "ERROR in dom-create @ pou.core: unknown content-type")]
-    (apply gdom/createDom (clj->js as) (clj->js children))))
+    (apply gdom/createDom tag (clj->js as) (clj->js children))))
 
 (defn dom [selector & {:keys [attrs parent children map-siblings replace? separator]}]
   (let [p (dom-element (or (sel-parent selector) parent))
@@ -286,7 +286,7 @@
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
-                :Tab #(show-completions! % true false)
+                :Shift-Tab #(show-completions! % true false)
                 :Alt-Space #(token-doc %))
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?))))))
 
