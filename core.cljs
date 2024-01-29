@@ -137,29 +137,40 @@
 
 ; DOM & AJAX HELPERS
 
-(defn element [selector-or-element]
+(defn dom-element [selector-or-element]
   (if (string? selector-or-element)
     (js/document.querySelector selector-or-element)
     selector-or-element))
-(defn elements [selector]
+(defn dom-elements [selector]
   (js/document.querySelectorAll selector))
 (defn sel-parent [selector] 
   (last (re-find #"(.*) " selector)))
 (defn sel-child [selector] 
   (or (last (re-find #" (.*)" selector)) selector))
-(defn child-tag [selector] 
+(defn sel-child-tag [selector] 
   (not-empty (re-find #"[^\.#]*" (sel-child selector))))
-(defn child-id [selector]
+(defn sel-child-id [selector]
   (when-let [id-find (re-find #"#[^\.]*" (sel-child selector))]
     (subs id-find 1)))
-(defn child-class [selector]
+(defn sel-child-class [selector]
   (when-let [class-find (re-find #"\.[^#]*" (sel-child selector))]
     (clojure.string/replace (subs class-find 1) "." " ")))
 
+(defn node-create [selector {:as attrs} content 
+                  & {:keys [content-type] 
+                     :or {content-type :mixed}}]
+  (let [tag (sel-child-tag selector)
+        as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
+        children (case content-type
+                   :mixed children ;(do-something-please children)
+                   :node children
+                   "ERROR in dom-create @ pou.core: unknown content-type")]
+    (apply gdom/createDom (clj->js as) (clj->js children))))
+
 (defn dom [selector & {:keys [attrs parent children map-siblings replace? separator]}]
-  (let [p (element (or (sel-parent selector) parent))
-        tag (child-tag selector)
-        as (merge {:id (child-id selector) :class (child-class selector)} attrs)
+  (let [p (dom-element (or (sel-parent selector) parent))
+        tag (sel-child-tag selector)
+        as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
         sibling-fn #(apply gdom/createDom tag (clj->js (merge as (second %))) 
                            (clj->js (into (first %) children)))
         elms (if map-siblings
