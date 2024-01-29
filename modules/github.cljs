@@ -36,6 +36,7 @@
                  body)
                {:error status :message (str "GitHub API Request Error (status=" status "): " body)})]
      (when callback (callback res))
+     (println res)
      res)))
 
 (defn- update-div! [inner-html]
@@ -56,9 +57,10 @@
   (when (:access_token auth-res)
     (swap! pou assoc :github auth-res)
     (request "user" :callback update-user!)
-    (update-gists!)))
+    (update-gists!)
+    (println (str "POU connected to GitHub!"))))
 
-(defn auth! [code]
+(defn- auth! [code]
   (.replaceState js/history {} "" "/pou")
   (go
    (let [{:keys [status body]}
@@ -69,14 +71,11 @@
                          :json-params {:client_id "ecde871676236cae5c25"
                                        :client_secret "38d46c164985bf82f9b617f7d0cd95633026ac48"
                                        :code code}}))]
-     (js/console.log (str "GitHub Auth response (" status "): " body))
      (if (= status 200)
        (logged! body)
-       (println (str "Github API Authorization Error (status=" status "): " body))))))
+       (println (str "Github Authorization Error (status=" status "): " body))))))
 
 ; side-fx
 
 (-> "pou-extensions" gdom/getElement .-innerHTML 
   (set! "<div id='pou-github' class='pou-extension'><button class='gh-login' onclick='githubLogin()'>GitHub connect</button></div>"))
-
-(p/process-url-params :code #(auth! %))
