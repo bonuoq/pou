@@ -28,13 +28,14 @@
    (let [{:keys [status body]} (<! (http/get (str "https://api.github.com/" api-path)
                                              {:with-credentials? false
                                               :oauth-token (token)}))
+         (js/console.log (str "GitHub Auth response (" status "): " body))
          res (if (= status 200)
                (if (not-empty selected-keys)
                  (if (vector? body)
                    (mapv #(select-keys % selected-keys) body)
                    (select-keys body selected-keys))
                  body)
-               {:error status :message (str "Github API Request Error (status=" status "): " body)})]
+               {:error status :message (str "GitHub API Request Error (status=" status "): " body)})]
      (when callback (callback res))
      res)))
 
