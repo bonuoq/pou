@@ -69,7 +69,7 @@
                          :json-params {:client_id "ecde871676236cae5c25"
                                        :client_secret "38d46c164985bf82f9b617f7d0cd95633026ac48"
                                        :code code
-                                       :redirect_uri "https://bonuoq.github.io/pou/"}}))]
+                                       :redirect_uri "https://bonuoq.github.io/pou/github-callback?action=close"}}))]
      (js/console.log (str "GitHub Auth response (" status "): " body))
      (if (= status 200)
        (logged! body)
