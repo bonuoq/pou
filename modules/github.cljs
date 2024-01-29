@@ -12,13 +12,14 @@
 
 (defn login! [& {:keys [client-id scope redirect-param-str] 
                  :or {client-id "ecde871676236cae5c25" scope "gist"}}]
-  (set! js/window.location 
-        (str "https://github.com/login/oauth/authorize?"
-             "client_id=" client-id "&"
-             "scope=" scope
-             (when redirect-param-str
-               (str "&redirect_uri="
-                    "https://bonuoq.github.io/pou?" redirect-param-str)))))
+  (js/window.open
+   (str "https://github.com/login/oauth/authorize?"
+        "client_id=" client-id "&"
+        "scope=" scope
+        (when redirect-param-str
+          (str "&redirect_uri="
+               "https://bonuoq.github.io/pou?" redirect-param-str)))
+   "github" "popup,width=480,height=600,left=100,top=100"))
 
 (set! js/githubLogin login!)
 
