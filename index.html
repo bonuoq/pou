@@ -143,6 +143,15 @@
       #pou-pilot {
         max-height: 1.4em;
         overflow: hidden;
+
+        a.pou-completion {
+          text-decoration: none;
+          margin: 0.5ch;
+        }
+      
+        a.pou-completion:hover {
+          text-decoration: underline;
+        }
       }
 
       .pou-toggle {
@@ -156,14 +165,6 @@
     
     .pou-intro {
       font-family: monospace;
-    }
-
-    a.pou-completion {
-      text-decoration: none;
-    }
-
-    a.pou-completion:hover {
-      text-decoration: underline;
     }
 
     span.pou-editable {
@@ -258,16 +259,10 @@
   <div id="app"></div>
   <div id="pou-app" hidden>
     <div id="top-bar" class="pou-toolbar floating-top">
-      <ul id="@pou" class="pou-menu">
-        @<img src="pou.svg" style="height: 1em;">
-        <li class="pou-menu-sub">loading...</li>
-        <ul class="pou-menu-sub">sub->
-          <li class="pou-menu-sub">nested1!</li>
-          <ul class="pou-menu-sub">nested2!->
-            <li class="pou-menu-sub">nestedd1!</li>
-            <ul class="pou-menu-sub">nestedd2!->
-              <li class="pou-menu-sub">nesteddd!</li>
-            </ul>
+      <ul id="pou-main" class="pou-menu">
+        <img src="pou.svg" style="height: 1em;">
+        <li class="pou-menu-sub">@pou
+          <ul id="pou-state" class="pou-menu-sub">
           </ul>
         </ul>
       </ul>
