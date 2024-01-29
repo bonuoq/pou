@@ -29,7 +29,7 @@
              :selected-keys selected-keys
              :pre-path "https://api.github.com/" 
              :options {:with-credentials? false
-                       :oauth-token (token)})
+                       :oauth-token (token)}))
 
 (defn- update-div! [inner-html]
   (-> "pou-github" gdom/getElement .-innerHTML 
