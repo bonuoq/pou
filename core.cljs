@@ -162,8 +162,8 @@
   (let [tag (sel-child-tag selector)
         as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
         children (case content-type
-                   :mixed children ;(do-something-please children)
-                   :node children
+                   :mixed content ;(do-something-please content)
+                   :node content
                    "ERROR in dom-create @ pou.core: unknown content-type")]
     (apply gdom/createDom tag (clj->js as) (clj->js children))))
 
