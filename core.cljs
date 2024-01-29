@@ -186,7 +186,7 @@
 ; (defn fn-apply [function & {:keys [parent-element parent-selector child-tag attrs]})
 
 (defn request [path & {:keys [callback selected-keys read? pre-path options]
-                       :or {request-options {:with-credentials? false}}}] ; return channel?
+                       :or {options {:with-credentials? false}}}] ; return channel?
   (go
    (let [{:keys [status body]} (<! (http/get (str pre-path path) options))
          content (if read? (read-string body) body)
