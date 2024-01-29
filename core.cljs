@@ -289,7 +289,7 @@
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
-                :Shift-Tab #(show-completions! % true false)
+                :Tab #(show-completions! % true false)
                 :Alt-Space #(token-doc %))
       (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?))))))
 
