@@ -261,7 +261,9 @@
     <div id="top-bar" class="pou-toolbar floating-top">
       <ul id="pou-main" class="pou-menu">
         <img src="pou.svg" style="height: 1em;">
-        <li class="pou-menu-sub">@pou</li>
+        <li class="pou-menu-sub">@pou
+          <ul id="pou-state" class="pou-menu-sub"></ul>
+        </li>
       </ul>
       <select class="load-ui" 
         onchange='pou.core.peval_str(`(load-ui "${event.target.value}")`);event.target.selectedIndex=0'>
