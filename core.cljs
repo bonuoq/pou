@@ -156,7 +156,7 @@
   (when-let [class-find (re-find #"\.[^#]*" (sel-child selector))]
     (clojure.string/replace (subs class-find 1) "." " ")))
 
-(defn node-create [selector {:as attrs} content 
+(defn dom-create [selector {:as attrs} content 
                   & {:keys [content-type] 
                      :or {content-type :mixed}}]
   (let [tag (sel-child-tag selector)
@@ -167,19 +167,17 @@
                    "ERROR in dom-create @ pou.core: unknown content-type")]
     (apply gdom/createDom tag (clj->js as) (clj->js children))))
 
-(defn dom [selector & {:keys [attrs parent children map-siblings replace? separator]}]
+(defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
   (let [p (dom-element (or (sel-parent selector) parent))
-        tag (sel-child-tag selector)
-        as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
-        sibling-fn #(apply gdom/createDom tag (clj->js (merge as (second %))) 
-                           (clj->js (into (first %) children)))
+        sibling-fn #(dom-create selector (clj->js (merge attrs (second %))) 
+                                (clj->js (into (flatten [(first %)]) content)))
         elms (if map-siblings
                (->> map-siblings
                  (map sibling-fn)
                  ((if separator 
                     (partial interpose separator)
                     identity)))
-               [(apply gdom/createDom tag (clj->js as) (clj->js children))])]
+               [(dom-create selector (clj->js attrs) (clj->js content))])]
     (if p
       (if replace?
         (j/apply p :replaceChildren (clj->js elms))
