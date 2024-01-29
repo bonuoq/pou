@@ -169,15 +169,14 @@
 
 (defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
   (let [p (dom-element (or (sel-parent selector) parent))
-        sibling-fn #(dom-create selector (clj->js (merge attrs (second %))) 
-                                (clj->js (into (flatten [(first %)]) content)))
+        sibling-fn #(dom-create selector (merge attrs (second %)) (into (first %) content))
         elms (if map-siblings
                (->> map-siblings
                  (map sibling-fn)
                  ((if separator 
                     (partial interpose separator)
                     identity)))
-               [(dom-create selector (clj->js attrs) (clj->js content))])]
+               [(dom-create selector attrs content)])]
     (if p
       (if replace?
         (j/apply p :replaceChildren (clj->js elms))
