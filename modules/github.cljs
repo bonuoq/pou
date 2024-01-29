@@ -58,7 +58,7 @@
     (request "user" :callback update-user!)
     (update-gists!)))
 
-(defn- auth! [code]
+(defn auth! [code]
   (.replaceState js/history {} "" "/pou")
   (go
    (let [{:keys [status body]}
