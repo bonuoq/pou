@@ -13,7 +13,7 @@
 (defn login! [& {:keys [client-id scope redirect-param-str] 
                  :or {client-id "ecde871676236cae5c25" scope "gist"}}]
   (p/request 
-   "https://cors-anywhere.herokuapp.com/https://cors-anywhere.herokuapp.com/corsdemo"
+   "https://cors-anywhere.herokuapp.com/corsdemo"
    :callback 
    (fn [res]
      (let [cors-access (last 
@@ -21,7 +21,7 @@
        (js/console.log (str "[accessRequest: " cors-access "]
                             to cors-anywhere.herokuapp.com/corsdemo (development):"))
        (p/request 
-        "https://cors-anywhere.herokuapp.com/https://cors-anywhere.herokuapp.com/corsdemo"
+        "https://cors-anywhere.herokuapp.com/corsdemo"
         :options {:query-params {:accessRequest cors-access}}
         :callback 
         (fn [res]
