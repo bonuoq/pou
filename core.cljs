@@ -3,14 +3,15 @@
             [cljs.core.async :refer [<!] :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs-http.client :as http]
+            [cljs.reader :refer [read-string]]
+            [klipse.ui.editors.editor :as kl-ed]
+            [klipse-clj.repl :as kl-repl]
             [klipse.plugin :as klp]
             [klipse.utils :as klu]
             [klipse.common.registry :as klreg]
             [klipse.klipse-editors :as kleds]
             [applied-science.js-interop :as j]
-            [cljs.reader :refer [read-string]]
-            [klipse.ui.editors.editor :as kl-ed]
-            [klipse-clj.repl :as kl-repl]))
+            [editscript.core :as e]))
 
 ; UTILS
 
@@ -48,12 +49,15 @@
                 :klipse-settings (js->clj js/klipse-settings)
                 :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
                 :uis {}
-                :modules []}))
+                :modules []
+                :pou (atom nil)}))
 
 (add-watch klreg/mode-options :reg-mode-options 
            #(swap! pou assoc :mode-options (keys %4)))
 (add-watch klreg/selector->mode :reg-mode-selectors
            #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
+
+
 
 
 (defn reg-editor [{:keys [id kl] :as editor}]
