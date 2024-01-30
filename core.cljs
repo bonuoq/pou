@@ -170,10 +170,11 @@
   (condp apply [any]
     string? (dom-string any)
     coll? (if (map? any)
-            (let [{:keys [type selector tag attrs content]} any]
-              (if (= type :element) ; hickory style
-                (dom-create (or selector (subs (str tag) 1)) attrs content)
-                (dom-any content)))
+            (let [{:keys [type tag attrs content]} any] ; hickory style map (but you can omit {:type :element} and use :tag for selectors like {:tag :tab.class#id})
+              (case type
+                :document (map dom-any content)
+                :element (dom-create (or selector (subs (str tag) 1)) attrs content)
+                nil))
             (map dom-any any))
     any))
 
