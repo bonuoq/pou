@@ -173,13 +173,15 @@
 
 (defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
   (let [p (dom-select (or (sel-parent selector) parent))
-        sibling-fn #(dom-create selector (merge attrs (second %)) (into (first %) content))
+        sibling-fn #(dom-create selector (merge attrs (second %)) (first %) #_(into (first %) content)) ;removed
         elms (if map-siblings
-               (->> map-siblings
+               (into ;added
+                (->> map-siblings
                  (map sibling-fn)
                  ((if separator 
                     (partial interpose separator)
                     identity)))
+                content) ;added
                [(dom-create selector attrs content)])]
     (if p
       (if replace?
