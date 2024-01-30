@@ -154,8 +154,10 @@
   (if (string? selector-or-element)
     (js/document.querySelector selector-or-element)
     selector-or-element))
-(defn dom-all [selector]
+(defn dom-nodelist [selector]
   (js/document.querySelectorAll selector))
+(defn dom-vec [selector]
+  (-> selector dom-nodelist js/Array.from clj->js))
 
 (defn dom-string [s]
   (.createContextualFragment (js/document.createRange) s))
