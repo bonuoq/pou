@@ -159,17 +159,23 @@
 
 (defn dom-string [s]
   (.createContextualFragment (js/document.createRange) s))
-(defn dom-any [any]
-  (condp apply [any]
-    string? (dom-string any)    
-    vector? (str "parse-hiccup! " any)
-    any))
 
 (defn dom-create [selector {:as attrs} content]
   (let [tag (sel-child-tag selector)
         as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
         children (map dom-any content)]
     (apply gdom/createDom tag (clj->js as) (clj->js children))))
+
+(defn dom-any [any]
+  (condp apply [any]
+    string? (dom-string any)
+    coll? (if (map? any)
+            (let [{:keys [type selector tag attrs content]} any]
+              (if (= type :element) ; hickory style
+                (dom-create (or selector (subs (str tag) 1)) attrs content)
+                (dom-any content)))
+            (map dom-any any))
+    any))
 
 (defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
   (let [p (dom-select (or (sel-parent selector) parent))
