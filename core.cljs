@@ -176,7 +176,7 @@
                 :document (map dom-any content)
                 :element (dom-create selector attrs content)
                 nil (dom-create selector attrs content)
-                (dom-string any)))
+                (dom-string any))) ; provide a default way to represent clj maps as HTML
             (map dom-any any))
     any))
 
