@@ -12,28 +12,14 @@
 
 (defn login! [& {:keys [client-id scope redirect-param-str] 
                  :or {client-id "ecde871676236cae5c25" scope "gist"}}]
-  (p/request 
-   "https://cors-anywhere.herokuapp.com/corsdemo"
-   :callback 
-   (fn [res]
-     (let [cors-access (last 
-                        (re-find #"accessRequest\\\" value=\\\"(.*)\\\"></form>" (str res)))]
-       (js/console.log (str "[accessRequest: " cors-access "]
-                            to cors-anywhere.herokuapp.com/corsdemo (development):"))
-       (p/request 
-        "https://cors-anywhere.herokuapp.com/corsdemo"
-        :options {:query-params {:accessRequest cors-access}}
-        :callback 
-        (fn [res]
-          (js/console.log (str "cors-anywhere response: " (or (:msg res) res)))
-          (js/window.open
-           (str "https://github.com/login/oauth/authorize?"
-                "client_id=" client-id "&"
-                "scope=" scope
-                (when redirect-param-str
-                  (str "&redirect_uri="
-                       "https://bonuoq.github.io/pou?" redirect-param-str)))
-           "github" "popup,width=480,height=600,left=100,top=100")))))))
+  (js/window.open
+   (str "https://github.com/login/oauth/authorize?"
+        "client_id=" client-id "&"
+        "scope=" scope
+        (when redirect-param-str
+          (str "&redirect_uri="
+               "https://bonuoq.github.io/pou?" redirect-param-str)))
+   "github" "popup,width=480,height=600,left=100,top=100"))
 
 (set! js/githubLogin login!)
 
@@ -71,8 +57,7 @@
   (.replaceState js/history {} "" "/pou")
   (go
    (let [{:keys [status body]}
-         (<! (http/post (str "https://cors-anywhere.herokuapp.com/" ; for development purposes
-                             "https://github.com/login/oauth/access_token")
+         (<! (http/post "https://github.com/login/oauth/access_token"
                         {:with-credentials? false
                          :headers {"Accept" "application/json"}
                          :json-params {:client_id "ecde871676236cae5c25"
