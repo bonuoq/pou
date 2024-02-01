@@ -40,17 +40,36 @@
   (toggle-hidden "#loading" false)
   (toggle-hidden "#pou-app" true))
 
+; STATE CHANGES (recursive diffs)
+
+(defn nod [prev-nod diff-path upd-fn & args]
+  (let [upd (apply upd-fn prev-nod args)
+        diff-upd (assoc-in upd diff-path (e/diff upd prev-nod))]
+    (assoc-in diff-upd diff-path (e/diff diff-upd prev-nod))))
+
+(defn uoq [prev-nod patch-path diff-path]
+  (nod prev-nod diff-path e/patch (get-in prev-nod patch-path)))
+
 ; BASE STATE
 
-(def pou (atom {:editors {}
-                :id-kls {}
-                :mode-options (into (sorted-set) (keys @klreg/mode-options))
-                :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
-                :klipse-settings (js->clj js/klipse-settings)
-                :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
-                :uis {}
-                :modules []
-                :pou (atom nil)}))
+(def pou (atom 
+          {:editors {}
+           :id-kls {}
+           :mode-options (into (sorted-set) (keys @klreg/mode-options))
+           :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
+           :klipse-settings (js->clj js/klipse-settings)
+           :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
+           :uis {}
+           :modules []}))
+
+(defn pou! [path upd-fn & args]
+  (apply swap! update-in path nod [:uoq :drop] upd-fn args))
+
+(defn darw [path]
+  (uoq (get-in @pou path) [:uoq :drop] [:uoq :draw]))
+
+(defn dorp [path]
+  (uoq (get-in @pou path) [:uoq :draw] [:uoq :drop]))
 
 (add-watch klreg/mode-options :reg-mode-options 
            #(swap! pou assoc :mode-options (keys %4)))
