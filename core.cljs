@@ -47,8 +47,10 @@
         diff-upd (assoc-in upd diff-path (e/diff upd prev-nod))]
     (assoc-in diff-upd diff-path (e/diff diff-upd prev-nod))))
 
-(defn uoq [prev-nod patch-path diff-path]
-  (nod prev-nod diff-path e/patch (get-in prev-nod patch-path)))
+(defn uoq [prev-nod n patch-path diff-path]
+  (->> prev-nod
+    (iterate #(nod % diff-path e/patch (get-in prev-nod patch-path)))
+    (take n)))
 
 ; BASE STATE
 
@@ -65,11 +67,18 @@
 (defn pou! [path upd-fn & args]
   (apply swap! pou update-in path nod [:uoq :drp] upd-fn args))
 
-(defn drw [path]
-  (uoq (get-in @pou path) [:uoq :drp] [:uoq :drw]))
+(defn dr [path n patch diff]
+  (uoq (get-in @pou path) n [:uoq patch] [:uoq diff]))
 
-(defn drp [path]
-  (uoq (get-in @pou path) [:uoq :drw] [:uoq :drp]))
+(defn drw 
+  ([path n]
+   (dr path n :drp :drw))
+  ([path] (drw path 1)))
+
+(defn drp 
+  ([path n]
+   (dr path n :drw :drp))
+  ([path] (drp path 1)))
 
 (add-watch klreg/mode-options :reg-mode-options 
            #(swap! pou assoc :mode-options (keys %4)))
