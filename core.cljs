@@ -397,8 +397,8 @@
         klipsify? (some-> @pou :uis ui :klipsify?)]
     (when klipsify? (klipsify! on-mounted on-ready))))
 
-(defn aed [snippet & {:keys [mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
-  (append [(assoc editor-settings :snippet snippet)] :on-mounted on-mounted :on-ready on-ready))
+(defn aed [& {:keys [snippet mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
+  (append [editor-settings] :on-mounted on-mounted :on-ready on-ready))
 
 ; LOAD & EXPORT FNS
 
