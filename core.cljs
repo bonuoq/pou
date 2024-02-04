@@ -20,7 +20,7 @@
 (defn process-url-params [& param-procs]
   (let [params (url-params)]
     (doseq [pp (partition 2 param-procs)]
-      (when-let [p (params (first pp))]
+      (when-let [p ((first pp) params)]
         ((second pp) p)))))
 
 (def decode64 #(js/atob %))
@@ -449,7 +449,7 @@
   (process-url-params :ui #(load-ui %)
                       :editor-base #(append [(parse64 %)])
                       :editors-base #(append (parse64 %))
-                      :p #(aed (decode64 %))
+                      :p #(aed :snippet (decode64 %))
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(load-module "modules/github.edn"))
