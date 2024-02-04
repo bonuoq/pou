@@ -63,7 +63,7 @@
            :modules []}))
 
 (defn pou! [path upd-fn & args]
-  (apply swap! update-in path nod [:uoq :drp] upd-fn args))
+  (apply swap! pou update-in path nod [:uoq :drp] upd-fn args))
 
 (defn drw [path]
   (uoq (get-in @pou path) [:uoq :drp] [:uoq :drw]))
