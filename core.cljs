@@ -63,13 +63,13 @@
            :modules []}))
 
 (defn pou! [path upd-fn & args]
-  (apply swap! update-in path nod [:uoq :drop] upd-fn args))
+  (apply swap! update-in path nod [:uoq :drp] upd-fn args))
 
-(defn darw [path]
-  (uoq (get-in @pou path) [:uoq :drop] [:uoq :draw]))
+(defn drw [path]
+  (uoq (get-in @pou path) [:uoq :drp] [:uoq :drw]))
 
-(defn dorp [path]
-  (uoq (get-in @pou path) [:uoq :draw] [:uoq :drop]))
+(defn drp [path]
+  (uoq (get-in @pou path) [:uoq :drw] [:uoq :drp]))
 
 (add-watch klreg/mode-options :reg-mode-options 
            #(swap! pou assoc :mode-options (keys %4)))
