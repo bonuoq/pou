@@ -43,7 +43,7 @@
  :snapshot
  (fn [db _]
    (->> (:editors db)
-     (map #(assoc (val %) :snippet (p/get-code (:kl (val %))))) 
+     (map #(assoc (val %) :code (p/get-code (:kl (val %))))) 
      (map #(dissoc % :kl))
      (mapv #(assoc % :intro (-> (:id %) 
                              gdom/getElement 
@@ -122,7 +122,7 @@
 
 ; COMPONENTS
 
-(defn- editor-comp [{:keys [kl id intro mode attrs id snippet]}]
+(defn- editor-comp [{:keys [kl id intro mode attrs id code]}]
   (r/create-class
    {:component-did-mount 
     (fn [this]
@@ -140,7 +140,7 @@
            (or intro (str "id: " id ", mode: " mode))]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
-          [:div.pou-klipse attrs (str snippet)]]]))}))
+          [:div.pou-klipse attrs (str code)]]]))}))
 
 (defn- select-comp [value-atom options-atom]
   (fn []
