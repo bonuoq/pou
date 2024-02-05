@@ -84,14 +84,30 @@
    (apply nod (get-in @pou path) [:uoq :drp] upd-fn args))
   ([path n]
    (uoq path n :drw :drp))
-  ([path] (drp path 1)))
+  ([path] (drp path 0)))
+
+(defn drps
+  ([path n sel-keys]
+   (select-keys (drp path n) sel-keys))
+  ([path n]
+   (drps (butlast path) n (last path)))
+  ([path]
+   (drps path 0)))
 
 (defn drw
   ([path upd-fn & args]
    (apply nod (get-in @pou path) [:uoq :drw] upd-fn args))
   ([path n]
    (uoq path n :drp :drw))
-  ([path] (drw path 1)))
+  ([path] (drw path 0)))
+
+(defn drws 
+  ([path n sel-keys]
+   (select-keys (drw path n) sel-keys))
+  ([path n]
+   (drws (butlast path) n (last path)))
+  ([path]
+   (drws path 0)))
 
 (defn drp!
   ([path upd-fn & args]
@@ -127,8 +143,8 @@
 
 (def get-id #(if (number? %) (-> @pou :editors (get %) :id) %))
 
-(defn get-cm [id & {:keys [n] :or {n 0}}]
-  (-> (str "#" id " .CodeMirror") js/document.querySelectorAll (aget n) .-CodeMirror))
+(defn get-cm [k & {:keys [n] :or {n 0}}]
+  (-> (str "#" (get-id k) " .CodeMirror") js/document.querySelectorAll (aget n) .-CodeMirror))
                                                             
 (defn call-in-editor [k method & args]
   (j/apply 
@@ -273,7 +289,7 @@
 
 ; BASE UI
 
-(defn mode->class [mode]
+(defn- mode->class [mode]
   (->> (get (:mode-selectors @pou) mode)
     (get (:klipse-settings @pou))
     rest
@@ -318,7 +334,7 @@
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
-(defn show-completions! [cm hint? info?]
+(defn- show-completions! [cm hint? info?]
   (let [token-str (get-token-str cm)
         pre-ns (re-find #".+?\/" token-str)
         completions-no-pre-ns (kl-repl/get-completions token-str)
@@ -333,7 +349,7 @@
             (take 20 (rest completions)))
            :replace? true :attrs {:href "#"}))))
 
-(defn insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
+(defn- insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
   (let [cm (@kleds/editors (get-kl k))
         cursor (.getCursor cm)
         from (or from (if (< 0 rel-cursor) 
@@ -345,21 +361,20 @@
   (.replaceRange cm code from to)))
 
 (defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
+
+(defn- drp-snippet! [cm]
+  (drp! [:editors (.-kl cm)] assoc :snippet (.getValue cm))
+  js/CodeMirror.Pass)
   
 (defn- cm-reg! [kl]
   (let [{:keys [id mode hints?]} (-> @pou :editors (get kl))
         cm (or (@kleds/editors kl) (get-cm id))]
+    (j/assoc! cm :kl kl :id id)
     (j/assoc! (. cm getOption "extraKeys")
               :Cmd-. #(autocomp-refer! %))
     (. cm addKeyMap
-       #js {:Cmd-Enter (fn [cm] 
-                         (js/console.log cm)
-                         js/CodeMirror.Pass)
-            :Ctrl-Enter (fn [cm] 
-                         (js/console.log cm)
-                         js/CodeMirror.Pass)})
-    #_(. cm on "keyHandled"
-       (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
+       #js {:Cmd-Enter #(drp-snippet! %)                        
+            :Ctrl-Enter #(drp-snippet! %)})
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
