@@ -90,7 +90,7 @@
 ; ACTIONS AND HELPER FNS
 
 (defn- append-editor-re-frame [{:keys [id] :as editor}]
-  (rf/dispatch [:reg-editor {id editor}])
+  (rf/dispatch [:reg-editor {id editor}]))
 
 (defn append [editors & args]
   (apply p/append editors :ui :re-frame args))
