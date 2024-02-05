@@ -456,9 +456,9 @@
 
 (defn editors-array 
   ([& sel-keys] 
-   (for [e (-> @pou :editors vals)]
-     (dissoc e :kl)
-     (select-keys e sel-keys)))
+   (for [e (-> @pou :editors vals)
+         :let [ex (dissoc e :kl)]]
+     (select-keys ex sel-keys)))
   ([] (editors-array [:code :mode :id :from-gist :external-libs 
                       :eval-time :loop? :preamble :editor-type])))
 
