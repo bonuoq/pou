@@ -63,7 +63,7 @@
            :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
            :uis {}
            :modules []
-           :pou}))
+           :pou {}}))
 
 (def pou: (:pou @pou))
 
