@@ -16,9 +16,9 @@
    (-> (str cdn-url "/dist/faust-web-component.js") trusted-url js-safe-load 
      (.addCallback #(reset! loaded true)))))
 
-(defn place-in [element & {:keys [snippet mode]} ]
+(defn place-in [element & {:keys [code mode]} ]
   (let [component (. js/document createElement (if (= mode :widget) "faust-widget" "faust-editor"))]
-    (. component appendChild (. js/document createComment snippet))
+    (. component appendChild (. js/document createComment code))
     (. element replaceChildren component)))
 
 (defn get-comp [id] 
@@ -44,7 +44,7 @@
   (if @loaded
     (try
       (js/console.log (str "FAUST eval: " exp))
-      (place-in container :snippet (str exp) :mode mode)
+      (place-in container :code (str exp) :mode mode)
       (when (= mode :editor) 
         (when-let [e (some->> container-id last int (get @kleds/editors))] 
           (.setValue e "")))
