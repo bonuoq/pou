@@ -362,8 +362,8 @@
 
 (defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
 
-(defn- drp-snippet! [cm]
-  (drp! [:editors (.-kl cm)] assoc :snippet (.getValue cm))
+(defn- drp-code! [cm]
+  (drp! [:editors (.-kl cm)] assoc :code (.getValue cm))
   js/CodeMirror.Pass)
   
 (defn- cm-reg! [kl]
@@ -373,8 +373,8 @@
     (j/assoc! (. cm getOption "extraKeys")
               :Cmd-. #(autocomp-refer! %))
     (. cm addKeyMap
-       #js {:Cmd-Enter #(drp-snippet! %)                        
-            :Ctrl-Enter #(drp-snippet! %)})
+       #js {:Cmd-Enter #(drp-code! %)                        
+            :Ctrl-Enter #(drp-code! %)})
     (when (= mode "eval-clojure")
       (j/assoc! (. cm getOption "extraKeys")
                 :Tab #(show-completions! % true false)
@@ -392,9 +392,9 @@
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
-(defn- append-editor-base [{:keys [id kl description mode attrs kl-attrs snippet] :as editor}]
+(defn- append-editor-base [{:keys [id kl description mode attrs kl-attrs code] :as editor}]
   (let [base (gdom/getElement "base")
-        klipse (gdom/createDom "div" (clj->js kl-attrs) (str snippet))
+        klipse (gdom/createDom "div" (clj->js kl-attrs) (str code))
         text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
                                                            description
                                                            (str "#" id ", mode: " mode))))
@@ -449,7 +449,7 @@
         klipsify? (some-> @pou :uis ui :klipsify?)]
     (when klipsify? (klipsify! on-mounted on-ready))))
 
-(defn aed [& {:keys [snippet mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
+(defn aed [& {:keys [code mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [editor-settings] :on-mounted on-mounted :on-ready on-ready))
 
 ; LOAD & EXPORT FNS
@@ -457,7 +457,7 @@
 (defn editors-array []
   (let [array (-> @pou :editors vals)]
     (->> array
-      (map #(assoc % :snippet (get-code (:kl %))))
+      (map #(assoc % :code (get-code (:kl %))))
       (map #(dissoc % :kl)))))
 
 ; defn snapshot!
@@ -501,7 +501,7 @@
   (process-url-params :ui #(load-ui %)
                       :editor-base #(append [(parse64 %)])
                       :editors-base #(append (parse64 %))
-                      :p #(aed :snippet (decode64 %))
+                      :p #(aed :code (decode64 %))
                       :module #(load-module %)
                       :modules #(apply load-modules (parse64 %))
                       :code #(load-module "modules/github.edn"))
