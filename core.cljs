@@ -62,13 +62,16 @@
            :klipse-settings (js->clj js/klipse-settings)
            :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
            :uis {}
-           :modules []}))
+           :modules []
+           :pou}))
+
+(def pou: (:pou @pou))
 
 (defn pou! [path upd-fn & args]
-  (apply swap! pou update-in path nod [:uoq :drp] upd-fn args))
+  (apply swap! pou update-in (cons :pou path) nod [:uoq :drp] upd-fn args))
 
 (defn dr [path n patch diff]
-  (uoq (get-in @pou path) n [:uoq patch] [:uoq diff]))
+  (uoq (get-in @pou (cons :pou path) n [:uoq patch] [:uoq diff])))
 
 (defn drw 
   ([path n]
