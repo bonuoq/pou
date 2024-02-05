@@ -14,13 +14,6 @@
    (-> db :editors (get id) :kl)))
 
 (rf/reg-sub
- :uid
- (fn [db [_ id]]
-   (if-let [n (-> db :uids (get id))]
-     (str id "-" n)
-     id)))
-
-(rf/reg-sub
  :editors
  (fn [db _]
    (:editors db)))
@@ -51,11 +44,6 @@
                              .-textContent))))))
 
 ; REG EVENTS
-
-(rf/reg-event-db
- :new-uid
- (fn [db [_ id]]
-   (update-in db [:uids id] inc)))
 
 (rf/reg-event-db
  :hide
@@ -102,11 +90,7 @@
 ; ACTIONS AND HELPER FNS
 
 (defn- append-editor-re-frame [{:keys [id] :as editor}]
-  (let [uid @(rf/subscribe [:uid id])]
-    (rf/dispatch [:reg-editor {uid (assoc editor :id uid)}])
-    (rf/dispatch [:new-uid id])
-    (when-not (= id uid) 
-      (rf/dispatch [:new-uid uid]))))
+  (rf/dispatch [:reg-editor {id editor}])
 
 (defn append [editors & args]
   (apply p/append editors :ui :re-frame args))
@@ -122,7 +106,7 @@
 
 ; COMPONENTS
 
-(defn- editor-comp [{:keys [kl id intro mode attrs id code]}]
+(defn- editor-comp [{:keys [kl id description mode attrs kl-attrs code]}]
   (r/create-class
    {:component-did-mount 
     (fn [this]
@@ -130,17 +114,17 @@
     :reagent-render
     (fn []
       (let [hidden? @(rf/subscribe [:hidden? id])]
-        [:div.pou-wrapper {:id id}
+        [:div.pou-wrapper (assoc attrs :id id)
          [:div.pou-toolbar
           (str "#" kl)
           [:button.toggle-min
            {:on-click #(rf/dispatch [:show-hide id])}
            (if hidden? "<" ">")] " "
           [:span.pou-intro.pou-editable {:contentEditable true}
-           (or intro (str "id: " id ", mode: " mode))]]
+           (or description (str "id: " id ", mode: " mode))]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
-          [:div.pou-klipse attrs (str code)]]]))}))
+          [:div.pou-klipse kl-attrs (str code)]]]))}))
 
 (defn- select-comp [value-atom options-atom]
   (fn []
