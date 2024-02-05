@@ -487,11 +487,12 @@
        (load-module-chain m :pre-path pre-path :post-path post-path)
        (<! (load-module m))))))
 
-(defn load-ui [ui & {:keys [on-ready pre-path post-path] :or {on-ready (fn[] nil)} :as opts}]
+(defn load-ui [ui & {:keys [on-ready pre-path post-path] :as opts}]
   (loading!)
-  (load-module ui (flatten 
-                   (seq 
-                    (assoc opts :on-ready (fn [] (loaded!) (on-ready)))))))
+  (load-module ui :pre-path pre-path :post-path post-path
+               :on-ready (fn [] 
+                           (when on-ready (on-ready))
+                           (loaded!))))
 
 (defn filext-filter [file-extension files & {:keys [file-key] 
                                              :or {file-key identity}}]
