@@ -1,3 +1,3 @@
 {:description "GitHub gists"
  :external-libs ["https://bonuoq.github.io"]
- :snippet "(require '[pou.modules.github :as github])"}
+ :code "(require '[pou.modules.github :as github])"}
