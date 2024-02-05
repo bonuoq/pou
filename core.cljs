@@ -88,9 +88,9 @@
 
 (defn drps
   ([path n sel-keys]
-   (select-keys (drp path n) sel-keys))
+   (map select-keys (drp path n) (repeat sel-keys)))
   ([path n]
-   (drps (butlast path) n (last path)))
+   (drps (butlast path) n [(last path)]))
   ([path]
    (drps path 0)))
 
@@ -103,9 +103,9 @@
 
 (defn drws 
   ([path n sel-keys]
-   (select-keys (drw path n) sel-keys))
+   (map select-keys (drw path n) (repeat sel-keys)))
   ([path n]
-   (drws (butlast path) n (last path)))
+   (drws (butlast path) n [(last path)]))
   ([path]
    (drws path 0)))
 
@@ -280,7 +280,7 @@
          res (if (= status 200)
                (if (not-empty selected-keys)
                  (if (vector? content)
-                   (mapv #(select-keys % selected-keys) content)
+                   (mapv select-keys content (repeat selected-keys))
                    (select-keys content selected-keys))
                  content)
                {:error status :msg body})]
