@@ -449,16 +449,18 @@
         klipsify? (some-> @pou :uis ui :klipsify?)]
     (when klipsify? (klipsify! on-mounted on-ready))))
 
-(defn aed [& {:keys [code mode attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
+(defn aed [& {:keys [code mode id from-gist attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [editor-settings] :on-mounted on-mounted :on-ready on-ready))
 
 ; LOAD & EXPORT FNS
 
-(defn editors-array []
-  (let [array (-> @pou :editors vals)]
-    (->> array
-      (map #(assoc % :code (get-code (:kl %))))
-      (map #(dissoc % :kl)))))
+(defn editors-array 
+  ([& sel-keys] 
+   (for [e (-> @pou :editors vals)]
+     (dissoc e :kl)
+     (select-keys e sel-keys)))
+  ([] (editors-array [:code :mode :id :from-gist :external-libs 
+                      :eval-time :loop? :preamble :editor-type])))
 
 ; defn snapshot!
 
