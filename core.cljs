@@ -40,18 +40,6 @@
   (toggle-hidden "#loading" false)
   (toggle-hidden "#pou-app" true))
 
-; STATE CHANGES (recursive diffs)
-
-(defn nod [prev-nod diff-path upd-fn & args]
-  (let [upd (apply upd-fn prev-nod args)
-        diff-upd (assoc-in upd diff-path (e/diff upd prev-nod))]
-    (assoc-in diff-upd diff-path (e/diff diff-upd prev-nod))))
-
-(defn uoq [prev-nod n patch-path diff-path]
-  (->> prev-nod
-    (iterate #(nod % diff-path e/patch (get-in prev-nod patch-path)))
-    (take n)))
-
 ; BASE STATE
 
 (def pou (atom 
@@ -62,26 +50,61 @@
            :klipse-settings (js->clj js/klipse-settings)
            :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
            :uis {}
-           :modules []
-           :poal {}}))
+           :modules []}))
 
-(defn bon! [diff-path upd-path upd-fn & args]
+; STATE CHANGES (recursive diffs)
+
+(defn nod [prev-nod diff-path upd-fn & args]
+  (let [upd (apply upd-fn prev-nod args)
+        diff-upd (assoc-in upd diff-path (e/diff upd prev-nod))]
+    (assoc-in diff-upd diff-path (e/diff diff-upd prev-nod))))
+
+(defn bon [prev-nod n-iter patch-path diff-path]
+  (->> prev-nod
+    (iterate #(nod % diff-path e/patch (get-in prev-nod patch-path)))
+    (take n-iter)))
+
+(defn bonth [prev-nod nth-iter patch-path diff-path]
+  (last (bon prev-nod nth-iter patch-path diff-path)))
+
+(defn nod! [upd-path diff-path upd-fn & args]
   (apply swap! pou update-in upd-path nod diff-path upd-fn args))
 
-(defn uoq! [path upd-fn & args] 
-  (apply bon! [:uoq :drp] path upd-fn args))
+(defn pou! [path diff-k upd-fn & args] 
+  (apply nod! path [:uoq diff-k] upd-fn args))
 
-(defn dr [path n patch diff]
-  (uoq (get-in @pou path n [:uoq patch] [:uoq diff])))
+(defn uoq [path n patch-k diff-k]
+  (bon (get-in @pou path) n [:uoq patch-k] [:uoq diff-k]))
 
-(defn drw 
+(defn uoq! [path n patch-k diff-k]
+  (swap! pou update-in path bonth n [:uoq patch-k] [:uoq diff-k]))
+
+(defn drp
+  ([path upd-fn & args]
+   (apply nod (get-in @pou path) [:uoq :drp] upd-fn args))
   ([path n]
-   (dr path n :drp :drw))
+   (uoq path n :drw :drp))
+  ([path] (drp path 1)))
+
+(defn drw
+  ([path upd-fn & args]
+   (apply nod (get-in @pou path) [:uoq :drw] upd-fn args))
+  ([path n]
+   (uoq path n :drp :drw))
   ([path] (drw path 1)))
 
-(defn drp 
+(defn drp!
+  ([path upd-fn & args]
+   (apply nod! path [:uoq :drp] upd-fn args))
   ([path n]
-   (dr path n :drw :drp))
+   (uoq! path n :drw :drp))
+  ([path] (drp path 1)))
+
+(defn drw!
+  ([path upd-fn & args]
+   (apply nod! path [:uoq :drw] upd-fn args))
+  ([path n]
+   (uoq! path n :drp :drw))
   ([path] (drp path 1)))
 
 (add-watch klreg/mode-options :reg-mode-options 
