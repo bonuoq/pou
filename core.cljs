@@ -65,11 +65,11 @@
            :modules []
            :poal {}}))
 
-(defn pou! [diff-path upd-path upd-fn & args]
+(defn bon! [diff-path upd-path upd-fn & args]
   (apply swap! pou update-in upd-path nod diff-path upd-fn args))
 
 (defn uoq! [path upd-fn & args] 
-  (apply pou! [:uoq :drp] path upd-fn args))
+  (apply bon! [:uoq :drp] path upd-fn args))
 
 (defn dr [path n patch diff]
   (uoq (get-in @pou path n [:uoq patch] [:uoq diff])))
