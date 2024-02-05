@@ -354,10 +354,10 @@
     (. cm addKeyMap
        #js {:Cmd-Enter (fn [cm] 
                          (js/console.log cm)
-                         (js/CodeMirror.Pass))
+                         js/CodeMirror.Pass)
             :Ctrl-Enter (fn [cm] 
                          (js/console.log cm)
-                         (js/CodeMirror.Pass))})
+                         js/CodeMirror.Pass)})
     #_(. cm on "keyHandled"
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
