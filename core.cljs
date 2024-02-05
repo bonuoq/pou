@@ -63,15 +63,16 @@
            :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
            :uis {}
            :modules []
-           :pou {}}))
+           :poal {}}))
 
-(def pou: (:pou @pou))
+(defn pou! [diff-path upd-path upd-fn & args]
+  (apply swap! pou update-in upd-path nod diff-path upd-fn args))
 
-(defn pou! [path upd-fn & args]
-  (apply swap! pou update-in (cons :pou path) nod [:uoq :drp] upd-fn args))
+(defn uoq! [path upd-fn & args] 
+  (apply pou! [:uoq :drp] path upd-fn args))
 
 (defn dr [path n patch diff]
-  (uoq (get-in @pou (cons :pou path) n [:uoq patch] [:uoq diff])))
+  (uoq (get-in @pou path n [:uoq patch] [:uoq diff])))
 
 (defn drw 
   ([path n]
@@ -87,9 +88,6 @@
            #(swap! pou assoc :mode-options (keys %4)))
 (add-watch klreg/selector->mode :reg-mode-selectors
            #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
-
-
-
 
 (defn reg-editor [{:keys [id kl] :as editor}]
   (swap! pou assoc-in [:editors kl] editor)
