@@ -1,3 +1,3 @@
 {:description "@ctford/leipzig"
  :external-libs ["https://raw.githubusercontent.com/ctford/leipzig/master/src/cljc"]
- :snippet "(require '[leipzig.melody :as mel]\n'[leipzig.canon :as canon]\n'[leipzig.chord :as chord]\n'[leipzig.scale :as scale]\n'[leipzig.temperament :as temperament])"}
+ :code "(require '[leipzig.melody :as mel]\n'[leipzig.canon :as canon]\n'[leipzig.chord :as chord]\n'[leipzig.scale :as scale]\n'[leipzig.temperament :as temperament])"}
