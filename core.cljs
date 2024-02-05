@@ -62,7 +62,7 @@
 (defn bon [prev-nod n-iter patch-path diff-path]
   (->> prev-nod
     (iterate #(nod % diff-path e/patch (get-in prev-nod patch-path)))
-    (take n-iter)))
+    (take (inc n-iter))))
 
 (defn bonth [prev-nod nth-iter patch-path diff-path]
   (last (bon prev-nod nth-iter patch-path diff-path)))
@@ -98,19 +98,16 @@
    (apply nod! path [:uoq :drp] upd-fn args))
   ([path n]
    (uoq! path n :drw :drp))
-  ([path] (drp path 1)))
+  ([path] (drp path 0)))
 
 (defn drw!
   ([path upd-fn & args]
    (apply nod! path [:uoq :drw] upd-fn args))
   ([path n]
    (uoq! path n :drp :drw))
-  ([path] (drp path 1)))
+  ([path] (drp path 0)))
 
-(add-watch klreg/mode-options :reg-mode-options 
-           #(swap! pou assoc :mode-options (keys %4)))
-(add-watch klreg/selector->mode :reg-mode-selectors
-           #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
+; REGISTER FUNCTIONS
 
 (defn reg-editor [{:keys [id kl] :as editor}]
   (swap! pou assoc-in [:editors kl] editor)
@@ -354,6 +351,13 @@
         cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! (. cm getOption "extraKeys")
               :Cmd-. #(autocomp-refer! %))
+    (. cm addKeyMap
+       #js {:Cmd-Enter (fn [cm] 
+                         (js/console.log cm)
+                         (js/CodeMirror.Pass))
+            :Ctrl-Enter (fn [cm] 
+                         (js/console.log cm)
+                         (js/CodeMirror.Pass))})
     #_(. cm on "keyHandled"
        (fn [_ key-handled] (js/console.log (str "CodeMirror #" kl " keyHandled: " key-handled))))
     (when (= mode "eval-clojure")
