@@ -93,7 +93,7 @@
   (rf/dispatch [:reg-editor {id editor}]))
 
 (defn append [editors & args]
-  (apply p/append editors :ui :re-frame args))
+  (apply p/append editors :provide {:ui :re-frame} args))
 
 (defn snapshot [] (rf/subscribe [:snapshot]))
 
