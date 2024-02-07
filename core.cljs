@@ -53,7 +53,7 @@
     (assoc-in diff-upd diff-path (e/diff diff-upd prev-nod))))
 
 (defn bon [prev-nod n-iter patch-path diff-path]
-  (->> prev-nod
+  (->> (update-in prev-nod (butlast patch-path) dissoc (last patch-path))
     (iterate #(nod % diff-path e/patch (get-in prev-nod patch-path)))
     (take (inc n-iter))))
 
