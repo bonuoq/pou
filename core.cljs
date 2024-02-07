@@ -63,7 +63,7 @@
 (defn nod! [upd-path diff-path upd-fn & args]
   (get-in 
    (apply swap! pou update-in upd-path nod diff-path upd-fn args)
-   upd-path)
+   upd-path))
 
 (defn pou! [path diff-k upd-fn & args] 
   (apply nod! path [:uoq diff-k] upd-fn args))
@@ -74,7 +74,7 @@
 (defn uoq! [path n patch-k diff-k]
   (get-in
    (swap! pou update-in path bonth n [:uoq patch-k] [:uoq diff-k])
-   path)
+   path))
 
 (defn drp
   ([path upd-fn & args]
