@@ -27,19 +27,6 @@
 (def parse64 #(read-string (decode64 %)))
 (def flatten64 #(flatten (into [] (parse64 %))))
 
-(defn toggle-hidden 
-  ([query-selector hidden?] 
-   (j/assoc! (js/document.querySelector query-selector) :hidden hidden?))
-  ([query-selector] 
-   (j/update! (js/document.querySelector query-selector) :hidden not)))
-
-(defn loaded! [] 
-  (toggle-hidden "#pou-app" false)
-  (toggle-hidden "#loading" true))
-(defn loading! [] 
-  (toggle-hidden "#loading" false)
-  (toggle-hidden "#pou-app" true))
-
 ; BASE STATE
 
 (def pou (atom 
@@ -226,7 +213,22 @@
 (defn dom-nodelist [selector]
   (js/document.querySelectorAll selector))
 (defn dom-vec [selector]
-  (-> selector dom-nodelist js/Array.from clj->js))
+  (-> selector dom-nodelist js/Array.from js->clj))
+
+(defn toggle-hidden! 
+  ([selector hidden?]
+   (for [e (dom-vec selector)]
+     (j/assoc! e :hidden hidden?)))
+  ([query-selector] 
+   (for [e (dom-vec selector)]
+     (j/update! e :hidden not))))
+
+(defn loaded! [] 
+  (toggle-hidden! "#pou-app" false)
+  (toggle-hidden! "#loading" true))
+(defn loading! [] 
+  (toggle-hidden! "#loading" false)
+  (toggle-hidden! "#pou-app" true))
 
 (defn dom-string [s]
   (.createContextualFragment (js/document.createRange) s))
@@ -489,6 +491,7 @@
 
 (defn load-ui [ui & {:keys [on-ready pre-path post-path] :as opts}]
   (loading!)
+  (toggle-hidden! "div#uis .pou-ui")
   (load-module ui :pre-path pre-path :post-path post-path
                :on-ready (fn [] 
                            (when on-ready (on-ready))
