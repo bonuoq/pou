@@ -80,12 +80,12 @@
 (rf/reg-event-db
  :drw-editor
  (fn [db [_ id]]
-   (assoc-in db [:editors id :code] (p/drw-editor! id))))
+   (assoc-in db [:editors id :code] (p/drw-editor! id 1))))
 
 (rf/reg-event-db
  :drp-editor
  (fn [db [_ id]]
-   (assoc-in db [:editors id :code] (p/drp-editor! id))))
+   (assoc-in db [:editors id :code] (p/drp-editor! id 1))))
 
 (rf/reg-event-db
  :initialize
