@@ -83,6 +83,11 @@
    (assoc-in db [:editors id :code] (p/drw-editor! id))))
 
 (rf/reg-event-db
+ :drp-editor
+ (fn [db [_ id]]
+   (assoc-in db [:editors id :code] (p/drp-editor! id))))
+
+(rf/reg-event-db
  :initialize
  (fn [_ _] 
    {:editors {} :ready {}}))
@@ -124,7 +129,10 @@
            (or description (str "id: " id ", mode: " mode))] " "
           [:button.drw-editor
            {:on-click #(rf/dispatch [:drw-editor id])}
-           "<-eval"]]
+           "<-eval"]
+          [:button.drp-editor
+           {:on-click #(rf/dispatch [:drp-editor id])}
+           "eval->"]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
           [:div.pou-klipse kl-attrs (str code)]]]))}))
