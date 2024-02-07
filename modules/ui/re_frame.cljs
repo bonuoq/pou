@@ -121,7 +121,6 @@
       (let [hidden? @(rf/subscribe [:hidden? id])]
         [:div.pou-wrapper (assoc attrs :id id)
          [:div.pou-toolbar
-          (str "#" kl)
           [:button.toggle-min
            {:on-click #(rf/dispatch [:show-hide id])}
            (if hidden? "<" ">")] " "
