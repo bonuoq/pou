@@ -2,8 +2,9 @@
   (:require [goog.dom :as gdom]
             [cljs.core.async :refer [<!] :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
-            [cljs-http.client :as http]
+            [cljs.data :as d]
             [cljs.reader :refer [read-string]]
+            [cljs-http.client :as http]
             [klipse.ui.editors.editor :as kl-ed]
             [klipse-clj.repl :as kl-repl]
             [klipse.plugin :as klp]
@@ -27,7 +28,7 @@
 (def parse64 #(read-string (decode64 %)))
 (def flatten64 #(flatten (into [] (parse64 %))))
 
-; BASE STATE
+; BASE STATE & watches
 
 (def pou (atom 
           {:editors {}
@@ -39,7 +40,12 @@
            :uis {}
            :modules []}))
 
-; STATE CHANGES (recursive diffs)
+(add-watch klreg/mode-options :reg-mode-options 
+           #(swap! pou assoc :mode-options (keys %4)))
+(add-watch klreg/selector->mode :reg-mode-selectors
+           #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
+
+; Flexible STATE CHANGES (recursive ediscript diffs and patches)
 
 (defn nod [prev-nod diff-path upd-fn & args]
   (let [upd (apply upd-fn prev-nod args)
@@ -70,12 +76,14 @@
   ([path upd-fn & args]
    (apply nod (get-in @pou path) [:uoq :drp] upd-fn args))
   ([path n]
-   (uoq path n :drw :drp))
+   (when (pos? n)
+     (uoq path n :drw :drp)))
   ([path] (drp path 0)))
 
 (defn drps
   ([path n sel-keys]
-   (map select-keys (drp path n) (repeat sel-keys)))
+   (when (pos? n)
+     (map select-keys (drp path n) (repeat sel-keys))))
   ([path n]
    (drps (butlast path) n [(last path)]))
   ([path]
@@ -85,12 +93,14 @@
   ([path upd-fn & args]
    (apply nod (get-in @pou path) [:uoq :drw] upd-fn args))
   ([path n]
-   (uoq path n :drp :drw))
+   (when (pos? n)
+     (uoq path n :drp :drw)))
   ([path] (drw path 0)))
 
 (defn drws 
   ([path n sel-keys]
-   (map select-keys (drw path n) (repeat sel-keys)))
+   (when (pos? n) 
+     (map select-keys (drw path n) (repeat sel-keys))))
   ([path n]
    (drws (butlast path) n [(last path)]))
   ([path]
@@ -100,15 +110,25 @@
   ([path upd-fn & args]
    (apply nod! path [:uoq :drp] upd-fn args))
   ([path n]
-   (uoq! path n :drw :drp))
-  ([path] (drp path 0)))
+   (when (pos? n) (uoq! path n :drw :drp))))
+
+(defn drps!
+  ([path n sel-keys]
+   (-> (drp! path n)
+     (get-in path)
+     (select-keys sel-keys))))
 
 (defn drw!
   ([path upd-fn & args]
    (apply nod! path [:uoq :drw] upd-fn args))
   ([path n]
-   (uoq! path n :drp :drw))
-  ([path] (drp path 0)))
+   (when (pos? n) (uoq! path n :drp :drw))))
+
+(defn drws!
+  ([path n sel-keys]
+   (-> (drw! path n)
+     (get-in path)
+     (select-keys sel-keys))))
 
 ; REGISTER FUNCTIONS
 
@@ -151,21 +171,29 @@
 
 (defn get-result [k] (call-in-result k :getValue))
 
-(defn on-code-change [k callback]
-  (let [cb-handler (fn [cm] (callback (.getValue cm)))]
-    (call-in-editor k :on "change" cb-handler)
-    cb-handler))
+(defn off-code-change [k handler] (call-in-editor k :off "change" handler))
 
-(defn on-res-change [k callback]
-  (let [cb-handler (fn [r] (callback (.getValue r)))]
-    (call-in-result k :on "change" cb-handler)
+(defn on-code-change [k callback {:keys [one-shot]}]
+  (let [cb-handler (fn [cm] (callback (.getValue cm)))]
+    (call-in-editor k :on "change" 
+                    (fn [cm]
+                      (when one-shot (off-code-change cb-handler))
+                      (cb-handler cm)))
     cb-handler))
 
 (defn off-res-change [k handler] (call-in-result k :off "change" handler))
 
-(defn res-watch [k cb]
+(defn on-res-change [k callback & {:keys [one-shot]}]
+  (let [cb-handler (fn [r] (callback (.getValue r)))]
+    (call-in-result k :on "change"
+                    (fn [cm]
+                      (when one-shot (off-res-change cb-handler))
+                      (cb-handler cm)))
+    cb-handler))
+
+(defn res-watch [k cb & {:keys [one-shot]}]
   (cb (get-result k))
-  (on-res-change k cb))
+  (on-res-change k cb :one-shot one-shot))
 
 (defn res-unwatch [k handler] (off-res-change k handler))
 
@@ -184,12 +212,15 @@
     (set-code k code)
     (eval-editor k)))
 
-(defn eval-callback [k code callback] 
+(defn eval-callback [k code callback] ; CANCEL WATCH AFTER
   (do
-    (res-watch k callback)
+    (res-watch k callback :one-shot true)
     (set-code-eval k code)))
 
 (defn peval-str [s] (set-code-eval 0 s))
+
+(defn drw-editor! [k]
+  (set-code-eval k (drws! [:editors (get-kl k)] 1 [:code])))
 
 ; DOM & AJAX HELPERS
 
