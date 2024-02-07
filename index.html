@@ -249,9 +249,10 @@
     function toggleHidden (id) {
       let element = document.getElementById(id);
       element.hidden = !element.hidden;
+      return element.hidden;
     }
     function toggleLive () {
-      let live = document.getElementById("pou-app").hidden;
+      let live = toggleHidden("pou-app");
       document.getElementById("pou-live").hidden = !live;
       if (!live) { 
         scrollDown('pou-app'); 
