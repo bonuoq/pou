@@ -121,7 +121,10 @@
            {:on-click #(rf/dispatch [:show-hide id])}
            (if hidden? "<" ">")] " "
           [:span.pou-intro.pou-editable {:contentEditable true}
-           (or description (str "id: " id ", mode: " mode))]]
+           (or description (str "id: " id ", mode: " mode))] " "
+          [:button.drw-editor
+           {:on-click #(rf/dispatch [:drw-editor id])}
+           "<-eval"]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
           [:div.pou-klipse kl-attrs (str code)]]]))}))
