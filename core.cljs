@@ -219,7 +219,7 @@
   ([selector hidden?]
    (for [e (dom-vec selector)]
      (j/assoc! e :hidden hidden?)))
-  ([query-selector] 
+  ([selector] 
    (for [e (dom-vec selector)]
      (j/update! e :hidden not))))
 
