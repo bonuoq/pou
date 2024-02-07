@@ -220,7 +220,7 @@
 (defn peval-str [s] (set-code-eval 0 s))
 
 (defn drw-editor! [k]
-  (set-code-eval k (drw! [:editors (get-kl k)] 1)))
+  (set-code-eval k (:code (drw! [:editors (get-kl k)] 1))))
 
 ; DOM & AJAX HELPERS
 
