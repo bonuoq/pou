@@ -219,8 +219,13 @@
 
 (defn peval-str [s] (set-code-eval 0 s))
 
-(defn drw-editor! [k]
-  (let [code (:code (drw! [:editors (get-kl k)] 1))]
+(defn drw-editor! [k n]
+  (let [code (:code (drw! [:editors (get-kl k)] n))]
+    (set-code-eval k code)
+    code))
+
+(defn drp-editor! [k n]
+  (let [code (:code (drp! [:editors (get-kl k)] n))]
     (set-code-eval k code)
     code))
 
