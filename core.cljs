@@ -61,7 +61,9 @@
   (last (bon prev-nod nth-iter patch-path diff-path)))
 
 (defn nod! [upd-path diff-path upd-fn & args]
-  (apply swap! pou update-in upd-path nod diff-path upd-fn args))
+  (get-in 
+   (apply swap! pou update-in upd-path nod diff-path upd-fn args)
+   upd-path)
 
 (defn pou! [path diff-k upd-fn & args] 
   (apply nod! path [:uoq diff-k] upd-fn args))
@@ -70,7 +72,9 @@
   (bon (get-in @pou path) n [:uoq patch-k] [:uoq diff-k]))
 
 (defn uoq! [path n patch-k diff-k]
-  (swap! pou update-in path bonth n [:uoq patch-k] [:uoq diff-k]))
+  (get-in
+   (swap! pou update-in path bonth n [:uoq patch-k] [:uoq diff-k])
+   path)
 
 (defn drp
   ([path upd-fn & args]
@@ -114,10 +118,8 @@
 
 (defn drps!
   ([path n sel-keys]
-   (-> (drp! path n)
-     (get-in path)
-     (select-keys sel-keys))))
-
+   (select-keys (drp! path n) sel-keys)))
+  
 (defn drw!
   ([path upd-fn & args]
    (apply nod! path [:uoq :drw] upd-fn args))
@@ -126,9 +128,7 @@
 
 (defn drws!
   ([path n sel-keys]
-   (-> (drw! path n)
-     (get-in path)
-     (select-keys sel-keys))))
+   (select-keys (drw! path n) sel-keys)))
 
 ; REGISTER FUNCTIONS
 
@@ -220,7 +220,7 @@
 (defn peval-str [s] (set-code-eval 0 s))
 
 (defn drw-editor! [k]
-  (set-code-eval k (drws! [:editors (get-kl k)] 1 [:code])))
+  (set-code-eval k (drw! [:editors (get-kl k)] 1)))
 
 ; DOM & AJAX HELPERS
 
