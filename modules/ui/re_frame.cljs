@@ -38,10 +38,10 @@
    (->> (:editors db)
      (map #(assoc (val %) :code (p/get-code (:kl (val %))))) 
      (map #(dissoc % :kl))
-     (mapv #(assoc % :intro (-> (:id %) 
-                             gdom/getElement 
-                             (.querySelector ".pou-intro") 
-                             .-textContent))))))
+     (mapv #(assoc % :description (-> (:id %) 
+                                    gdom/getElement 
+                                    (.querySelector ".pou-intro") 
+                                    .-textContent))))))
 
 ; REG EVENTS
 
@@ -78,9 +78,9 @@
      (update-in recovered [:trash] dissoc id))))
 
 (rf/reg-event-db
- :change-intro
- (fn [db [_ id intro]]
-   (assoc-in db [:editors id :intro] intro)))
+ :drw-editor
+ (fn [db [_ id]]
+   (assoc-in db [:editors id :code] (p/drw-editor! id))))
 
 (rf/reg-event-db
  :initialize
