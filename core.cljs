@@ -217,18 +217,18 @@
 
 (defn toggle-hidden! 
   ([selector hidden?]
-   (for [e (dom-vec selector)]
+   (doseq [e (dom-vec selector)]
      (j/assoc! e :hidden hidden?)))
   ([selector] 
-   (for [e (dom-vec selector)]
+   (doseq [e (dom-vec selector)]
      (j/update! e :hidden not))))
 
-(defn loaded! [] 
-  (toggle-hidden! "#pou-app" false)
-  (toggle-hidden! "#loading" true))
+(defn loaded! []
+  (toggle-hidden! "div#pou-app" false)
+  (toggle-hidden! "div#loading" true))
 (defn loading! [] 
-  (toggle-hidden! "#loading" false)
-  (toggle-hidden! "#pou-app" true))
+  (toggle-hidden! "div#loading" false)
+  (toggle-hidden! "div#pou-app" true))
 
 (defn dom-string [s]
   (.createContextualFragment (js/document.createRange) s))
