@@ -120,7 +120,7 @@
     (fn []
       (let [hidden? @(rf/subscribe [:hidden? id])]
         [:div.pou-wrapper (assoc attrs :id id)
-         [:div.pou-toolbar.re-frame-wrapper
+         [:div.re-frame-intro
           [:button.toggle-min
            {:on-click #(rf/dispatch [:show-hide id])}
            (if hidden? "<" ">")] " "
@@ -128,7 +128,7 @@
            (or description (str "#" id ", mode: " mode))]]
          [:div.pou-editor
           {:style {:display (if hidden? "none" "block")}}
-          [:div.pou-toolbar.re-frame-inner
+          [:div.re-frame-toolbar
            [:button.drw-editor
            {:on-click #(rf/dispatch [:drw-editor id])}
            "<-eval"]
