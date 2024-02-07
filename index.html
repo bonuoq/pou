@@ -250,13 +250,19 @@
       let element = document.getElementById(id);
       element.hidden = !element.hidden;
     }
+    function toggleLive () {
+      let live = document.getElementById("pou-app").hidden;
+      document.getElementById("pou-live").hidden = !live;
+      if (!live) { 
+        scrollDown('pou-app'); 
+      }
+    }
     function appendEditor (settings) {
       pou.core.peval_str(`(aed ${settings})`);
     }
   </script>
   <div id="loading" class="loader">LOADING...</div>
-  <div id="host"></div>
-  <div id="app"></div>
+  <div id="pou-live" hidden></div>
   <div id="pou-app" hidden>
     <div id="top-bar" class="pou-toolbar floating-top">
       <ul id="pou-main" class="pou-menu">
@@ -275,6 +281,8 @@
       </select>
       <div id="pou-extensions"></div>
     </div>
+    <div id="host"></div>
+    <div id="app"></div>
     <div id="uis">
       <div class="pou-toolbar" id="base-control">
         <button class="pou-toggle-view" 
@@ -314,7 +322,7 @@
 (p/init!)
       </div>
     </div>
-    <button class="pou-toggle" onclick="toggleHidden('pou-app');scrollDown('pou-app')">
+    <button class="pou-toggle" onclick="toggleLive()">
       &lt&gt
     </button>
   </div>
