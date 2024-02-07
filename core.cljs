@@ -177,7 +177,7 @@
   (let [cb-handler (fn [cm] (callback (.getValue cm)))]
     (call-in-editor k :on "change" 
                     (fn [cm]
-                      (when one-shot (off-code-change cb-handler))
+                      (when one-shot (off-code-change k cb-handler))
                       (cb-handler cm)))
     cb-handler))
 
@@ -187,7 +187,7 @@
   (let [cb-handler (fn [r] (callback (.getValue r)))]
     (call-in-result k :on "change"
                     (fn [cm]
-                      (when one-shot (off-res-change cb-handler))
+                      (when one-shot (off-res-change k cb-handler))
                       (cb-handler cm)))
     cb-handler))
 
