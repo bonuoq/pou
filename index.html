@@ -246,16 +246,31 @@
     function scrollDown (id) {
       window.scrollTo(0, document.getElementById(id).scrollHeight);
     }
-    function toggleHidden (id) {
+    function toggleHidden (id) { // ?? positive thinking can be cleaner and more clear, toggleView -> true/false
       let element = document.getElementById(id);
       element.hidden = !element.hidden;
       return element.hidden;
     }
+    function refreshCMs (id) {
+      document.getElementById(id).querySelectorAll(".CodeMirror").forEach(
+        (e) => {
+          e.CodeMirror.refresh()
+        }
+      );
+    }
     function toggleLive () {
-      let live = toggleHidden("pou-app");
-      document.getElementById("pou-live").hidden = !live;
-      if (!live) { 
+      let notLive = !toggleHidden("pou-app");
+      document.getElementById("pou-live").hidden = notLive;
+      if (notLive) {
+        refreshCMs('pou-app');
         scrollDown('pou-app'); 
+      }
+    }
+    function toggleBaseUI () {
+      let shown = !toggleHidden('base');
+      if (shown) {
+        refreshCMs('base');
+        scrollDown('base');
       }
     }
     function appendEditor (settings) {
@@ -283,8 +298,8 @@
     <div id="app"></div>
     <div id="uis">
       <div class="pou-toolbar" id="base-control">
-        <button class="pou-toggle-view" 
-          onclick="toggleHidden('base');scrollDown('base')">
+        <button class="pou-toggle" 
+          onclick="toggleBaseUI()">
           &lt&gt
         </button>
         baseUI&nbsp;
