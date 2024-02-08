@@ -107,13 +107,13 @@
       }
     }
 
-    .pou-menu {
+    .pou-menu.pou-nested {
       margin-top: 0;
       margin-right: 1em;
       width: 6em;
       padding: 0.5ch;
 
-      .pou-menu-sub {
+      .pou-nested {
         display: none;
         background: #fff;
         padding: 5px;
@@ -124,12 +124,12 @@
       }
     }
 
-    .pou-menu:hover > .pou-menu-sub {
+    .pou-nested:hover > .pou-nested {
       display: block;
     }
 
-    .pou-menu-sub:hover > .pou-menu-sub {
-        display: block;
+    .pou-nested:hover > .pou-nested.inline {
+      display: inline-flex;
     }
 
     .floating-bottom {
@@ -266,12 +266,9 @@
   <div id="pou-live" hidden></div>
   <div id="pou-app" hidden>
     <div id="top-bar" class="pou-toolbar floating-top">
-      <ul id="pou-main" class="pou-menu">
+      <div id="pou-main" class="pou-menu pou-nested">
         <img src="pou.svg" style="height: 1em;">
-        <li class="pou-menu-sub">@pou
-          <ul id="pou-state" class="pou-menu-sub"></ul>
-        </li>
-      </ul>
+      </div>
       <select class="load-ui" 
         onchange='pou.core.peval_str(`(load-ui "${event.target.value}")`);event.target.selectedIndex=0'>
         <option value="" disabled selected>Load UI</option>
