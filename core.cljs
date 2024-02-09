@@ -378,6 +378,8 @@
                                               (let [cursor (. cm getCursor)
                                                     token (. cm getTokenAt cursor)
                                                     result (-> data .-text read-string eval)]
+                                                (js/console.log data)
+                                                (js/console.log result)
                                                 (. cm replaceRange result (.-start token) cursor))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
