@@ -368,11 +368,12 @@
                                     :text (str pre (case (first token)
                                                      \. (str kl)
                                                      \# (str "#" id)
-                                                     \$ (do
-                                                          (eval-editor kl)
-                                                          (get-result kl))
+                                                     \$ (get-code kl)
                                                      \& (get-code kl)
-                                                     \% (get-result kl)))}))
+                                                     \% (get-result kl)))
+                                    :hint (when (= \$ (first token))
+                                            (fn [cm _ data]
+                                              (. cm replaceRange data (. cm getCursor))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
