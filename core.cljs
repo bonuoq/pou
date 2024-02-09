@@ -271,6 +271,8 @@
 (defn dom-string [s]
   (.createContextualFragment (js/document.createRange) s))
 
+(declare dom-any)
+
 (defn dom-create [selector {:as attrs} content]
   (let [tag (sel-child-tag selector)
         as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
