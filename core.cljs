@@ -365,17 +365,20 @@
                        (mapv
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
-                                    :text (str pre (case (first token)
-                                                     \. (str kl)
-                                                     \# (str "#" id)
-                                                     \$ (get-code kl)
-                                                     \& (get-code kl)
-                                                     \% (get-result kl)))
+                                    :text (if (= \$ (first token))
+                                                 (get-code kl)
+                                                 (str pre 
+                                                      (case (first token)
+                                                        \. (str kl)
+                                                        \# (str "#" id)
+                                                        \& (get-code kl)
+                                                        \% (get-result kl))))
                                     :hint (when (= \$ (first token))
                                             (fn [cm _ data]
-                                              (let [cursor (. cm getCursor)]
-                                                (js/console.log data)
-                                                (. cm replaceRange data cursor cursor))))}))
+                                              (let [cursor (. cm getCursor)
+                                                    token (. cm getTokenAt cursor)
+                                                    result (-> data .-text read-string eval)]
+                                                (. cm replaceRange result (.-start token) cursor))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
@@ -403,7 +406,7 @@
         to (or to (if (> 0 rel-cursor) 
                     (j/update-in! cursor [:ch] + rel-cursor) 
                     cursor))]
-  (.replaceRange cm code from to)))
+  (.replaceRange cm code (clj->js from) (clj->js to))))
 
 (defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
 
