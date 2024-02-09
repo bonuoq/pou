@@ -381,7 +381,8 @@
                                               (let [cursor (. cm getCursor)
                                                     token (. cm getTokenAt cursor)
                                                     kl (. data -text)] 
-                                                (eval-callback kl #(. cm replaceRange % (.-start token) cursor)))))}))
+                                                (eval-callback kl (fn [res]
+                                                                    (. cm replaceRange res (.-start token) cursor))))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
