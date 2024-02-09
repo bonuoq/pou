@@ -373,7 +373,9 @@
                                                      \% (get-result kl)))
                                     :hint (when (= \$ (first token))
                                             (fn [cm _ data]
-                                              (. cm replaceRange data (. cm getCursor))))}))
+                                              (let [cursor (. cm getCursor)]
+                                                (js/console.log data)
+                                                (. cm replaceRange data cursor cursor))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
