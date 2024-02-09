@@ -212,10 +212,13 @@
     (set-code k code)
     (eval-editor k)))
 
-(defn eval-callback [k code callback] ; CANCEL WATCH AFTER
-  (do
-    (res-watch k callback :one-shot true)
-    (set-code-eval k code)))
+(defn eval-callback
+  ([k callback]
+   (res-watch k callback :one-shot true)
+   (eval-editor k))
+  ([k code callback]
+   (res-watch k callback :one-shot true)
+   (set-code-eval k code)))
 
 (defn peval-str [s] (set-code-eval 0 s))
 
@@ -366,7 +369,7 @@
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
                                     :text (if (= \$ (first token))
-                                                 (get-code kl)
+                                                 kl
                                                  (str pre 
                                                       (case (first token)
                                                         \. (str kl)
@@ -377,9 +380,8 @@
                                             (fn [cm _ data]
                                               (let [cursor (. cm getCursor)
                                                     token (. cm getTokenAt cursor)
-                                                    code (read-string (. data -text))]
-                                                (js/console.log (eval code))
-                                                #_(. cm replaceRange result (.-start token) cursor))))}))
+                                                    kl (. data -text)] 
+                                                (eval-callback kl #(. cm replaceRange % (.-start token) cursor)))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
