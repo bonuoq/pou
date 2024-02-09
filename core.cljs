@@ -377,8 +377,7 @@
                                             (fn [cm _ data]
                                               (let [cursor (. cm getCursor)
                                                     token (. cm getTokenAt cursor)
-                                                    result (-> data .-text)]
-                                                (js/console.log data)
+                                                    result (-> (. data -text) read-string eval)]
                                                 (js/console.log result)
                                                 #_(. cm replaceRange result (.-start token) cursor))))}))
                         (-> @pou :editors vals))))]
