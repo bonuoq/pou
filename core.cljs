@@ -372,7 +372,7 @@
                                 (str pre 
                                      (case kch
                                        \. (str kl)
-                                       \# (str "#" id)
+                                       \# (str id)
                                        \& (get-code kl)
                                        \% (get-result kl))))
                               :hint 
