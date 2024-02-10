@@ -146,9 +146,9 @@
 
 ; EDITOR FUNCTIONS
 
-(def get-kl #(if (number? %) % (-> @pou :id-kls %)))
+(def get-kl #(if (number? %) % (-> @pou :id-kls (clj->js %))))
 
-(def get-id #(if (number? %) (-> @pou :editors (get %) :id) %))
+(def get-id #(if (number? %) (-> @pou :editors (get %) :id) (clj->js %)))
 
 (defn get-cm [k & {:keys [n] :or {n 0}}]
   (-> (str "#" (get-id k) " .CodeMirror") js/document.querySelectorAll (aget n) .-CodeMirror))
@@ -458,7 +458,7 @@
           {:keys [ui mode attrs kl-attrs external-libs eval-time loop? preamble editor-type]
            :as editor} (merge default-keys provide specific override)
           kl (+ @klp/snippet-counter n)
-          id (or id (:id attrs) (gensym "pou"))
+          id (clj->js (or id (:id attrs) (gensym "pou")))
           data-external-libs (->> external-libs
                               (into (-> @pou :external-libs (get mode)))
                               (cons (:data-external-libs kl-attrs))
