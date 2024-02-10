@@ -361,7 +361,7 @@
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
 (defn- autocomp-refer! [cm]
-  (when-let [[_ pre kch] (re-find #"(.*)([\$.#&%])" (get-token-str cm))]
+  (when-let [[_ pre kch findcomp] (re-find #"(.*)([\$.#&%])(.*)" (get-token-str cm))]
     (let [completions
           (->> @pou :editors vals
             (mapv (fn [{:keys [kl id]}]
