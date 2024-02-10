@@ -175,20 +175,22 @@
 
 (defn on-code-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm] 
-                     (callback (.getValue cm))
-                     (when one-shot
-                       (off-code-change k self)))]
+                     (when-let [code (.getValue cm)]
+                       (callback (->> code butlast (apply str)))
+                       (when one-shot
+                         (off-code-change k self))))]
     (call-in-editor k :on "change" cb-handler)                      
     cb-handler))
 
 (defn off-res-change [k handler] (call-in-result k :off "change" handler))
 
 (defn on-res-change [k callback & {:keys [one-shot]}]
-  (let [cb-handler (fn self [cm] 
-                     (callback (.getValue cm))
-                     (when one-shot
-                       (off-res-change k self)))]
-    (call-in-result k :on "change" cb-handler)                      
+  (let [cb-handler (fn self [cm]
+                     (when-let [res (.getValue cm)]
+                       (callback (->> res butlast (apply str)))
+                       (when one-shot
+                         (off-res-change k self))))]
+    (call-in-result k :on "beforeChange" cb-handler)                      
     cb-handler))
 
 (defn res-watch [k cb & {:keys [one-shot]}]
@@ -367,23 +369,23 @@
                        (mapv
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
-                                    :text (if (= \$ (first token))
-                                                 kl
-                                                 (str pre 
-                                                      (case (first token)
-                                                        \. (str kl)
-                                                        \# (str "#" id)
-                                                        \& (get-code kl)
-                                                        \% (get-result kl))))
-                                    :hint (when (= \$ (first token))
-                                            (fn [cm _ data]
-                                              (let [cursor (. cm getCursor)
-                                                    token (. cm getTokenAt cursor)
-                                                    token-start (js/CodeMirror.Pos (.-line cursor) (.-start token))
-                                                    kl (. data -text)]
-                                                (eval-callback kl (fn [r]
-                                                                    (js/console.log r)
-                                                                    (. cm replaceRange r token-start cursor))))))}))
+                                    :text 
+                                    (if (= \$ (first token))
+                                      kl
+                                      (str pre 
+                                           (case (first token)
+                                             \. (str kl)
+                                             \# (str "#" id)
+                                             \& (get-code kl)
+                                             \% (get-result kl))))
+                                    :hint 
+                                    (when (= \$ (first token))
+                                      (fn [cm _ data]
+                                        (let [cursor (. cm getCursor)
+                                              token (. cm getTokenAt cursor)
+                                              token-start (js/CodeMirror.Pos (.-line cursor) (.-start token))
+                                              kl (. data -text)]
+                                          (eval-callback kl #(. cm replaceRange % token-start cursor))))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
