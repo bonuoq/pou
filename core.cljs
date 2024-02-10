@@ -174,27 +174,24 @@
 (defn off-code-change [k handler] (call-in-editor k :off "change" handler))
 
 (defn on-code-change [k callback & {:keys [one-shot]}]
-  (let [cb-handler (fn [cm] (callback (.getValue cm)))]
-    (call-in-editor k :on "change" 
-                    (fn [cm]
-                      (when one-shot
-                        (js/setTimeout #(off-code-change k cb-handler)))
-                      (cb-handler cm)))
+  (let [cb-handler (fn [cm] 
+                     (when one-shot
+                       (js/setTimeout #(off-code-change k cb-handler)))
+                     (callback (.getValue cm)))]
+    (call-in-editor k :on "change" cb-handler)                      
     cb-handler))
 
 (defn off-res-change [k handler] (call-in-result k :off "change" handler))
 
 (defn on-res-change [k callback & {:keys [one-shot]}]
-  (let [cb-handler (fn [r] (callback (.getValue r)))]
-    (call-in-result k :on "change"
-                    (fn [cm]
-                      (when one-shot 
-                        (js/setTimeout #(off-res-change k cb-handler)))
-                      (cb-handler cm)))
+  (let [cb-handler (fn [cm] 
+                     (when one-shot
+                       (js/setTimeout #(off-res-change k cb-handler)))
+                     (callback (.getValue cm)))]
+    (call-in-result k :on "change" cb-handler)                      
     cb-handler))
 
 (defn res-watch [k cb & {:keys [one-shot]}]
-  (cb (get-result k))
   (on-res-change k cb :one-shot one-shot))
 
 (defn res-unwatch [k handler] (off-res-change k handler))
