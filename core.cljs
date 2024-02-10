@@ -361,34 +361,33 @@
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
 (defn- autocomp-refer! [cm]
-  (let [token-str (get-token-str cm)
-        regx (re-find #"(.*)[\$.#&%]" token-str)
-        kch (first regx)
-        pre (second regx)
-        completions 
-        (clj->js (into [nil]
-                       (mapv
-                        (fn [{:keys [kl id]}]
-                          (clj->js {:displayText (str kl " #" id)
-                                    :text 
-                                    (if (= \$ kch)
-                                      kl
-                                      (str pre 
-                                           (case kch
-                                             \. (str kl)
-                                             \# (str "#" id)
-                                             \& (get-code kl)
-                                             \% (get-result kl))))
-                                    :hint 
-                                    (when (= \$ kch)
-                                      (fn [cm _ data]
-                                        (let [cursor (. cm getCursor)
-                                              token (. cm getTokenAt cursor)
-                                              token-start (js/CodeMirror.Pos (.-line cursor) (.-start token))
-                                              kl (. data -text)]
-                                          (eval-callback kl #(. cm replaceRange (str pre %) token-start cursor)))))}))
-                        (-> @pou :editors vals))))]
-    (show-hint! cm completions)))
+  (when-let [regx (rest (re-find #"(.*)([\$.#&%])" (get-token-str cm)))]
+    (let [kch (last regx)
+          pre (second regx)
+          completions 
+          (clj->js (into [nil]
+                         (mapv
+                          (fn [{:keys [kl id]}]
+                            (clj->js {:displayText (str kl " #" id)
+                                      :text 
+                                      (if (= \$ kch)
+                                        kl
+                                        (str pre 
+                                             (case kch
+                                               \. (str kl)
+                                               \# (str "#" id)
+                                               \& (get-code kl)
+                                               \% (get-result kl))))
+                                      :hint 
+                                      (when (= \$ kch)
+                                        (fn [cm _ data]
+                                          (let [cursor (. cm getCursor)
+                                                token (. cm getTokenAt cursor)
+                                                token-start (js/CodeMirror.Pos (.-line cursor) (.-start token))
+                                                kl (. data -text)]
+                                            (eval-callback kl #(. cm replaceRange (str pre %) token-start cursor)))))}))
+                          (-> @pou :editors vals))))]
+      (show-hint! cm completions))))
 
 (defn- show-completions! [cm hint? info?]
   (let [token-str (get-token-str cm)
