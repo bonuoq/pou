@@ -175,9 +175,9 @@
 
 (defn on-code-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm] 
+                     (callback (.getValue cm))
                      (when one-shot
-                       (js/setTimeout #(off-code-change k self)))
-                     (callback (.getValue cm)))]
+                       (off-code-change k self)))]
     (call-in-editor k :on "change" cb-handler)                      
     cb-handler))
 
@@ -185,9 +185,9 @@
 
 (defn on-res-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm] 
+                     (callback (.getValue cm))
                      (when one-shot
-                       (js/setTimeout #(off-res-change k self)))
-                     (callback (.getValue cm)))]
+                       (off-res-change k self)))]
     (call-in-result k :on "change" cb-handler)                      
     cb-handler))
 
@@ -399,17 +399,6 @@
             (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
             (take 20 (rest completions)))
            :replace? true :attrs {:href "#"}))))
-
-(defn- insert-code [k code & {:keys [rel-cursor from to] :or {rel-cursor 0}}]
-  (let [cm (@kleds/editors (get-kl k))
-        cursor (.getCursor cm)
-        from (or from (if (< 0 rel-cursor) 
-                        (j/update-in! cursor [:ch] + rel-cursor) 
-                        cursor))
-        to (or to (if (> 0 rel-cursor) 
-                    (j/update-in! cursor [:ch] + rel-cursor) 
-                    cursor))]
-  (.replaceRange cm code (clj->js from) (clj->js to))))
 
 (defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
 
