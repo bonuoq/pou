@@ -362,30 +362,31 @@
 
 (defn- autocomp-refer! [cm]
   (let [token-str (get-token-str cm)
-        pre (when (= \" (first token-str)) \")
-        token (if pre (rest token-str) token-str) 
+        regx (re-find #"(.*)[\$.#&%]" token-str)
+        kch (first regx)
+        pre (second regx)
         completions 
         (clj->js (into [nil]
                        (mapv
                         (fn [{:keys [kl id]}]
                           (clj->js {:displayText (str kl " #" id)
                                     :text 
-                                    (if (= \$ (first token))
+                                    (if (= \$ kch)
                                       kl
                                       (str pre 
-                                           (case (first token)
+                                           (case kch
                                              \. (str kl)
                                              \# (str "#" id)
                                              \& (get-code kl)
                                              \% (get-result kl))))
                                     :hint 
-                                    (when (= \$ (first token))
+                                    (when (= \$ kch)
                                       (fn [cm _ data]
                                         (let [cursor (. cm getCursor)
                                               token (. cm getTokenAt cursor)
                                               token-start (js/CodeMirror.Pos (.-line cursor) (.-start token))
                                               kl (. data -text)]
-                                          (eval-callback kl #(. cm replaceRange % token-start cursor)))))}))
+                                          (eval-callback kl #(. cm replaceRange (str pre %) token-start cursor)))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
