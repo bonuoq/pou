@@ -380,9 +380,11 @@
                                               (let [cursor (. cm getCursor)
                                                     token (. cm getTokenAt cursor)
                                                     token-start (js/CodeMirror.Pos (.-line cursor) (.-start token))
-                                                    kl (. data -text)] 
-                                                (eval-callback kl #(. cm replaceRange % token-start cursor))
-                                                "")))}))
+                                                    kl (. data -text)]
+                                                (js/console.log 
+                                                 [token token-start cursor %])
+                                                (js/console.log 
+                                                 (eval-callback kl #(. cm replaceRange % token-start cursor))))))}))
                         (-> @pou :editors vals))))]
     (show-hint! cm completions)))
 
