@@ -33,8 +33,8 @@
 (def pou (atom 
           {:editors {}
            :id-kls {}
-           :pou-modes {"pou-clj" {:kl-mode "eval-clojure" 
-                                  :external-libs ["https://bonuoq.github.io"]}}
+           :pou-modes {:pou-clj {:kl-mode "eval-clojure" 
+                                 :external-libs ["https://bonuoq.github.io"]}}
            :mode-options (into (sorted-set) (keys @klreg/mode-options))
            :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
            :klipse-settings (js->clj js/klipse-settings)
@@ -363,7 +363,7 @@
         (js/setTimeout
          (fn []
            (.showHint cm (clj->js {:hint (partial kl-ed/list-completions completions)
-                                   :completeSingle true}))))))
+                                   :completeSingle false}))))))
 
 (defn- get-token-str [cm] (-> cm (.getTokenAt (.getCursor cm)) (aget "string")))
 
@@ -372,7 +372,7 @@
     (let [completions
           (->> @pou :editors vals
             (mapv (fn [{:keys [kl id]}]
-                    (clj->js {:displayText (str kl " #" id)
+                    (clj->js {:displayText (str "." kl " #" id)
                               :text 
                               (if (= \$ kch)
                                 kl
@@ -424,11 +424,18 @@
     (. cm addKeyMap
        #js {:Cmd-Enter #(drp-code! %)                        
             :Ctrl-Enter #(drp-code! %)})
-    (when (= mode "eval-clojure")
-      (j/assoc! (. cm getOption "extraKeys")
-                :Tab #(show-completions! % true false)
-                :Alt-Space #(token-doc %))
-      (. cm on "cursorActivity" #(show-completions! cm hints? (not hints?))))))
+    (when-let [{:keys [assoc-extra-keys on]} (-> @pou :pou-modes mode :cm)]
+      (when extra-keys
+        (apply j/assoc! (. cm getOption "extraKeys") extra-keys))
+      (when on 
+        (doseq [[event f] on]
+          (. cm on (clj->js event) f))))))
+
+(swap! @pou assoc-in [:pou-modes :pou-clj :cm]
+       :assoc-extra-keys [:Tab #(show-completions! % true false)
+                          :Alt-Space (fn [cm] (token-doc cm) js/CodeMirror.Pass)
+                          :Alt-. #(token-doc %)]
+       :on {:cursor-activity #(show-completions! cm hints? (not hints?))})
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
@@ -470,9 +477,9 @@
           pre-pou (merge default-editor provide specific)
           {:keys [ui mode kl-mode pou-class attrs kl-attrs eval-time loop? preamble editor-type]
            :as editor} (merge pre-pou 
-                              (-> @pou :pou-modes (get (:mode pre-pou)))
+                              (-> @pou :pou-modes (:mode pre-pou))
                               override 
-                              (-> @pou :pou-modes (get (:mode override))))
+                              (-> @pou :pou-modes (:mode override)))
           kl (+ @klp/snippet-counter n)
           id (clj->js (or id (:id attrs) (gensym "pou")))
           wrapper-class (->> pou-class
