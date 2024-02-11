@@ -431,7 +431,7 @@
         (doseq [[event f] on]
           (. cm on (clj->js event) f))))))
 
-(swap! pou assoc-in [:pou-modes :pou-clj :cm]
+(swap! pou update-in [:pou-modes :pou-clj :cm] assoc
        :assoc-extra-keys [:Tab #(show-completions! % true false)
                           :Alt-Space (fn [cm] (token-doc cm) js/CodeMirror.Pass)
                           :Alt-. #(token-doc %)]
