@@ -47,7 +47,7 @@
            #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
 
 (defn klipsett! [& kvs]
-  (apply swap! pou update-in [:klipse-settings] j/assoc! kvs))
+  (apply swap! pou update-in [:klipse-settings] assoc (clj->js kvs)))
 
 ; Flexible STATE CHANGES (recursive ediscript diffs and patches)
 
