@@ -488,9 +488,7 @@
                             (cond-> (assoc kl-attrs :class (mode->class (or kl-mode mode)))
                               data-external-libs (assoc :data-external-libs data-external-libs)
                               from-gist (assoc :data-gist-id from-gist)
-                              eval-time (if loop?
-                                          (assoc :data-loop-msec eval-time)
-                                          (assoc :data-eval-idle-msec eval-time))
+                              eval-time (assoc (if loop? :data-loop-msec :data-eval-idle-msec) eval-time)
                               preamble (assoc :data-preamble preamble)
                               editor-type (assoc :data-editor-type editor-type)))]
       (js/console.log #js["New POU Editor" (clj->js new-editor)])
