@@ -479,7 +479,7 @@
                           (conj (:class attrs))
                           str-attr-join)                          
           data-external-libs (-> 
-                               (map :external-libs (provide specific override editor))
+                               (map :external-libs [provide specific override editor])
                                (conj (:data-external-libs kl-attrs))
                                (str-attr-join :connector ","))
           new-editor (assoc editor 
