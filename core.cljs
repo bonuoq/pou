@@ -424,7 +424,7 @@
     (. cm addKeyMap
        #js {:Cmd-Enter #(drp-code! %)                        
             :Ctrl-Enter #(drp-code! %)})
-    (when-let [{:keys [assoc-extra-keys on]} (-> @pou :pou-modes mode :cm)]
+    (when-let [{:keys [assoc-extra-keys on]} (some-> @pou :pou-modes (get mode) :cm)]
       (when assoc-extra-keys
         (apply j/assoc! (. cm getOption "extraKeys") (clj->js assoc-extra-keys)))
       (when on 
