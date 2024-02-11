@@ -463,7 +463,7 @@
 
 (def default-editor 
   {:ui :base
-   :mode "pou-clj"
+   :mode :pou-clj
    :pou-class ["pou-wrapper"]})
 
 (defn str-attr-join [connector str-vector]
