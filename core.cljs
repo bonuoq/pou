@@ -176,6 +176,7 @@
 (defn on-code-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm] 
                      (when-let [code (.getValue cm)]
+                       (js/console.log [code (last code)])
                        (callback (->> code butlast (apply str)))
                        (when one-shot
                          (off-code-change k self))))]
@@ -187,6 +188,7 @@
 (defn on-res-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm]
                      (when-let [res (.getValue cm)]
+                       (js/console.log [code (last code)])
                        (callback (->> res butlast (apply str)))
                        (when one-shot
                          (off-res-change k self))))]
