@@ -477,9 +477,9 @@
           pre-pou (merge default-editor provide specific)
           {:keys [ui mode kl-mode pou-class attrs kl-attrs eval-time loop? preamble editor-type]
            :as editor} (merge pre-pou 
-                              (-> @pou :pou-modes (:mode pre-pou))
+                              (-> @pou :pou-modes (get (:mode pre-pou)))
                               override 
-                              (-> @pou :pou-modes (:mode override)))
+                              (-> @pou :pou-modes (get (:mode override))))
           kl (+ @klp/snippet-counter n)
           id (clj->js (or id (:id attrs) (gensym "pou")))
           wrapper-class (->> pou-class
@@ -498,7 +498,7 @@
                               eval-time (assoc (if loop? :data-loop-msec :data-eval-idle-msec) eval-time)
                               preamble (assoc :data-preamble preamble)
                               editor-type (assoc :data-editor-type editor-type)))]
-      (js/console.log #js["New POU Editor" (clj->js new-editor)])
+      (js/console.log (clj->js new-editor))
       (reg-editor new-editor)
       (let [append-fn (-> @pou :uis ui :append-fn)]
         (append-fn new-editor))))
