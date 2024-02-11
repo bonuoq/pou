@@ -426,7 +426,7 @@
             :Ctrl-Enter #(drp-code! %)})
     (when-let [{:keys [assoc-extra-keys on]} (-> @pou :pou-modes mode :cm)]
       (when assoc-extra-keys
-        (apply j/assoc! (. cm getOption "extraKeys") (clj->js extra-keys)))
+        (apply j/assoc! (. cm getOption "extraKeys") (clj->js assoc-extra-keys)))
       (when on 
         (doseq [[event f] on]
           (. cm on (clj->js event) f))))))
