@@ -176,10 +176,9 @@
 (defn on-code-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm] 
                      (when-let [code (.getValue cm)]
-                       (when-not (= (last code) \n)
-                         (callback (->> code butlast (apply str)))
-                         (when one-shot
-                           (off-code-change k self)))))]
+                       (callback code)
+                       (when one-shot
+                         (off-code-change k self))))]
     (call-in-editor k :on "change" cb-handler)                      
     cb-handler))
 
@@ -189,7 +188,7 @@
   (let [cb-handler (fn self [cm]
                      (when-let [res (.getValue cm)]
                        (when-not (= (last res) \n)
-                         (callback (->> res butlast (apply str)))
+                         (callback res)
                          (when one-shot
                            (off-res-change k self)))))]
     (call-in-result k :on "change" cb-handler)                      
