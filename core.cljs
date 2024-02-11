@@ -171,7 +171,7 @@
 
 (defn get-result [k] (call-in-result k :getValue))
 
-(defn off-code-change [k handler] (call-in-editor k :off "beforeChange" handler))
+(defn off-code-change [k handler] (call-in-editor k :off "change" handler))
 
 (defn on-code-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm] 
@@ -179,10 +179,10 @@
                        (callback (->> code butlast (apply str)))
                        (when one-shot
                          (off-code-change k self))))]
-    (call-in-editor k :on "beforeChange" cb-handler)                      
+    (call-in-editor k :on "change" cb-handler)                      
     cb-handler))
 
-(defn off-res-change [k handler] (call-in-result k :off "beforeChange" handler))
+(defn off-res-change [k handler] (call-in-result k :off "change" handler))
 
 (defn on-res-change [k callback & {:keys [one-shot]}]
   (let [cb-handler (fn self [cm]
@@ -190,7 +190,7 @@
                        (callback (->> res butlast (apply str)))
                        (when one-shot
                          (off-res-change k self))))]
-    (call-in-result k :on "beforeChange" cb-handler)                      
+    (call-in-result k :on "change" cb-handler)                      
     cb-handler))
 
 (defn res-watch [k cb & {:keys [one-shot]}]
