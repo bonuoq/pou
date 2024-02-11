@@ -426,7 +426,7 @@
             :Ctrl-Enter #(drp-code! %)})
     (when-let [{:keys [assoc-extra-keys on]} (-> @pou :pou-modes mode :cm)]
       (when assoc-extra-keys
-        (apply j/assoc! (. cm getOption "extraKeys") extra-keys))
+        (apply j/assoc! (. cm getOption "extraKeys") (clj->js extra-keys)))
       (when on 
         (doseq [[event f] on]
           (. cm on (clj->js event) f))))))
@@ -435,7 +435,7 @@
        :assoc-extra-keys [:Tab #(show-completions! % true false)
                           :Alt-Space (fn [cm] (token-doc cm) js/CodeMirror.Pass)
                           :Alt-. #(token-doc %)]
-       :on {:cursor-activity #(show-completions! % false true)})
+       :on {:cursorActivity #(show-completions! % false true)})
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
