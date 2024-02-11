@@ -467,23 +467,24 @@
 (defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]}]
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
-          mode (some :mode [override specific provide])
-          {:keys [ui mode pou-class attrs kl-attrs external-libs eval-time loop? preamble editor-type]
-           :as editor} (merge default-editor
-                              (-> @pou :pou-modes (get mode)) 
-                              provide specific override)
+          pre-pou (merge default-editor provide specific)
+          {:keys [ui mode pou-class attrs kl-attrs eval-time loop? preamble editor-type]
+           :as editor} (merge pre-pou 
+                              (-> @pou :pou-modes (get (:mode pre-pou)))
+                              override 
+                              (-> @pou :pou-modes (get (:mode override))))
           kl (+ @klp/snippet-counter n)
           id (clj->js (or id (:id attrs) (gensym "pou")))
           wrapper-class (-> pou-class
                           (conj (:class attrs))
                           str-attr-join)                          
-          data-external-libs (-> external-libs
-                               (conj (:data-external-libs kl-attrs))  
+          data-external-libs (-> 
+                               (map :external-libs (provide specific override editor))
+                               (conj (:data-external-libs kl-attrs))
                                (str-attr-join :connector ","))
           new-editor (assoc editor 
                             :kl kl :id id :attrs {:id id :class wrapper-class}
-                            :kl-attrs (merge kl-attrs
-                                            {:class (mode->class mode)}
+                            :kl-attrs (cond-> (assoc kl-attrs :class (mode->class mode))
                                             (when data-external-libs 
                                               {:data-external-libs data-external-libs})
                                             (when from-gist
