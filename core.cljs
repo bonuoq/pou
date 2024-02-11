@@ -46,6 +46,9 @@
 (add-watch klreg/selector->mode :reg-mode-selectors
            #(swap! pou assoc :mode-selectors (clojure.set/map-invert %4)))
 
+(defn klipsett! [& kvs]
+  (apply swap! pou update-in [:klipse-settings] j/assoc! kvs))
+
 ; Flexible STATE CHANGES (recursive ediscript diffs and patches)
 
 (defn nod [prev-nod diff-path upd-fn & args]
