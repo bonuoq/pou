@@ -1,3 +1,3 @@
 {:description "faust DSP (mode: faust-widget)"
  :external-libs ["https://bonuoq.github.io"]
- :code "(require '[pou.modules.faust :as faust])\n(pou.core/klipsett! :selector_faust_widget \"pou-faust-widget\" :selector_faust_editor \"pou-faust-editor\")"}
+ :code "(require '[pou.modules.faust :as faust])\n(pou.core/klipsett! :selector_faust_widget :pou-faust-widget :selector_faust_editor :pou-faust-editor)"}
