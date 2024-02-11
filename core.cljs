@@ -459,7 +459,7 @@
    :mode "pou-clj"
    :pou-class ["pou-wrapper"]})
 
-(defn str-attr-join [str-vector & {:keys [connector] :or {connector " "}}]
+(defn str-attr-join [connector str-vector]
   (->> str-vector 
     (filter some?) distinct 
     (clojure.string/join connector) not-empty))
@@ -475,13 +475,13 @@
                               (-> @pou :pou-modes (get (:mode override))))
           kl (+ @klp/snippet-counter n)
           id (clj->js (or id (:id attrs) (gensym "pou")))
-          wrapper-class (-> pou-class
-                          (conj (:class attrs))
-                          str-attr-join)                          
-          data-external-libs (-> 
-                               (map :external-libs [provide specific override editor])
-                               (conj (:data-external-libs kl-attrs))
-                               (str-attr-join :connector ","))
+          wrapper-class (->> pou-class
+                          (cons (:class attrs))
+                          (str-attr-join " "))                          
+          data-external-libs (->> [provide specific override editor]
+                               (map (juxt :external-libs (comp :data-external-libs :kl-attrs)))
+                               flatten
+                               (str-attr-join ","))
           new-editor (assoc editor 
                             :kl kl :id id :attrs {:id id :class wrapper-class}
                             :kl-attrs 
