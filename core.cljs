@@ -188,7 +188,6 @@
   (let [cb-handler (fn self [cm]
                      (when-let [res (.getValue cm)]
                        (when-not (= (last res) \newline)
-                         (js/console.log res)
                          (callback res)
                          (when one-shot
                            (off-res-change k self)))))]
