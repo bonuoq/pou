@@ -416,7 +416,7 @@
   js/CodeMirror.Pass)
   
 (defn- cm-reg! [kl]
-  (let [{:keys [id mode hints?]} (-> @pou :editors (get kl))
+  (let [{:keys [id mode]} (-> @pou :editors (get kl))
         cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! cm :kl kl :id id)
     (j/assoc! (. cm getOption "extraKeys")
@@ -425,17 +425,17 @@
        #js {:Cmd-Enter #(drp-code! %)                        
             :Ctrl-Enter #(drp-code! %)})
     (when-let [{:keys [assoc-extra-keys on]} (-> @pou :pou-modes mode :cm)]
-      (when extra-keys
+      (when assoc-extra-keys
         (apply j/assoc! (. cm getOption "extraKeys") extra-keys))
       (when on 
         (doseq [[event f] on]
           (. cm on (clj->js event) f))))))
 
-(swap! @pou assoc-in [:pou-modes :pou-clj :cm]
+(swap! pou assoc-in [:pou-modes :pou-clj :cm]
        :assoc-extra-keys [:Tab #(show-completions! % true false)
                           :Alt-Space (fn [cm] (token-doc cm) js/CodeMirror.Pass)
                           :Alt-. #(token-doc %)]
-       :on {:cursor-activity #(show-completions! cm hints? (not hints?))})
+       :on {:cursor-activity #(show-completions! % false true)})
 
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
