@@ -33,7 +33,7 @@
 (def pou (atom 
           {:editors {}
            :id-kls {}
-           :pou-modes {"pou-clj" {:mode "eval-clojure" 
+           :pou-modes {"pou-clj" {:kl-mode "eval-clojure" 
                                   :external-libs ["https://bonuoq.github.io"]}}
            :mode-options (into (sorted-set) (keys @klreg/mode-options))
            :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
@@ -468,7 +468,7 @@
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
           pre-pou (merge default-editor provide specific)
-          {:keys [ui mode pou-class attrs kl-attrs eval-time loop? preamble editor-type]
+          {:keys [ui mode kl-mode pou-class attrs kl-attrs eval-time loop? preamble editor-type]
            :as editor} (merge pre-pou 
                               (-> @pou :pou-modes (get (:mode pre-pou)))
                               override 
@@ -484,19 +484,15 @@
                                (str-attr-join :connector ","))
           new-editor (assoc editor 
                             :kl kl :id id :attrs {:id id :class wrapper-class}
-                            :kl-attrs (cond-> (assoc kl-attrs :class (mode->class mode))
-                                            (when data-external-libs 
-                                              {:data-external-libs data-external-libs})
-                                            (when from-gist
-                                              {:data-gist-id from-gist})
-                                            (when eval-time
-                                              (if loop?
-                                                {:data-loop-msec eval-time}
-                                                {:data-eval-idle-msec eval-time}))
-                                            (when preamble
-                                              {:data-preamble preamble})
-                                            (when editor-type
-                                              {:data-editor-type editor-type})))]
+                            :kl-attrs 
+                            (cond-> (assoc kl-attrs :class (mode->class (or kl-mode mode)))
+                              data-external-libs (assoc :data-external-libs data-external-libs)
+                              from-gist (assoc :data-gist-id from-gist)
+                              eval-time (if loop?
+                                          (assoc :data-loop-msec eval-time)
+                                          (assoc :data-eval-idle-msec eval-time))
+                              preamble (assoc :data-preamble preamble)
+                              editor-type (assoc :data-editor-type editor-type)))]
       (js/console.log #js["New POU Editor" (clj->js new-editor)])
       (reg-editor new-editor)
       (let [append-fn (-> @pou :uis ui :append-fn)]
