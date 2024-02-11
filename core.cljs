@@ -33,10 +33,11 @@
 (def pou (atom 
           {:editors {}
            :id-kls {}
+           :pou-modes {"pou-clj" {:mode "eval-clojure" 
+                                  :external-libs ["https://bonuoq.github.io"]}}
            :mode-options (into (sorted-set) (keys @klreg/mode-options))
            :mode-selectors (clojure.set/map-invert @klreg/selector->mode)
            :klipse-settings (js->clj js/klipse-settings)
-           :external-libs {"eval-clojure" ["https://bonuoq.github.io"]}
            :uis {}
            :modules []}))
 
@@ -280,7 +281,12 @@
 
 (defn dom-create [selector {:as attrs} content]
   (let [tag (sel-child-tag selector)
-        as (merge {:id (sel-child-id selector) :class (sel-child-class selector)} attrs)
+        id (sel-child-id selector)
+        cl (sel-child-class selector)
+        as (cond-> {} 
+             id (assoc :id id)
+             cl (assoc :class cl)
+             attrs (merge attrs))
         children (map dom-any content)]
     (apply gdom/createDom tag (clj->js as) (clj->js children))))
 
@@ -448,28 +454,33 @@
 (reg-ui :base {:append-fn append-editor-base
                :klipsify? true})
 
-(def default-keys 
+(def default-editor 
   {:ui :base
-   :mode "eval-clojure"
-   :attrs {:class "pou-wrapper"}})
+   :mode "pou-clj"
+   :pou-class ["pou-wrapper"]})
+
+(defn str-attr-join [str-vector & {:keys [connector] :or {connector " "}}]
+  (->> str-vector 
+    (filter some?) distinct 
+    (clojure.string/join connector) not-empty))
 
 (defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]}]
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
-          {:keys [ui mode attrs kl-attrs external-libs eval-time loop? preamble editor-type]
-           :as editor} (merge default-keys provide specific override)
+          {:keys [ui mode pou-class attrs kl-attrs external-libs eval-time loop? preamble editor-type]
+           :as editor} (merge default-editor
+                              (-> @pou :pou-modes (get mode)) 
+                              provide specific override)
           kl (+ @klp/snippet-counter n)
           id (clj->js (or id (:id attrs) (gensym "pou")))
-          data-external-libs (->> external-libs
-                              (into (-> @pou :external-libs (get mode)))
-                              (cons (:data-external-libs kl-attrs))
-                              (filter some?)
-                              distinct
-                              (interpose ",")
-                              (apply str)
-                              not-empty)
+          wrapper-class (-> pou-class
+                          (conj (:class attrs))
+                          str-attr-join)                          
+          data-external-libs (-> external-libs
+                               (conj (:data-external-libs kl-attrs))  
+                               (str-attr-join :connector ","))
           new-editor (assoc editor 
-                            :kl kl :id id 
+                            :kl kl :id id :attrs {:id id :class wrapper-class}
                             :kl-attrs (merge kl-attrs
                                             {:class (mode->class mode)}
                                             (when data-external-libs 
