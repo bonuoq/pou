@@ -467,6 +467,7 @@
 (defn append [editors & {:keys [provide override klipsify? on-mounted on-ready]}]
   (dotimes [n (count editors)]
     (let [{:keys [id from-gist] :as specific} (get editors n)
+          mode (some :mode [override specific provide])
           {:keys [ui mode pou-class attrs kl-attrs external-libs eval-time loop? preamble editor-type]
            :as editor} (merge default-editor
                               (-> @pou :pou-modes (get mode)) 
@@ -499,9 +500,9 @@
       (reg-editor new-editor)
       (let [append-fn (-> @pou :uis ui :append-fn)]
         (append-fn new-editor))))
-  (let [ui (some :ui [provide default-keys])
-        klipsify? (some-> @pou :uis ui :klipsify?)]
-    (when klipsify? (klipsify! on-mounted on-ready))))
+  (let [ui (some :ui [provide default-editor])]
+    (when (or klipsify? (some-> @pou :uis ui :klipsify?))
+      (klipsify! on-mounted on-ready))))
 
 (defn aed [& {:keys [code mode id from-gist attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
   (append [editor-settings] :on-mounted on-mounted :on-ready on-ready))
