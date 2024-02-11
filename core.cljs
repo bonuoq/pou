@@ -492,7 +492,7 @@
           new-editor (assoc editor 
                             :kl kl :id id :attrs {:id id :class wrapper-class}
                             :kl-attrs 
-                            (cond-> (assoc kl-attrs :class (mode->class (or kl-mode mode)))
+                            (cond-> (assoc kl-attrs :class (mode->class (or (clj->js kl-mode) mode)))
                               data-external-libs (assoc :data-external-libs data-external-libs)
                               from-gist (assoc :data-gist-id from-gist)
                               eval-time (assoc (if loop? :data-loop-msec :data-eval-idle-msec) eval-time)
