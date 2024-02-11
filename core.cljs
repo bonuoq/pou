@@ -348,16 +348,6 @@
     rest
     (apply str)))
 
-(defn- when-klipse-ready [callback]
-  (let [observer (js/MutationObserver. 
-                  (fn [mutations o]
-                    (let [elm (-> mutations (aget 0) .-addedNodes (aget 0))]
-                      (when (= (. elm -id) "klipse-ready")
-                        (.disconnect o)
-                        (.remove elm)
-                        (when callback (callback))))))]
-    (. observer observe js/document.body #js {:childList true})))
-
 (defn- show-hint! [cm completions]
   (let [hint-fn (partial kl-ed/list-completions completions)]
         (js/setTimeout
@@ -437,14 +427,24 @@
                           :Alt-. #(token-doc %)]
        :on {:cursorActivity #(show-completions! % false true)})
 
+(defn- when-klipse-ready [on-ready]
+  (let [observer (js/MutationObserver. 
+                  (fn [mutations o]
+                    (let [elm (-> mutations (aget 0) .-addedNodes (aget 0))]
+                      (when (= (. elm -id) "klipse-ready")
+                        (.disconnect o)
+                        (.remove elm)
+                        (when on-ready (on-ready))))))]
+    (. observer observe js/document.body #js {:childList true})))
+
 (defn klipsify! [on-mounted on-ready] 
   (when-klipse-ready on-ready)
   (let [first-kl @klp/snippet-counter]
     (go 
      (<! (klp/init-clj (:klipse-settings @pou)))
-     (when on-mounted
-       (on-mounted))
      (let [last-kl (dec @klp/snippet-counter)]
+       (when on-mounted
+         (on-mounted last-kl))
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
@@ -506,8 +506,10 @@
     (when (or klipsify? (some-> @pou :uis ui :klipsify?))
       (klipsify! on-mounted on-ready))))
 
-(defn aed [& {:keys [code mode id from-gist attrs klipsettings external-libs on-mounted on-ready] :as editor-settings}] 
-  (append [editor-settings] :on-mounted on-mounted :on-ready on-ready))
+(defn aed [& {:keys [code mode id from-gist attrs klipsettings external-libs 
+                     provide override klipsify? on-mounted on-ready] :as editor-settings}] 
+  (append [(dissoc editor-settings :provide :override :klipsify? :on-mounted :on-ready)] 
+           :provide provide :override override :klipsify? klipsify? :on-mounted on-mounted :on-ready on-ready))
 
 ; LOAD & EXPORT FNS
 
