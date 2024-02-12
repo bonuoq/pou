@@ -587,17 +587,17 @@
            :callback (fn [entries] 
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
-                                  :callback #(dom "option"
-                                              :map-siblings [{:value url} (:description %)]
-                                              :parent "select.load-module")))))
+                                  :callback #(dom "select.load-module option"
+                                                  :attrs {:value url}
+                                                  :content (:description %))))))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
            :selected-keys [:name :download_url]
            :callback (fn [entries] 
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
-                                  :callback #(dom "option"
-                                              :map-siblings [{:value url} (:description %)]
-                                              :parent "select.load-ui")))))
+                                  :callback #(dom "select.load-ui option"
+                                                  :attrs {:value url}
+                                                  :content (:description %))))))
   
   (when-not (:ui (url-params)) (loaded!)))
