@@ -489,10 +489,9 @@
   {:ui :base
    :mode :pou-clj
    :pou-class ["pou-wrapper"]
-   :pou-cmds {:eval (fn [cm]
-                      (let [kl (.-kl cm)]
-                        (drp-code! kl)
-                        (eval-editor kl)))
+   :pou-cmds {:eval (fn [kl]
+                      (drp-code! kl)
+                      (eval-editor kl))
               :<-drw drw-editor! 
               :drp-> drp-editor!}})
 
