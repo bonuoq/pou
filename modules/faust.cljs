@@ -49,7 +49,7 @@
       (when (= mode :editor)
         (when-let [elm (-> container .-parentElement (.querySelector ".CodeMirror"))]
           (set! (.-hidden elm) true)
-          (on-action elm :run #(-> elm .-CodeMirror (.setValue (get-faust-code elm))))))
+          (on-action container :run #(-> elm .-CodeMirror (.setValue (get-faust-code elm))))))
       (catch :default e
         (set! (. container -innerHTML) (str e))))
     (js/setTimeout #(eval-faust exp kwargs) 500)))
