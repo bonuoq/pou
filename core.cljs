@@ -304,9 +304,9 @@
                 :element (dom-create selector attrs content)
                 nil (dom-create selector attrs content)
                 (dom-string any))) ; provide a default way to represent clj maps as HTML
-            (if (vector? any)
-              (apply dom-create any)
-              (map dom-any any))) ; <---- alla hiccup
+            (if (keyword? (first any))
+              (apply dom-create any) ; <-- alla hiccup
+              (map dom-any any)))
     any))
 
 (defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
