@@ -228,15 +228,19 @@
 
 (defn peval-str [s] (set-code-eval 0 s))
 
-(defn drw-editor! [k n]
-  (let [code (:code (drw! [:editors (get-kl k)] n))]
-    (set-code-eval k code)
-    code))
+(defn drw-editor! 
+  ([k n]
+   (let [code (:code (drw! [:editors (get-kl k)] n))]
+     (set-code-eval k code)
+     code))
+  ([k] (drw-editor! k 1)))
 
 (defn drp-editor! [k n]
-  (let [code (:code (drp! [:editors (get-kl k)] n))]
-    (set-code-eval k code)
-    code))
+  ([k n]
+   (let [code (:code (drp! [:editors (get-kl k)] n))]
+     (set-code-eval k code)
+     code))
+  ([k] (drp-editor! k 1)))
 
 ; DOM & AJAX HELPERS
 
@@ -393,16 +397,18 @@
   (let [token-str (get-token-str cm)
         pre-ns (re-find #".+?\/" token-str)
         completions-no-pre-ns (kl-repl/get-completions token-str)
-        completions (if pre-ns (mapv (partial str pre-ns) completions-no-pre-ns) completions-no-pre-ns)]
+        completions (if pre-ns 
+                      (mapv (partial str pre-ns) completions-no-pre-ns) 
+                      completions-no-pre-ns)]
     (when hint? 
       (show-hint! cm completions))
     (when info?
       (dom "#pou-info a.pou-completion"
-           :map-siblings 
-           (map
-            (fn [c] [{:onclick #(peval-str (str "(doc " c ")"))} (str c)])
-            (take 20 (rest completions)))
-           :replace? true :attrs {:href "#"}))))
+           :attrs {:href (str "#doc:" c)}
+           :replace? true
+           :map-siblings (map
+                          (fn [c] [{:onclick #(peval-str (str "(doc " c ")"))} (str c)])
+                          (take 20 (rest completions)))))))
 
 (defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
 
@@ -455,21 +461,17 @@
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
-(defn append-editor-base [{:keys [id kl description mode attrs kl-attrs code] :as editor}]
+(defn- pou-cmd [[cmd f]]
+  (let [c (clj-js cmd)]
+    (dom-create :a {:href (str "#" c ":" kl) :onclick #(f kl)} c)))
+
+(defn append-editor-base [{:keys [id kl description mode attrs kl-attrs code pou-cmds] :as editor}]
   (dom "div.pou-ui#base div"
        :attrs (assoc attrs :id id :data-kl kl :data-pou editor)
        :content [[:div.pou-intro {}
                   [[:p.pou-description {} (str kl "> " (or description (str "#" id ", mode: " mode)))
-                   [:span.pou-cmds {}
-                    [:a {:href "#eval" :onclick #(eval-editor kl)} "eval"]]]]]
+                   [:p.pou-cmds {} (map pou-cmd pou-cmds)]]]]
                  [:div kl-attrs (str code)]]))
-                            
-  #_(let [base (gdom/getElement "base")
-        klipse (gdom/createDom "div" (clj->js kl-attrs) (str code))
-        text (gdom/createDom "p" "pou-intro" )
-        wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl :data-pou editor))
-                                text klipse)]
-    (.appendChild base wrapper))
 
 (reg-ui :base {:append-fn append-editor-base
                :klipsify? true})
@@ -477,7 +479,10 @@
 (def default-editor 
   {:ui :base
    :mode :pou-clj
-   :pou-class ["pou-wrapper"]})
+   :pou-class ["pou-wrapper"]
+   :pou-cmds {:eval eval-editor 
+              :<-drw drw-editor! 
+              :drp-> drp-editor!}})
 
 (defn str-attr-join [connector str-vector]
   (->> str-vector 
