@@ -241,21 +241,21 @@
 ; DOM & AJAX HELPERS
 
 (defn sel-parent [selector] 
-  (last (re-find #"(.*) " selector)))
+  (last (re-find #"(.*) " (clj->js selector))))
 (defn sel-child [selector] 
-  (or (last (re-find #" (.*)" selector)) selector))
+  (or (last (re-find #" (.*)" (clj->js selector))) (clj->js selector)))
 (defn sel-child-tag [selector] 
-  (not-empty (re-find #"[^\.#]*" (sel-child selector))))
+  (not-empty (re-find #"[^\.#]*" (sel-child (clj->js selector)))))
 (defn sel-child-id [selector]
-  (when-let [id-find (re-find #"#[^\.]*" (sel-child selector))]
+  (when-let [id-find (re-find #"#[^\.]*" (sel-child (clj->js selector)))]
     (subs id-find 1)))
 (defn sel-child-class [selector]
-  (when-let [class-find (re-find #"\.[^#]*" (sel-child selector))]
+  (when-let [class-find (re-find #"\.[^#]*" (sel-child (clj->js selector)))]
     (clojure.string/replace (subs class-find 1) "." " ")))
 
 (defn dom-select [selector-or-element]
-  (if (string? selector-or-element)
-    (js/document.querySelector selector-or-element)
+  (if ((some-fn string? keyword?) selector-or-element)
+    (js/document.querySelector (clj->js selector-or-element))
     selector-or-element))
 (defn dom-nodelist [selector]
   (js/document.querySelectorAll selector))
@@ -298,13 +298,15 @@
     string? (dom-string any)
     coll? (if (map? any)
             (let [{:keys [type tag attrs content selector]
-                   :or {selector (subs (str tag) 1)}} any] ; hickory style map but you can omit :type when {:type :element} & you can provide {:selector "tag.css#selector"} or :tag with selector as keyword {:tag :tag.class#id})
+                   :or {selector tag}} any] ; hickory style map but you can omit :type when {:type :element} & you can provide :selector/:tag with selector/tag as string or keyword :tag.class#id})
               (case type
                 :document (map dom-any content)
                 :element (dom-create selector attrs content)
                 nil (dom-create selector attrs content)
                 (dom-string any))) ; provide a default way to represent clj maps as HTML
-            (map dom-any any))
+            (if (vector? any)
+              (apply dom-create any)
+              (map dom-any any))) ; <---- alla hiccup
     any))
 
 (defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
@@ -453,15 +455,21 @@
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
-(defn- append-editor-base [{:keys [id kl description mode attrs kl-attrs code] :as editor}]
-  (let [base (gdom/getElement "base")
+(defn append-editor-base [{:keys [id kl description mode attrs kl-attrs code] :as editor}]
+  (dom "div.pou-ui#base div"
+       :attrs (assoc attrs :id id :data-kl kl :data-pou editor)
+       :content [[:div.pou-intro {}
+                  [[:p.pou-description {} (str kl "> " (or description (str "#" id ", mode: " mode)))
+                   [:span.pou-cmds {}
+                    [:a {:href "#eval"} "eval"]]]]]
+                 [:div (clj->js kl-attrs) (str code)]]))
+                            
+  #_(let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js kl-attrs) (str code))
-        text (gdom/createDom "p" "pou-intro" (str kl "> " (or 
-                                                           description
-                                                           (str "#" id ", mode: " mode))))
+        text (gdom/createDom "p" "pou-intro" )
         wrapper (gdom/createDom "div" (clj->js (assoc attrs :id id :data-kl kl :data-pou editor))
                                 text klipse)]
-    (.appendChild base wrapper)))
+    (.appendChild base wrapper))
 
 (reg-ui :base {:append-fn append-editor-base
                :klipsify? true})
