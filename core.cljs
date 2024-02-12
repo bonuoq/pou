@@ -461,8 +461,8 @@
        :content [[:div.pou-intro {}
                   [[:p.pou-description {} (str kl "> " (or description (str "#" id ", mode: " mode)))
                    [:span.pou-cmds {}
-                    [:a {:href "#eval"} "eval"]]]]]
-                 [:div (clj->js kl-attrs) (str code)]]))
+                    [:a {:href "#eval" :onclick #(eval-editor kl)} "eval"]]]]]
+                 [:div kl-attrs (str code)]]))
                             
   #_(let [base (gdom/getElement "base")
         klipse (gdom/createDom "div" (clj->js kl-attrs) (str code))
