@@ -404,10 +404,10 @@
       (show-hint! cm completions))
     (when info?
       (dom "#pou-info a.pou-completion"
-           :attrs {:href (str "#doc:" c)}
            :replace? true
            :map-siblings (map
-                          (fn [c] [{:onclick #(peval-str (str "(doc " c ")"))} (str c)])
+                          (fn [c] [{:href (str "#doc:" c)
+                                    :onclick #(peval-str (str "(doc " c ")"))} (str c)])
                           (take 20 (rest completions)))))))
 
 (defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
@@ -461,16 +461,16 @@
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
-(defn- pou-cmd [[cmd f]]
+(defn- pou-cmd [[cmd f] k]
   (let [c (clj-js cmd)]
-    (dom-create :a {:href (str "#" c ":" kl) :onclick #(f kl)} c)))
+    (dom-create :a {:href (str "#" c ":" k) :onclick #(f k)} c)))
 
 (defn append-editor-base [{:keys [id kl description mode attrs kl-attrs code pou-cmds] :as editor}]
   (dom "div.pou-ui#base div"
        :attrs (assoc attrs :id id :data-kl kl :data-pou editor)
        :content [[:div.pou-intro {}
                   [[:p.pou-description {} (str kl "> " (or description (str "#" id ", mode: " mode)))
-                   [:p.pou-cmds {} (map pou-cmd pou-cmds)]]]]
+                   [:p.pou-cmds {} (map pou-cmd pou-cmds (repeat kl))]]]]
                  [:div kl-attrs (str code)]]))
 
 (reg-ui :base {:append-fn append-editor-base
