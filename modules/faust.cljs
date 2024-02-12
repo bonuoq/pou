@@ -24,10 +24,8 @@
 (defn get-comp [id] 
   (some-> id gdom/getElement (.querySelector "faust-editor, faust-widget")))
 
-(defn get-faust-code [id] 
-  (or 
-   (some-> (get-comp id) .-shadowRoot (.querySelector ".cm-content") .-innerText)
-   (some-> (get-comp id) .-lastChild .-data)))
+(defn get-faust-code [id]
+   (some-> (get-comp id) .-shadowRoot (.querySelector ".cm-content") .-cmView .-view .-state .-doc .toString))
 
 (defn get-faust-node [id] 
   (. (get-comp id) -faustNode))
@@ -40,14 +38,16 @@
 (defn action [id action]
   (some-> (get-comp id) .-shadowRoot (.getElementById (clj->js action)) .click))
 
+(defn on-action [id action handler]
+  (some-> (get-comp id) .-shadowRoot (.getElemenyById (cljs->js action)) 
+    (.addEventListener "click" handler)))
+
 (defn eval-faust [mode exp {:keys [container container-id] :as kwargs}]
   (if @loaded
     (try
-      (js/console.log (str "FAUST eval: " exp))
       (place-in container :code (str exp) :mode mode)
       (when (= mode :editor) 
-        (when-let [e (some->> container-id last int (get @kleds/editors))] 
-          (.setValue e "")))
+        (js/console.log (some->> container-id last int (get @kleds/editors))))
       (catch :default e
         (set! (. container -innerHTML) (str e))))
     (js/setTimeout #(eval-faust exp kwargs) 500)))
