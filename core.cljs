@@ -304,7 +304,7 @@
                 :element (dom-create selector attrs content)
                 nil (dom-create selector attrs content)
                 (dom-string any))) ; provide a default way to represent clj maps as HTML
-            (if (keyword? (first any))
+            (if (and (vector? any) (keyword? (first any)))
               (apply dom-create any) ; <-- alla hiccup
               (map dom-any any)))
     any))
