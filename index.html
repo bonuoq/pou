@@ -74,15 +74,25 @@
       }
     }
 
-    .pou-toolbar {
+    .pou-toolbar, .pou-cmds {
       border: solid #ccc;
       padding: 0.3em;
       left: 0;
       background: #fffd;
 
-      .append {
-        border-radius: 50%;
+      a, button {
+        border-radius: 5px;
+        color: #fff;
+        background: #9999db;
+        margin: 0.5ch;
+        padding: 0.5ch;
+        text-decoration: none;
+        cursor: pointer;
       }
+    }
+
+    button.append {
+      width: 2em;
     }
 
     .pou-toolbar:hover {
