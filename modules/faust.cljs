@@ -39,7 +39,7 @@
   (some-> (get-comp id-or-element) .-shadowRoot (.getElementById (clj->js action)) .click))
 
 (defn on-action [id-or-element action handler]
-  (some-> (get-comp id-or-element) .-shadowRoot (.getElemenyById (clj->js action)) 
+  (some-> (get-comp id-or-element) .-shadowRoot (.getElementById (clj->js action)) 
     (.addEventListener "click" handler)))
 
 (defn eval-faust [mode exp {:keys [container] :as kwargs}]
