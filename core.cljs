@@ -282,7 +282,7 @@
 
 (declare dom-any)
 
-(defn dom-create [selector {:as attrs} content]
+(defn dom-create [selector {:as attrs} & content]
   (let [tag (sel-child-tag selector)
         id (sel-child-id selector)
         cl (sel-child-class selector)
@@ -311,7 +311,7 @@
 
 (defn dom [selector & {:keys [attrs parent content map-siblings replace? separator]}]
   (let [p (dom-select (or (sel-parent selector) parent))
-        sibling-fn #(dom-create selector (merge attrs (second %)) (first %) #_(into (first %) content)) ;removed
+        sibling-fn #(dom-create selector (merge attrs (first %)) (rest %))
         elms (if map-siblings
                (into ;added
                 (->> map-siblings
@@ -400,7 +400,7 @@
       (dom "#pou-info a.pou-completion"
            :map-siblings 
            (map
-            (fn [c] [(str c) {:onclick #(peval-str (str "(doc " c ")"))}])
+            (fn [c] [{:onclick #(peval-str (str "(doc " c ")"))} (str c)])
             (take 20 (rest completions)))
            :replace? true :attrs {:href "#"}))))
 
@@ -588,7 +588,7 @@
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
                                   :callback #(dom "option"
-                                              :map-siblings {(:description %) {:value url}}
+                                              :map-siblings [{:value url} (:description %)]
                                               :parent "select.load-module")))))
   
   (request "https://api.github.com/repos/bonuoq/pou/contents/modules/ui"
@@ -597,7 +597,7 @@
                        (doseq [url (map :download_url (filext-filter ".edn" entries :file-key :name))] ; instead of doseq should map async request
                          (request url :read? true :selected-keys [:description]
                                   :callback #(dom "option"
-                                              :map-siblings {(:description %) {:value url}}
+                                              :map-siblings [{:value url} (:description %)]
                                               :parent "select.load-ui")))))
   
   (when-not (:ui (url-params)) (loaded!)))
