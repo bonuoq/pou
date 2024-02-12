@@ -413,7 +413,9 @@
         cm (or (@kleds/editors kl) (get-cm id))]
     (j/assoc! cm :kl kl :id id)
     (j/assoc! (. cm getOption "extraKeys")
-              :Cmd-. #(autocomp-refer! %))
+              :Cmd-. #(autocomp-refer! %)
+              :Alt-Up #(drw-editor! kl 1)
+              :Alt-Down #(drp-editor! kl 1))
     (. cm addKeyMap
        #js {:Cmd-Enter #(drp-code! %)                        
             :Ctrl-Enter #(drp-code! %)})
