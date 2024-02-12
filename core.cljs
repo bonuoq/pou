@@ -218,6 +218,14 @@
     (set-code k code)
     (eval-editor k)))
 
+(defn- drp-code! [k]
+  (drp! [:editors (get-kl k)] assoc :code (get-code k)))
+
+(defn drp-code-eval [k code]
+  (do
+    (set-code-eval k code)
+    (drp-code! k)))
+
 (defn eval-callback
   ([k callback]
    (res-watch k callback :one-shot true)
@@ -225,6 +233,11 @@
   ([k code callback]
    (res-watch k callback :one-shot true)
    (set-code-eval k code)))
+
+(defn drp-code-eval-callback [k code callback]
+  (do
+    (eval-callback k code callback)
+    (drp-code! k)))
 
 (defn peval-str [s] (set-code-eval 0 s))
 
@@ -235,7 +248,7 @@
      code))
   ([k] (drw-editor! k 1)))
 
-(defn drp-editor! [k n]
+(defn drp-editor!
   ([k n]
    (let [code (:code (drp! [:editors (get-kl k)] n))]
      (set-code-eval k code)
@@ -411,10 +424,6 @@
                           (take 20 (rest completions)))))))
 
 (defn- token-doc [cm] (peval-str (str "(doc " (get-token-str cm) ")")))
-
-(defn- drp-code! [cm]
-  (drp! [:editors (.-kl cm)] assoc :code (.getValue cm))
-  js/CodeMirror.Pass)
   
 (defn- cm-reg! [kl]
   (let [{:keys [id mode]} (-> @pou :editors (get kl))
@@ -425,8 +434,8 @@
               :Alt-Up #(drw-editor! kl 1)
               :Alt-Down #(drp-editor! kl 1))
     (. cm addKeyMap
-       #js {:Cmd-Enter #(drp-code! %)                        
-            :Ctrl-Enter #(drp-code! %)})
+       (let [f (fn [_] (drp-code! kl) js/CodeMirrorPass)]
+         #js {:Cmd-Enter f :Ctrl-Enter f}))
     (when-let [{:keys [assoc-extra-keys on]} (some-> @pou :pou-modes (get mode) :cm)]
       (when assoc-extra-keys
         (apply j/assoc! (. cm getOption "extraKeys") (clj->js assoc-extra-keys)))
@@ -480,7 +489,10 @@
   {:ui :base
    :mode :pou-clj
    :pou-class ["pou-wrapper"]
-   :pou-cmds {:eval eval-editor 
+   :pou-cmds {:eval (fn [cm]
+                      (let [kl (.-kl cm)]
+                        (drp-code! kl)
+                        (eval-editor kl)))
               :<-drw drw-editor! 
               :drp-> drp-editor!}})
 
