@@ -290,7 +290,7 @@
              id (assoc :id id)
              cl (assoc :class cl)
              attrs (merge attrs))
-        children (map dom-any content)]
+        children (dom-any content)]
     (apply gdom/createDom tag (clj->js as) (clj->js children))))
 
 (defn dom-any [any]
