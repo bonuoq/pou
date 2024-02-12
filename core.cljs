@@ -462,7 +462,7 @@
        (call-in-editor last-kl :focus)))))
 
 (defn- pou-cmd [[cmd f] k]
-  (let [c (clj-js cmd)]
+  (let [c (clj->js cmd)]
     (dom-create :a {:href (str "#" c ":" k) :onclick #(f k)} c)))
 
 (defn append-editor-base [{:keys [id kl description mode attrs kl-attrs code pou-cmds] :as editor}]
