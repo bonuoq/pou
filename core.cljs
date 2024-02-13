@@ -221,7 +221,7 @@
 (defn- drp-code! [k]
   (drp! [:editors (get-kl k)] assoc :code (get-code k)))
 
-(defn drp-code-eval [k code]
+(defn set-code-eval-drp [k code]
   (do
     (set-code-eval k code)
     (drp-code! k)))
@@ -234,7 +234,7 @@
    (res-watch k callback :one-shot true)
    (set-code-eval k code)))
 
-(defn drp-code-eval-callback [k code callback]
+(defn eval-callback-drp [k code callback]
   (do
     (eval-callback k code callback)
     (drp-code! k)))
@@ -470,16 +470,16 @@
        (doall (map cm-reg! (range first-kl (inc last-kl))))
        (call-in-editor last-kl :focus)))))
 
-(defn- pou-cmd [[cmd f] k]
+(defn button-pou-cmd [[cmd f] & args]
   (let [c (clj->js cmd)]
-    (dom-create :a {:href (str "#" c ":" k) :onclick #(f k)} c)))
+    (dom-create :button.pou-cmd {:onclick #(apply f args)} c)))
 
 (defn append-editor-base [{:keys [id kl description mode attrs kl-attrs code pou-cmds] :as editor}]
   (dom "div.pou-ui#base div"
        :attrs (assoc attrs :id id :data-kl kl :data-pou editor)
        :content [[:div.pou-intro {}
                   [[:p.pou-description {} (str kl "> " (or description (str "#" id ", mode: " mode)))
-                   [:p.pou-cmds {} (map pou-cmd pou-cmds (repeat kl))]]]]
+                   [:p.pou-cmds {} (map button-pou-cmd pou-cmds (repeat kl))]]]]
                  [:div kl-attrs (str code)]]))
 
 (reg-ui :base {:append-fn append-editor-base
