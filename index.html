@@ -2,6 +2,7 @@
 <html>
 
 <head>
+  <meta charset="utf-8">
   <!-- `sizes="any"` is to fix Chrome bug -->
   <link rel="icon" href="/pou/favicons/favicon.ico" sizes="any" />
   <link rel="icon" href="/pou/pou.svg" type="image/svg+xml" />
@@ -334,7 +335,7 @@
       &lt&gt
     </button>
   </div>
-  <link rel="stylesheet" type="text/css" href="klipse/codemirror.css">
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/klipse@7.11.4/dist/codemirror.css">
   <script>
     window.klipse_settings = {
      eval_idle_msec: 2147483647, // MAX timeout (no continuous eval)
@@ -370,7 +371,7 @@
      selector_ocaml_to_reason: '.language-klipse-ocaml-to-reason' // selector for Ocaml to reason snippets
     };
   </script>
-  <script src="https://unpkg.com/klipse@7.11.4/dist/klipse_plugin.min.js"></script>
+  <script src="https://unpkg.com/klipse@7.11.4/dist/klipse_plugin.js"></script>
   
 </body>
 
